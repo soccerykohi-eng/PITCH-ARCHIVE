@@ -1,0 +1,1307 @@
+{
+  "exported_at": "2026-09-02T00:00:00Z",
+  "source": "PITCH ARCHIVE production D1; content/config tables only; user and activity data intentionally excluded",
+  "tables": {
+    "cards": {
+      "columns": [
+        "id",
+        "name",
+        "position",
+        "country",
+        "team",
+        "number",
+        "rating",
+        "rarity",
+        "series",
+        "card_type",
+        "season",
+        "image_key",
+        "created_at"
+      ],
+      "rows": [
+        {
+          "card_type": "BASE",
+          "country": "Japan",
+          "created_at": 1787876995139,
+          "id": "akito-suzuki-japan-selection-2025-rare",
+          "image_key": "cards/akito-suzuki-japan-selection-2025-rare/5ed8360c-c897-46fb-b0db-c46bf83c8c35.webp",
+          "name": "AKITO SUZUKI",
+          "number": 10,
+          "position": "FORWARD",
+          "rarity": "RARE",
+          "rating": 81,
+          "season": "2025 SEASON",
+          "series": "JAPAN SELECTION",
+          "team": "SHONAN BELLMARE"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Brazil",
+          "created_at": 1788091078041,
+          "id": "alisson-becker-no1-last-line-04",
+          "image_key": "cards/alisson-becker-no1-last-line-04/b1c95ca4-7301-405d-abaa-a3f551b28e49.webp",
+          "name": "Alisson Becker",
+          "number": 1,
+          "position": "GOALKEEPER",
+          "rarity": "RARE",
+          "rating": 91,
+          "season": "2024–25 UEFA Champions League",
+          "series": "NO. 1 — LAST LINE",
+          "team": "LIVERPOOL FC"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Japan",
+          "created_at": 1787992310729,
+          "id": "blue-crest-2026-doan-002",
+          "image_key": "cards/blue-crest-2026-doan-002/d8cdf817-5549-4d68-9f8c-b33a80e36246.webp",
+          "name": "Ritsu Doan",
+          "number": 10,
+          "position": "MIDFIELDER",
+          "rarity": "ELITE",
+          "rating": 92,
+          "season": "FIFA World Cup 2026",
+          "series": "BLUE CREST 2026",
+          "team": "Japan National Team"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Japan",
+          "created_at": 1787992224464,
+          "id": "blue-crest-2026-kubo-001",
+          "image_key": "cards/blue-crest-2026-kubo-001/53076777-4eaa-4ed7-bfc7-e35d67f96883.webp",
+          "name": "Takefusa Kubo",
+          "number": 8,
+          "position": "MIDFIELDER",
+          "rarity": "ICON",
+          "rating": 96,
+          "season": "FIFA World Cup 2026",
+          "series": "BLUE CREST 2026",
+          "team": "Japan National Team"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Japan",
+          "created_at": 1787992850848,
+          "id": "blue-crest-2026-maeda-007",
+          "image_key": "cards/blue-crest-2026-maeda-007/f8752bb9-151e-4857-a51d-c3b5c0452410.webp",
+          "name": "Daizen Maeda",
+          "number": 11,
+          "position": "FORWARD",
+          "rarity": "RARE",
+          "rating": 87,
+          "season": "FIFA World Cup 2026",
+          "series": "BLUE CREST 2026",
+          "team": "Japan National Team"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Japan",
+          "created_at": 1787992751569,
+          "id": "blue-crest-2026-nakamura-006",
+          "image_key": "cards/blue-crest-2026-nakamura-006/b1a6d908-00f3-4ef8-a27e-66a44a8edbc3.webp",
+          "name": "Keito Nakamura",
+          "number": 13,
+          "position": "FORWARD",
+          "rarity": "RARE",
+          "rating": 87,
+          "season": "FIFA World Cup 2026",
+          "series": "BLUE CREST 2026",
+          "team": "Japan National Team"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Japan",
+          "created_at": 1787992942972,
+          "id": "blue-crest-2026-sugawara-008",
+          "image_key": "cards/blue-crest-2026-sugawara-008/d77e532f-212c-4dd2-9a5a-51f26cdd8b1a.webp",
+          "name": "Yukinari Sugawara",
+          "number": 2,
+          "position": "DEFENDER",
+          "rarity": "CORE",
+          "rating": 84,
+          "season": "FIFA World Cup 2026",
+          "series": "BLUE CREST 2026",
+          "team": "Japan National Team"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Japan",
+          "created_at": 1787992424689,
+          "id": "blue-crest-2026-suzuki-003",
+          "image_key": "cards/blue-crest-2026-suzuki-003/9b56ed60-7391-485b-ab01-bc8e58680378.webp",
+          "name": "Zion Suzuki",
+          "number": 1,
+          "position": "GOALKEEPER",
+          "rarity": "ELITE",
+          "rating": 91,
+          "season": "FIFA World Cup 2026",
+          "series": "BLUE CREST 2026",
+          "team": "Japan National Team"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Japan",
+          "created_at": 1787992554787,
+          "id": "blue-crest-2026-tomiyasu-004",
+          "image_key": "cards/blue-crest-2026-tomiyasu-004/1dcb49b2-7604-424f-b123-19cafe5cb603.webp",
+          "name": "Takehiro Tomiyasu",
+          "number": 22,
+          "position": "DEFENDER",
+          "rarity": "ELITE",
+          "rating": 92,
+          "season": "FIFA World Cup 2026",
+          "series": "BLUE CREST 2026",
+          "team": "Japan National Team"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Japan",
+          "created_at": 1787992657469,
+          "id": "blue-crest-2026-ueda-005",
+          "image_key": "cards/blue-crest-2026-ueda-005/57b96fa3-5efb-4c52-a7f5-4d7d9e2fa106.webp",
+          "name": "Ayase Ueda",
+          "number": 18,
+          "position": "FORWARD",
+          "rarity": "RARE",
+          "rating": 88,
+          "season": "FIFA World Cup 2026",
+          "series": "BLUE CREST 2026",
+          "team": "Japan National Team"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "United States",
+          "created_at": 1787925599366,
+          "id": "christian-pulisic-derby-edition-02-04",
+          "image_key": "cards/christian-pulisic-derby-edition-02-04/124c6802-2a76-41a4-bf4a-0572d8558cf0.webp",
+          "name": "Christian Pulisic",
+          "number": 11,
+          "position": "FORWARD",
+          "rarity": "ICON",
+          "rating": 94,
+          "season": "Serie A 2025/26",
+          "series": "DERBY EDITION",
+          "team": "AC Milan"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Portugal",
+          "created_at": 1787843183646,
+          "id": "cr7-juventus-04-04",
+          "image_key": "cards/cr7-juventus-04-04/dc4a46c4-b7fc-4330-baad-27cace9aac50.webp",
+          "name": "Cristiano Ronaldo",
+          "number": 7,
+          "position": "FORWARD",
+          "rarity": "ELITE",
+          "rating": 95,
+          "season": "2018-19",
+          "series": "CR7",
+          "team": "Juventus"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Portugal",
+          "created_at": 1787842533939,
+          "id": "cr7-manchester-united-01-04",
+          "image_key": "cards/cr7-manchester-united-01-04/a2e67148-825c-4f05-b701-56a6f59c2275.webp",
+          "name": "Cristiano Ronaldo",
+          "number": 7,
+          "position": "FORWARD",
+          "rarity": "RARE",
+          "rating": 88,
+          "season": "2007-08",
+          "series": "CR7",
+          "team": "Manchester United"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Portugal",
+          "created_at": 1787843011587,
+          "id": "cr7-portugal-03-04",
+          "image_key": "cards/cr7-portugal-03-04/b0329653-a0df-49c0-a4e3-74b01ba98fb2.webp",
+          "name": "Cristiano Ronaldo",
+          "number": 7,
+          "position": "FORWARD",
+          "rarity": "ICON",
+          "rating": 99,
+          "season": "UEFA EURO 2016",
+          "series": "CR7",
+          "team": "Portugal National Team"
+        },
+        {
+          "card_type": "LEGEND",
+          "country": "Portugal",
+          "created_at": 1787842796523,
+          "id": "cr7-real-madrid-02-04",
+          "image_key": "cards/cr7-real-madrid-02-04/888f1145-9d58-452a-90e0-2b5c0195de1a.webp",
+          "name": "Cristiano Ronaldo",
+          "number": 7,
+          "position": "FORWARD",
+          "rarity": "ICON",
+          "rating": 99,
+          "season": "2016-17",
+          "series": "CR7",
+          "team": "Real Madrid CF"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "France",
+          "created_at": 1788004521595,
+          "id": "dembele-budapest-2026-elite-moment-002",
+          "image_key": "cards/dembele-budapest-2026-elite-moment-002/aa40a4a3-053a-4cad-92a3-95c6d9db82f5.jpg",
+          "name": "OUSMANE DEMBÉLÉ",
+          "number": 10,
+          "position": "FORWARD",
+          "rarity": "ICON",
+          "rating": 96,
+          "season": "UEFA CHAMPIONS LEAGUE FINAL 2026",
+          "series": "ONE NIGHT ARCHIVE: BUDAPEST 2026",
+          "team": "PARIS SAINT-GERMAIN"
+        },
+        {
+          "card_type": "LEGEND",
+          "country": "Belgium",
+          "created_at": 1787841927410,
+          "id": "eden-hazard-chelsea-fc-icon-001",
+          "image_key": "cards/eden-hazard-chelsea-fc-icon-001/f49a57cd-6015-4cdb-8233-2aa4f5c06937.webp",
+          "name": "Eden Hazard",
+          "number": 10,
+          "position": "MIDFIELDER",
+          "rarity": "ICON",
+          "rating": 97,
+          "season": "2018-19",
+          "series": "Chelsea FC",
+          "team": "Chelsea FC"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Norway",
+          "created_at": 1787836701648,
+          "id": "erling-haaland-base-2023-24-001",
+          "image_key": "cards/erling-haaland-base-2023-24-001/520f9faf-71a2-4365-a261-95342549c7c1.webp",
+          "name": "Erling Haaland",
+          "number": 9,
+          "position": "FORWARD",
+          "rarity": "CORE",
+          "rating": 91,
+          "season": "2023-24",
+          "series": "PITCH ARCHIVE",
+          "team": "Manchester City"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Uruguay",
+          "created_at": 1787911458839,
+          "id": "federico-valverde-midnight-crest-04",
+          "image_key": "cards/federico-valverde-midnight-crest-04/409d1f5d-9c44-4b92-956d-2d038f4b4711.webp",
+          "name": "Federico Valverde",
+          "number": 8,
+          "position": "MIDFIELDER",
+          "rarity": "RARE",
+          "rating": 92,
+          "season": "2025–26",
+          "series": "MIDNIGHT CREST",
+          "team": "REAL MADRID"
+        },
+        {
+          "card_type": "LEGEND",
+          "country": "England",
+          "created_at": 1787882878757,
+          "id": "frank-lampard-club-heritage-003",
+          "image_key": "cards/frank-lampard-club-heritage-003/93b95f04-3bfd-4cb3-9867-96124db70107.webp",
+          "name": "Frank Lampard",
+          "number": 8,
+          "position": "MIDFIELDER",
+          "rarity": "ICON",
+          "rating": 99,
+          "season": "2009–10",
+          "series": "CLUB HERITAGE — PREMIER LEAGUE",
+          "team": "Chelsea"
+        },
+        {
+          "card_type": "LEGEND",
+          "country": "Italy",
+          "created_at": 1788089873671,
+          "id": "gianluigi-buffon-no1-last-line-01",
+          "image_key": "cards/gianluigi-buffon-no1-last-line-01/b0b9c698-0a2e-462d-b2c5-62df393f141d.webp",
+          "name": "Gianluigi Buffon",
+          "number": 1,
+          "position": "GOALKEEPER",
+          "rarity": "ICON",
+          "rating": 98,
+          "season": "2014–15 UEFA Champions League",
+          "series": "NO. 1 — LAST LINE",
+          "team": "Juventus"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Morocco",
+          "created_at": 1788005630327,
+          "id": "hakimi-budapest-2026-rare-base-007-left-panel-matched",
+          "image_key": "cards/hakimi-budapest-2026-rare-base-007-left-panel-matched/77da163c-9e49-4073-a0de-a024de349e3b.webp",
+          "name": "ACHRAF HAKIMI",
+          "number": 2,
+          "position": "DEFENDER",
+          "rarity": "RARE",
+          "rating": 87,
+          "season": "UEFA CHAMPIONS LEAGUE FINAL 2026",
+          "series": "ONE NIGHT ARCHIVE: BUDAPEST 2026",
+          "team": "PARIS SAINT-GERMAIN"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Germany",
+          "created_at": 1788004636763,
+          "id": "havertz-budapest-2026-elite-moment-003",
+          "image_key": "cards/havertz-budapest-2026-elite-moment-003/78a053fd-da24-4dfb-aeb6-b193b999159d.jpg",
+          "name": "KAI HAVERTZ",
+          "number": 29,
+          "position": "FORWARD",
+          "rarity": "ELITE",
+          "rating": 91,
+          "season": "UEFA CHAMPIONS LEAGUE FINAL 2026",
+          "series": "ONE NIGHT ARCHIVE: BUDAPEST 2026",
+          "team": "ARSENAL"
+        },
+        {
+          "card_type": "LEGEND",
+          "country": "Spain",
+          "created_at": 1788090697170,
+          "id": "iker-casillas-no1-last-line-03",
+          "image_key": "cards/iker-casillas-no1-last-line-03/0384336a-ff77-4037-92c6-a171709990ec.webp",
+          "name": "Iker Casillas",
+          "number": 1,
+          "position": "GOALKEEPER",
+          "rarity": "ELITE",
+          "rating": 95,
+          "season": "2014–15",
+          "series": "NO. 1 — LAST LINE",
+          "team": "REAL MADRID CF"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Japan",
+          "created_at": 1788064184235,
+          "id": "j2-afterglow-hiroshi-kiyotake-ja-02",
+          "image_key": "cards/j2-afterglow-hiroshi-kiyotake-ja-02/8ea68a02-509f-440b-abbc-86451a9bcc1b.webp",
+          "name": "Hiroshi Kiyotake",
+          "number": 28,
+          "position": "MIDFIELDER",
+          "rarity": "CORE",
+          "rating": 85,
+          "season": "2026 Season",
+          "series": "J2 AFTERGLOW",
+          "team": "OITA TRINITA"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Japan",
+          "created_at": 1788064655152,
+          "id": "j2-afterglow-ryota-nagaki-ja-03",
+          "image_key": "cards/j2-afterglow-ryota-nagaki-ja-03/79ea8149-0fdb-4ac1-99b0-2db1c2401b3e.webp",
+          "name": "Ryota Nagaki",
+          "number": 40,
+          "position": "MIDFIELDER",
+          "rarity": "CORE",
+          "rating": 84,
+          "season": "2026 Season",
+          "series": "J2 AFTERGLOW",
+          "team": "IWAKI FC"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Japan",
+          "created_at": 1788064092897,
+          "id": "j2-afterglow-takashi-inui-ja-01",
+          "image_key": "cards/j2-afterglow-takashi-inui-ja-01/9d48151a-2273-454e-b57f-6b428272916e.webp",
+          "name": "Takashi Inui",
+          "number": 25,
+          "position": "MIDFIELDER",
+          "rarity": "CORE",
+          "rating": 86,
+          "season": "2026 Season",
+          "series": "J2 AFTERGLOW",
+          "team": "JÚBILO IWATA"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Japan",
+          "created_at": 1788065111574,
+          "id": "j2-afterglow-yusuke-kikui-ja-04",
+          "image_key": "cards/j2-afterglow-yusuke-kikui-ja-04/3ab7ef93-5f1f-491b-a714-4ae1cd89e84c.webp",
+          "name": "Yusuke Kikui",
+          "number": 10,
+          "position": "FORWARD",
+          "rarity": "RARE",
+          "rating": 87,
+          "season": "2026 Season",
+          "series": "J2 AFTERGLOW",
+          "team": "FUJIEDA MYFC"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Brazil",
+          "created_at": 1787841319216,
+          "id": "joao-pedro-chelsea-moment-017",
+          "image_key": "cards/joao-pedro-chelsea-moment-017/48ea1eb9-d927-4ef3-a389-03d8f04c6c77.webp",
+          "name": "João Pedro",
+          "number": 20,
+          "position": "FORWARD",
+          "rarity": "RARE",
+          "rating": 88,
+          "season": "2024-25",
+          "series": "PITCH ARCHIVE MOMENT",
+          "team": "Chelsea FC"
+        },
+        {
+          "card_type": "BASE",
+          "country": "England",
+          "created_at": 1787911371815,
+          "id": "jude-bellingham-midnight-crest-03",
+          "image_key": "cards/jude-bellingham-midnight-crest-03/c1236c04-6f81-4d9d-87bf-12abd8c784c0.webp",
+          "name": "Jude Bellingham",
+          "number": 5,
+          "position": "MIDFIELDER",
+          "rarity": "RARE",
+          "rating": 94,
+          "season": "2024–25",
+          "series": "MIDNIGHT CREST",
+          "team": "REAL MADRID"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Japan",
+          "created_at": 1787877494452,
+          "id": "koki-morita-japan-selection-2024-icon",
+          "image_key": "cards/koki-morita-japan-selection-2024-icon/d3f3516d-d895-4ef1-a91f-2ad75e44745e.webp",
+          "name": "KOKI MORITA",
+          "number": 7,
+          "position": "MIDFIELDER",
+          "rarity": "ICON",
+          "rating": 84,
+          "season": "2024 SEASON",
+          "series": "JAPAN SELECTION",
+          "team": "TOKYO VERDY"
+        },
+        {
+          "card_type": "BASE",
+          "country": "France",
+          "created_at": 1787911199120,
+          "id": "kylian-mbappe-midnight-crest-01",
+          "image_key": "cards/kylian-mbappe-midnight-crest-01/da62fdbf-d06f-4fab-a441-0d37fc24770f.webp",
+          "name": "Kylian Mbappé",
+          "number": 9,
+          "position": "FORWARD",
+          "rarity": "RARE",
+          "rating": 94,
+          "season": "2024–25",
+          "series": "MIDNIGHT CREST",
+          "team": "REAL MADRID"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Argentina",
+          "created_at": 1787925973496,
+          "id": "lautaro-martinez-derby-edition-03-04",
+          "image_key": "cards/lautaro-martinez-derby-edition-03-04/02d4718c-d8bc-4fff-be8a-5f554e43d1d9.webp",
+          "name": "Lautaro Martínez",
+          "number": 10,
+          "position": "FORWARD",
+          "rarity": "ELITE",
+          "rating": 93,
+          "season": "Serie A 2025/26",
+          "series": "DERBY EDITION",
+          "team": "Inter"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Germany",
+          "created_at": 1788090350677,
+          "id": "manuel-neuer-no1-last-line-02",
+          "image_key": "cards/manuel-neuer-no1-last-line-02/dcfaeec9-69a2-4232-acfa-77f047f0ba98.webp",
+          "name": "Manuel Neuer",
+          "number": 1,
+          "position": "GOALKEEPER",
+          "rarity": "ELITE",
+          "rating": 96,
+          "season": "2011–12",
+          "series": "NO. 1 — LAST LINE",
+          "team": "FC BAYERN MÜNCHEN"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Brazil",
+          "created_at": 1788005137364,
+          "id": "marquinhos-budapest-2026-rare-base-004",
+          "image_key": "cards/marquinhos-budapest-2026-rare-base-004/d24aee9a-ab66-4929-a012-ca4445c5b61b.jpg",
+          "name": "MARQUINHOS",
+          "number": 5,
+          "position": "DEFENDER",
+          "rarity": "RARE",
+          "rating": 88,
+          "season": "UEFA CHAMPIONS LEAGUE FINAL 2026",
+          "series": "ONE NIGHT ARCHIVE: BUDAPEST 2026",
+          "team": "PARIS SAINT-GERMAIN"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "FRANCE",
+          "created_at": 1787823357279,
+          "id": "mbappe-tricolore",
+          "image_key": "/cards/full-mbappe.webp",
+          "name": "KYLIAN MBAPPÉ",
+          "number": 10,
+          "position": "FORWARD",
+          "rarity": "ICON",
+          "rating": 91,
+          "season": "2026",
+          "series": "TRICOLORE MOMENTS",
+          "team": "FRANCE NATIONAL TEAM"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Argentina",
+          "created_at": 1788010975359,
+          "id": "nico-paz-lario-minimal-archive-rare-base-2026-27-clean-numberless",
+          "image_key": "cards/nico-paz-lario-minimal-archive-rare-base-2026-27-clean-numberless/3424ccea-5c9c-41f8-8f92-05585c8e48af.webp",
+          "name": "Nico Paz",
+          "number": 10,
+          "position": "MIDFIELDER",
+          "rarity": "RARE",
+          "rating": 86,
+          "season": "2026-27",
+          "series": "LARIO MINIMAL ARCHIVE",
+          "team": "COMO 1907"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Italy",
+          "created_at": 1787926399326,
+          "id": "nicolo-barella-derby-edition-04-04",
+          "image_key": "cards/nicolo-barella-derby-edition-04-04/1c26a719-90a7-4e52-bf47-0e1a6467a179.webp",
+          "name": "Nicolò Barella",
+          "number": 23,
+          "position": "MIDFIELDER",
+          "rarity": "RARE",
+          "rating": 88,
+          "season": "Serie A 2025/26",
+          "series": "DERBY EDITION",
+          "team": "Inter"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Portugal",
+          "created_at": 1788005747824,
+          "id": "nuno-mendes-budapest-2026-core-base-009",
+          "image_key": "cards/nuno-mendes-budapest-2026-core-base-009/31fc3b82-2559-46c4-9a33-57e9618d7138.webp",
+          "name": "NUNO MENDES",
+          "number": 25,
+          "position": "DEFENDER",
+          "rarity": "CORE",
+          "rating": 84,
+          "season": "UEFA CHAMPIONS LEAGUE FINAL 2026",
+          "series": "ONE NIGHT ARCHIVE: BUDAPEST 2026",
+          "team": "PARIS SAINT-GERMAIN"
+        },
+        {
+          "card_type": "BASE",
+          "country": "ENGLAND",
+          "created_at": 1787823357279,
+          "id": "palmer-blue-legacy",
+          "image_key": "/cards/full-palmer.webp",
+          "name": "COLE PALMER",
+          "number": 10,
+          "position": "MIDFIELDER",
+          "rarity": "RARE",
+          "rating": 86,
+          "season": "2024-25",
+          "series": "BLUE LEGACY",
+          "team": "CHELSEA FC"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Portugal",
+          "created_at": 1787925298134,
+          "id": "rafael-leao-derby-edition-01-04",
+          "image_key": "cards/rafael-leao-derby-edition-01-04/56c25875-bba9-4e83-8b25-05850433b6a0.webp",
+          "name": "Rafael Leão",
+          "number": 10,
+          "position": "FORWARD",
+          "rarity": "ELITE",
+          "rating": 93,
+          "season": "Serie A 2025/26",
+          "series": "DERBY EDITION",
+          "team": "AC Milan"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Spain",
+          "created_at": 1788005566917,
+          "id": "raya-budapest-2026-rare-moment-006",
+          "image_key": "cards/raya-budapest-2026-rare-moment-006/0a87fd5d-a4c9-4eab-865c-4ece025ce096.jpg",
+          "name": "DAVID RAYA",
+          "number": 22,
+          "position": "GOALKEEPER",
+          "rarity": "RARE",
+          "rating": 87,
+          "season": "UEFA CHAMPIONS LEAGUE FINAL 2026",
+          "series": "ONE NIGHT ARCHIVE: BUDAPEST 2026",
+          "team": "ARSENAL"
+        },
+        {
+          "card_type": "BASE",
+          "country": "England",
+          "created_at": 1788005205295,
+          "id": "rice-budapest-2026-rare-base-005-fixed",
+          "image_key": "cards/rice-budapest-2026-rare-base-005-fixed/e6ded70c-4486-4c7e-97f7-feed3fcd9233.webp",
+          "name": "DECLAN RICE",
+          "number": 41,
+          "position": "MIDFIELDER",
+          "rarity": "RARE",
+          "rating": 88,
+          "season": "UEFA CHAMPIONS LEAGUE FINAL 2026",
+          "series": "ONE NIGHT ARCHIVE: BUDAPEST 2026",
+          "team": "ARSENAL"
+        },
+        {
+          "card_type": "BASE",
+          "country": "England",
+          "created_at": 1788005679115,
+          "id": "saka-budapest-2026-core-base-008-fixed",
+          "image_key": "cards/saka-budapest-2026-core-base-008-fixed/65e4ac04-7de2-488a-885a-a5223b13294e.jpg",
+          "name": "BUKAYO SAKA",
+          "number": 7,
+          "position": "FORWARD",
+          "rarity": "CORE",
+          "rating": 85,
+          "season": "UEFA CHAMPIONS LEAGUE FINAL 2026",
+          "series": "ONE NIGHT ARCHIVE: BUDAPEST 2026",
+          "team": "ARSENAL"
+        },
+        {
+          "card_type": "BASE",
+          "country": "France",
+          "created_at": 1788005836388,
+          "id": "saliba-budapest-2026-core-base-010",
+          "image_key": "cards/saliba-budapest-2026-core-base-010/2ede2c06-d4bd-4dd8-95a4-572e2b26c62a.webp",
+          "name": "WILLIAM SALIBA",
+          "number": 2,
+          "position": "DEFENDER",
+          "rarity": "CORE",
+          "rating": 84,
+          "season": "UEFA CHAMPIONS LEAGUE FINAL 2026",
+          "series": "ONE NIGHT ARCHIVE: BUDAPEST 2026",
+          "team": "ARSENAL"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Japan",
+          "created_at": 1787876644679,
+          "id": "shunki-higashi-japan-selection-2026-rare",
+          "image_key": "cards/shunki-higashi-japan-selection-2026-rare/e3a20f78-fff7-4bb5-b94c-5c39ce1dc9d0.webp",
+          "name": "SHUNKI HIGASHI",
+          "number": 7,
+          "position": "MIDFIELDER",
+          "rarity": "RARE",
+          "rating": 80,
+          "season": "2026 SEASON",
+          "series": "JAPAN SELECTION",
+          "team": "SANFRECCE HIROSHIMA"
+        },
+        {
+          "card_type": "LEGEND",
+          "country": "England",
+          "created_at": 1787890924412,
+          "id": "steven-gerrard-club-heritage-2004-05",
+          "image_key": "cards/steven-gerrard-club-heritage-2004-05/4a73821c-e14d-4f01-a090-9f675eebf19c.webp",
+          "name": "Steven Gerrard",
+          "number": 8,
+          "position": "MIDFIELDER",
+          "rarity": "ICON",
+          "rating": 99,
+          "season": "2004-05",
+          "series": "CLUB HERITAGE",
+          "team": "Liverpool Football Club"
+        },
+        {
+          "card_type": "LEGEND",
+          "country": "France",
+          "created_at": 1787891058821,
+          "id": "thierry-henry-club-heritage-2003-04",
+          "image_key": "cards/thierry-henry-club-heritage-2003-04/4c6f99bf-a614-4f15-88b6-8dae5b150c03.webp",
+          "name": "Thierry Henry",
+          "number": 14,
+          "position": "FORWARD",
+          "rarity": "ICON",
+          "rating": 99,
+          "season": "2003-04",
+          "series": "Club Heritage",
+          "team": "Arsenal"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Brazil",
+          "created_at": 1787911288510,
+          "id": "vinicius-junior-midnight-crest-02",
+          "image_key": "cards/vinicius-junior-midnight-crest-02/7f52021b-b81e-44a2-adbe-1b70c8b3d729.webp",
+          "name": "Vinícius Júnior",
+          "number": 7,
+          "position": "FORWARD",
+          "rarity": "RARE",
+          "rating": 93,
+          "season": "2025–26",
+          "series": "MIDNIGHT CREST",
+          "team": "REAL MADRID"
+        },
+        {
+          "card_type": "MOMENT",
+          "country": "Portugal",
+          "created_at": 1788004558611,
+          "id": "vitinha-budapest-2026-icon-moment-002",
+          "image_key": "cards/vitinha-budapest-2026-icon-moment-002/f5e73648-0713-4fd9-9fd2-c220617bc5ba.jpg",
+          "name": "VITINHA",
+          "number": 17,
+          "position": "MIDFIELDER",
+          "rarity": "ELITE",
+          "rating": 92,
+          "season": "UEFA CHAMPIONS LEAGUE FINAL 2026",
+          "series": "ONE NIGHT ARCHIVE: BUDAPEST 2026",
+          "team": "PARIS SAINT-GERMAIN"
+        },
+        {
+          "card_type": "LEGEND",
+          "country": "England",
+          "created_at": 1787893138492,
+          "id": "wayne-rooney-club-heritage-004",
+          "image_key": "cards/wayne-rooney-club-heritage-004/a28b4588-5ff1-4333-b6de-2ffb92893d7d.webp",
+          "name": "Wayne Rooney",
+          "number": 10,
+          "position": "FORWARD",
+          "rarity": "ICON",
+          "rating": 99,
+          "season": "2010–11",
+          "series": "CLUB HERITAGE — PREMIER LEAGUE",
+          "team": "Manchester United"
+        },
+        {
+          "card_type": "BASE",
+          "country": "Japan",
+          "created_at": 1787876061753,
+          "id": "yuki-soma-japan-selection-2026-rare",
+          "image_key": "cards/yuki-soma-japan-selection-2026-rare/a91c1461-05f6-4afd-b811-04d71f1ff3c3.webp",
+          "name": "Yuki Soma",
+          "number": 7,
+          "position": "FORWARD",
+          "rarity": "RARE",
+          "rating": 82,
+          "season": "2026 Season",
+          "series": "JAPAN SELECTION",
+          "team": "FC Machida Zelvia"
+        }
+      ]
+    },
+    "packs": {
+      "columns": [
+        "id",
+        "name",
+        "description",
+        "status",
+        "created_at",
+        "point_cost",
+        "publish_at",
+        "end_at",
+        "open_limit",
+        "notification_message"
+      ],
+      "rows": [
+        {
+          "created_at": 1788089796763,
+          "description": "",
+          "end_at": null,
+          "id": "02271f2c-6974-4fa6-bef4-7da911aecd19",
+          "name": "NO. 1 — LAST LINE",
+          "notification_message": "",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": null,
+          "status": "published"
+        },
+        {
+          "created_at": 1787870710685,
+          "description": "",
+          "end_at": null,
+          "id": "04b7c395-6f54-4511-a545-94184d1643fb",
+          "name": "FIRST EDITION",
+          "notification_message": "",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": null,
+          "status": "archived"
+        },
+        {
+          "created_at": 1787841696597,
+          "description": "",
+          "end_at": null,
+          "id": "0d96c75a-4b17-4386-bac3-006bfe01b530",
+          "name": "CR7",
+          "notification_message": "",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": null,
+          "status": "archived"
+        },
+        {
+          "created_at": 1788309523330,
+          "description": "",
+          "end_at": null,
+          "id": "590ed6f4-6759-47ed-a43d-b49492ead9cf",
+          "name": "JAPAN SELECTION（複製）",
+          "notification_message": "",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": null,
+          "status": "draft"
+        },
+        {
+          "created_at": 1788254443126,
+          "description": "",
+          "end_at": 1788859381164,
+          "id": "5c7fa32d-1217-490e-9324-08acaac6ebdf",
+          "name": "CR7（複製）",
+          "notification_message": "CR7（複製）",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": 1788254582609,
+          "status": "published"
+        },
+        {
+          "created_at": 1788004474922,
+          "description": "",
+          "end_at": null,
+          "id": "6bcad155-f1fb-4f09-a108-78c9e6416d08",
+          "name": "ONE NIGHT ARCHIVE: BUDAPEST 2026",
+          "notification_message": "",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": null,
+          "status": "archived"
+        },
+        {
+          "created_at": 1788010805315,
+          "description": "",
+          "end_at": 1788254517093,
+          "id": "6d767801-53b1-4229-864a-ce786071464d",
+          "name": "LARIO MINIMAL ARCHIVE",
+          "notification_message": "",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": null,
+          "status": "archived"
+        },
+        {
+          "created_at": 1788063942819,
+          "description": "",
+          "end_at": null,
+          "id": "833ba3ed-4036-4d83-b70f-75b30200b86a",
+          "name": "J2 AFTERGLOW",
+          "notification_message": "",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": null,
+          "status": "published"
+        },
+        {
+          "created_at": 1787841198705,
+          "description": "",
+          "end_at": null,
+          "id": "9b6fa19a-5009-4a02-9b84-72cd25706dc8",
+          "name": "Chelsea FC",
+          "notification_message": "",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": null,
+          "status": "archived"
+        },
+        {
+          "created_at": 1787911127467,
+          "description": "",
+          "end_at": null,
+          "id": "9c014fc9-7a5a-4eda-91c0-4c2987e21284",
+          "name": "ROYAL NIGHTS PACK",
+          "notification_message": "",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": null,
+          "status": "archived"
+        },
+        {
+          "created_at": 1787876006651,
+          "description": "",
+          "end_at": null,
+          "id": "9cdebb2d-19a2-46c4-a339-a7d60e127653",
+          "name": "JAPAN SELECTION",
+          "notification_message": "",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": null,
+          "status": "archived"
+        },
+        {
+          "created_at": 1787925212485,
+          "description": "",
+          "end_at": null,
+          "id": "bf22f2d4-07e8-48cb-b171-3ee25d275ccf",
+          "name": "DERBY EDITION / Derby della Madonnina",
+          "notification_message": "",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": null,
+          "status": "archived"
+        },
+        {
+          "created_at": 1787882051219,
+          "description": "",
+          "end_at": null,
+          "id": "bf43be7d-666c-4c33-aa56-ca0a17d2c785",
+          "name": "CLUB HERITAGE",
+          "notification_message": "",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": null,
+          "status": "archived"
+        },
+        {
+          "created_at": 1787992120973,
+          "description": "",
+          "end_at": null,
+          "id": "c42ef8bc-8e9a-41c5-85a7-bd1ec3c58941",
+          "name": "BLUE CREST 2026",
+          "notification_message": "",
+          "open_limit": 1,
+          "point_cost": 0,
+          "publish_at": null,
+          "status": "archived"
+        }
+      ]
+    },
+    "pack_cards": {
+      "columns": [
+        "pack_id",
+        "card_id",
+        "sort_order"
+      ],
+      "rows": [
+        {
+          "card_id": "alisson-becker-no1-last-line-04",
+          "pack_id": "02271f2c-6974-4fa6-bef4-7da911aecd19",
+          "sort_order": 3
+        },
+        {
+          "card_id": "gianluigi-buffon-no1-last-line-01",
+          "pack_id": "02271f2c-6974-4fa6-bef4-7da911aecd19",
+          "sort_order": 0
+        },
+        {
+          "card_id": "iker-casillas-no1-last-line-03",
+          "pack_id": "02271f2c-6974-4fa6-bef4-7da911aecd19",
+          "sort_order": 2
+        },
+        {
+          "card_id": "manuel-neuer-no1-last-line-02",
+          "pack_id": "02271f2c-6974-4fa6-bef4-7da911aecd19",
+          "sort_order": 1
+        },
+        {
+          "card_id": "mbappe-tricolore",
+          "pack_id": "04b7c395-6f54-4511-a545-94184d1643fb",
+          "sort_order": 0
+        },
+        {
+          "card_id": "cr7-juventus-04-04",
+          "pack_id": "0d96c75a-4b17-4386-bac3-006bfe01b530",
+          "sort_order": 3
+        },
+        {
+          "card_id": "cr7-manchester-united-01-04",
+          "pack_id": "0d96c75a-4b17-4386-bac3-006bfe01b530",
+          "sort_order": 0
+        },
+        {
+          "card_id": "cr7-portugal-03-04",
+          "pack_id": "0d96c75a-4b17-4386-bac3-006bfe01b530",
+          "sort_order": 2
+        },
+        {
+          "card_id": "cr7-real-madrid-02-04",
+          "pack_id": "0d96c75a-4b17-4386-bac3-006bfe01b530",
+          "sort_order": 1
+        },
+        {
+          "card_id": "akito-suzuki-japan-selection-2025-rare",
+          "pack_id": "590ed6f4-6759-47ed-a43d-b49492ead9cf",
+          "sort_order": 2
+        },
+        {
+          "card_id": "koki-morita-japan-selection-2024-icon",
+          "pack_id": "590ed6f4-6759-47ed-a43d-b49492ead9cf",
+          "sort_order": 3
+        },
+        {
+          "card_id": "shunki-higashi-japan-selection-2026-rare",
+          "pack_id": "590ed6f4-6759-47ed-a43d-b49492ead9cf",
+          "sort_order": 1
+        },
+        {
+          "card_id": "yuki-soma-japan-selection-2026-rare",
+          "pack_id": "590ed6f4-6759-47ed-a43d-b49492ead9cf",
+          "sort_order": 0
+        },
+        {
+          "card_id": "cr7-juventus-04-04",
+          "pack_id": "5c7fa32d-1217-490e-9324-08acaac6ebdf",
+          "sort_order": 3
+        },
+        {
+          "card_id": "cr7-manchester-united-01-04",
+          "pack_id": "5c7fa32d-1217-490e-9324-08acaac6ebdf",
+          "sort_order": 0
+        },
+        {
+          "card_id": "cr7-portugal-03-04",
+          "pack_id": "5c7fa32d-1217-490e-9324-08acaac6ebdf",
+          "sort_order": 2
+        },
+        {
+          "card_id": "cr7-real-madrid-02-04",
+          "pack_id": "5c7fa32d-1217-490e-9324-08acaac6ebdf",
+          "sort_order": 1
+        },
+        {
+          "card_id": "dembele-budapest-2026-elite-moment-002",
+          "pack_id": "6bcad155-f1fb-4f09-a108-78c9e6416d08",
+          "sort_order": 1
+        },
+        {
+          "card_id": "hakimi-budapest-2026-rare-base-007-left-panel-matched",
+          "pack_id": "6bcad155-f1fb-4f09-a108-78c9e6416d08",
+          "sort_order": 6
+        },
+        {
+          "card_id": "havertz-budapest-2026-elite-moment-003",
+          "pack_id": "6bcad155-f1fb-4f09-a108-78c9e6416d08",
+          "sort_order": 2
+        },
+        {
+          "card_id": "marquinhos-budapest-2026-rare-base-004",
+          "pack_id": "6bcad155-f1fb-4f09-a108-78c9e6416d08",
+          "sort_order": 3
+        },
+        {
+          "card_id": "nuno-mendes-budapest-2026-core-base-009",
+          "pack_id": "6bcad155-f1fb-4f09-a108-78c9e6416d08",
+          "sort_order": 8
+        },
+        {
+          "card_id": "raya-budapest-2026-rare-moment-006",
+          "pack_id": "6bcad155-f1fb-4f09-a108-78c9e6416d08",
+          "sort_order": 5
+        },
+        {
+          "card_id": "rice-budapest-2026-rare-base-005-fixed",
+          "pack_id": "6bcad155-f1fb-4f09-a108-78c9e6416d08",
+          "sort_order": 4
+        },
+        {
+          "card_id": "saka-budapest-2026-core-base-008-fixed",
+          "pack_id": "6bcad155-f1fb-4f09-a108-78c9e6416d08",
+          "sort_order": 7
+        },
+        {
+          "card_id": "saliba-budapest-2026-core-base-010",
+          "pack_id": "6bcad155-f1fb-4f09-a108-78c9e6416d08",
+          "sort_order": 9
+        },
+        {
+          "card_id": "vitinha-budapest-2026-icon-moment-002",
+          "pack_id": "6bcad155-f1fb-4f09-a108-78c9e6416d08",
+          "sort_order": 1
+        },
+        {
+          "card_id": "nico-paz-lario-minimal-archive-rare-base-2026-27-clean-numberless",
+          "pack_id": "6d767801-53b1-4229-864a-ce786071464d",
+          "sort_order": 0
+        },
+        {
+          "card_id": "j2-afterglow-hiroshi-kiyotake-ja-02",
+          "pack_id": "833ba3ed-4036-4d83-b70f-75b30200b86a",
+          "sort_order": 1
+        },
+        {
+          "card_id": "j2-afterglow-ryota-nagaki-ja-03",
+          "pack_id": "833ba3ed-4036-4d83-b70f-75b30200b86a",
+          "sort_order": 2
+        },
+        {
+          "card_id": "j2-afterglow-takashi-inui-ja-01",
+          "pack_id": "833ba3ed-4036-4d83-b70f-75b30200b86a",
+          "sort_order": 0
+        },
+        {
+          "card_id": "j2-afterglow-yusuke-kikui-ja-04",
+          "pack_id": "833ba3ed-4036-4d83-b70f-75b30200b86a",
+          "sort_order": 3
+        },
+        {
+          "card_id": "eden-hazard-chelsea-fc-icon-001",
+          "pack_id": "9b6fa19a-5009-4a02-9b84-72cd25706dc8",
+          "sort_order": 2
+        },
+        {
+          "card_id": "joao-pedro-chelsea-moment-017",
+          "pack_id": "9b6fa19a-5009-4a02-9b84-72cd25706dc8",
+          "sort_order": 1
+        },
+        {
+          "card_id": "palmer-blue-legacy",
+          "pack_id": "9b6fa19a-5009-4a02-9b84-72cd25706dc8",
+          "sort_order": 0
+        },
+        {
+          "card_id": "federico-valverde-midnight-crest-04",
+          "pack_id": "9c014fc9-7a5a-4eda-91c0-4c2987e21284",
+          "sort_order": 3
+        },
+        {
+          "card_id": "jude-bellingham-midnight-crest-03",
+          "pack_id": "9c014fc9-7a5a-4eda-91c0-4c2987e21284",
+          "sort_order": 2
+        },
+        {
+          "card_id": "kylian-mbappe-midnight-crest-01",
+          "pack_id": "9c014fc9-7a5a-4eda-91c0-4c2987e21284",
+          "sort_order": 0
+        },
+        {
+          "card_id": "vinicius-junior-midnight-crest-02",
+          "pack_id": "9c014fc9-7a5a-4eda-91c0-4c2987e21284",
+          "sort_order": 1
+        },
+        {
+          "card_id": "akito-suzuki-japan-selection-2025-rare",
+          "pack_id": "9cdebb2d-19a2-46c4-a339-a7d60e127653",
+          "sort_order": 2
+        },
+        {
+          "card_id": "koki-morita-japan-selection-2024-icon",
+          "pack_id": "9cdebb2d-19a2-46c4-a339-a7d60e127653",
+          "sort_order": 3
+        },
+        {
+          "card_id": "shunki-higashi-japan-selection-2026-rare",
+          "pack_id": "9cdebb2d-19a2-46c4-a339-a7d60e127653",
+          "sort_order": 1
+        },
+        {
+          "card_id": "yuki-soma-japan-selection-2026-rare",
+          "pack_id": "9cdebb2d-19a2-46c4-a339-a7d60e127653",
+          "sort_order": 0
+        },
+        {
+          "card_id": "christian-pulisic-derby-edition-02-04",
+          "pack_id": "bf22f2d4-07e8-48cb-b171-3ee25d275ccf",
+          "sort_order": 1
+        },
+        {
+          "card_id": "lautaro-martinez-derby-edition-03-04",
+          "pack_id": "bf22f2d4-07e8-48cb-b171-3ee25d275ccf",
+          "sort_order": 2
+        },
+        {
+          "card_id": "nicolo-barella-derby-edition-04-04",
+          "pack_id": "bf22f2d4-07e8-48cb-b171-3ee25d275ccf",
+          "sort_order": 3
+        },
+        {
+          "card_id": "rafael-leao-derby-edition-01-04",
+          "pack_id": "bf22f2d4-07e8-48cb-b171-3ee25d275ccf",
+          "sort_order": 0
+        },
+        {
+          "card_id": "frank-lampard-club-heritage-003",
+          "pack_id": "bf43be7d-666c-4c33-aa56-ca0a17d2c785",
+          "sort_order": 2
+        },
+        {
+          "card_id": "steven-gerrard-club-heritage-2004-05",
+          "pack_id": "bf43be7d-666c-4c33-aa56-ca0a17d2c785",
+          "sort_order": 1
+        },
+        {
+          "card_id": "thierry-henry-club-heritage-2003-04",
+          "pack_id": "bf43be7d-666c-4c33-aa56-ca0a17d2c785",
+          "sort_order": 3
+        },
+        {
+          "card_id": "wayne-rooney-club-heritage-004",
+          "pack_id": "bf43be7d-666c-4c33-aa56-ca0a17d2c785",
+          "sort_order": 3
+        },
+        {
+          "card_id": "blue-crest-2026-doan-002",
+          "pack_id": "c42ef8bc-8e9a-41c5-85a7-bd1ec3c58941",
+          "sort_order": 1
+        },
+        {
+          "card_id": "blue-crest-2026-kubo-001",
+          "pack_id": "c42ef8bc-8e9a-41c5-85a7-bd1ec3c58941",
+          "sort_order": 0
+        },
+        {
+          "card_id": "blue-crest-2026-maeda-007",
+          "pack_id": "c42ef8bc-8e9a-41c5-85a7-bd1ec3c58941",
+          "sort_order": 6
+        },
+        {
+          "card_id": "blue-crest-2026-nakamura-006",
+          "pack_id": "c42ef8bc-8e9a-41c5-85a7-bd1ec3c58941",
+          "sort_order": 5
+        },
+        {
+          "card_id": "blue-crest-2026-sugawara-008",
+          "pack_id": "c42ef8bc-8e9a-41c5-85a7-bd1ec3c58941",
+          "sort_order": 7
+        },
+        {
+          "card_id": "blue-crest-2026-suzuki-003",
+          "pack_id": "c42ef8bc-8e9a-41c5-85a7-bd1ec3c58941",
+          "sort_order": 2
+        },
+        {
+          "card_id": "blue-crest-2026-tomiyasu-004",
+          "pack_id": "c42ef8bc-8e9a-41c5-85a7-bd1ec3c58941",
+          "sort_order": 3
+        },
+        {
+          "card_id": "blue-crest-2026-ueda-005",
+          "pack_id": "c42ef8bc-8e9a-41c5-85a7-bd1ec3c58941",
+          "sort_order": 4
+        }
+      ]
+    },
+    "announcements": {
+      "columns": [
+        "id",
+        "title",
+        "message",
+        "audience",
+        "publish_at",
+        "created_by",
+        "created_at",
+        "updated_at"
+      ],
+      "rows": []
+    }
+  }
+}
+

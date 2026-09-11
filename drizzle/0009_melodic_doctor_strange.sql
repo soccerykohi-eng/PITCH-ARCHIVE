@@ -1,0 +1,1 @@
+CREATE INDEX `idx_push_subscriptions_user_email` ON `push_subscriptions` (`user_email`);
