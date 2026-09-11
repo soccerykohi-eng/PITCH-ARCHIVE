@@ -2,7 +2,7 @@ import { getBucket } from "@/app/server-data";
 import { requireApprovedMember } from "@/app/server-auth";
 import { getRawDb } from "@/db";
 
-export async function GET(_request:Request,{ params }:{ params:Promise<{ id:string }> }) {
+export async function GET(request:Request,{ params }:{ params:Promise<{ id:string }> }) {
   const { member,response }=await requireApprovedMember();
   if (!member || response) return response;
   const { id }=await params;
@@ -13,6 +13,7 @@ export async function GET(_request:Request,{ params }:{ params:Promise<{ id:stri
   const headers=new Headers();
   object.writeHttpMetadata(headers);
   headers.set("etag",object.httpEtag);
-  headers.set("cache-control","private, max-age=3600");
+  const version=new URL(request.url).searchParams.get("v");
+  headers.set("cache-control",version === card.imageKey ? "private, max-age=31536000, immutable" : "private, max-age=3600");
   return new Response(object.body,{ headers });
 }
