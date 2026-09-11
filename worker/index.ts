@@ -6,7 +6,8 @@ interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
   BUCKET: R2Bucket;
-  ADMIN_EMAIL?: string;
+  SESSION_SECRET?: string;
+  ADMIN_ACCESS_KEY?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {

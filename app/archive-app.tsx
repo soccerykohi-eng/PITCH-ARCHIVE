@@ -1738,9 +1738,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
           <p className="section-kicker">ACCOUNT SUSPENDED</p>
           <h1>アカウントは停止中です</h1>
           <p>利用状況については運営へ確認してください。</p>
-          <a href="/signout-with-chatgpt?return_to=/" target="_top">
-            ログアウト
-          </a>
         </div>
       </main>
     );
@@ -1749,15 +1746,9 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
       <main className="state-shell">
         <div className="pending-card">
           <img src="/icon-192.png" alt="" />
-          <p className="section-kicker">ACCESS REQUEST</p>
-          <h1>運営の承認待ちです</h1>
-          <p>
-            {initialName}
-            さんの参加申請を受け付けました。承認後、所持カード0枚からスタートします。
-          </p>
-          <a href="/signout-with-chatgpt?return_to=/" target="_top">
-            別のアカウントでログイン
-          </a>
+          <p className="section-kicker">SESSION UNAVAILABLE</p>
+          <h1>現在利用できません</h1>
+          <p>{initialName}さんの利用状況については運営へ確認してください。</p>
         </div>
       </main>
     );
@@ -2887,13 +2878,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
             >
               {savingProfile ? "保存中…" : "変更を保存"}
             </Button>
-            <a
-              className="profile-signout"
-              href="/signout-with-chatgpt?return_to=/"
-              target="_top"
-            >
-              ログアウト
-            </a>
           </div>
         </DialogContent>
       </Dialog>
