@@ -5,7 +5,7 @@ import { syncPackSchedule } from "./pack-schedule";
 
 type CardRow = Omit<SharedCard,"imageUrl"> & { imageKey:string };
 type PackRow = Omit<PackView,"cards">;
-type RuntimeEnv = { BUCKET:R2Bucket };
+type RuntimeEnv = { CARD_IMAGES:KVNamespace };
 
 export function imageUrl(card:{ id:string;imageKey:string }) {
   const version=encodeURIComponent(card.imageKey);
@@ -34,8 +34,8 @@ export async function getCollection(email:string):Promise<SharedCard[]> {
   return rows.results.map((card) => ({ ...card,imageUrl:imageUrl(card) }));
 }
 
-export function getBucket() {
-  const bucket=(env as unknown as RuntimeEnv).BUCKET;
-  if (!bucket) throw new Error("R2 binding `BUCKET` is unavailable.");
-  return bucket;
+export function getImageStore() {
+  const store=(env as unknown as RuntimeEnv).CARD_IMAGES;
+  if (!store) throw new Error("KV binding `CARD_IMAGES` is unavailable.");
+  return store;
 }

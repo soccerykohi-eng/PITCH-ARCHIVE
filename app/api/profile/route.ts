@@ -1,6 +1,6 @@
 import { requireApprovedMember } from "@/app/server-auth";
 import { auditStatement } from "@/app/audit";
-import { getBucket } from "@/app/server-data";
+import { getImageStore } from "@/app/server-data";
 import { getRawDb } from "@/db";
 
 export const dynamic = "force-dynamic";
@@ -31,9 +31,9 @@ export async function PUT(request:Request) {
   const db=getRawDb();
   const current=await db.prepare("SELECT avatar_key AS avatarKey FROM users WHERE email=?").bind(member.email).first<{ avatarKey:string|null }>();
   const avatarKey=crypto.randomUUID();
-  await getBucket().put(`avatars/${avatarKey}`,avatar,{ httpMetadata:{ contentType:avatar.type } });
+  await getImageStore().put(`avatars/${avatarKey}`,await avatar.arrayBuffer(),{ metadata:{ contentType:avatar.type } });
   await db.batch([db.prepare("UPDATE users SET avatar_key=? WHERE email=?").bind(avatarKey,member.email),auditStatement(db,member.email,"profile.avatar","user",member.email,"updated")]);
-  if (current?.avatarKey) await getBucket().delete(`avatars/${current.avatarKey}`).catch(() => undefined);
+  if (current?.avatarKey) await getImageStore().delete(`avatars/${current.avatarKey}`).catch(() => undefined);
   return Response.json({ ok:true,avatarUrl:`/api/avatar/${encodeURIComponent(avatarKey)}` });
 }
 
@@ -43,6 +43,6 @@ export async function DELETE() {
   const db=getRawDb();
   const current=await db.prepare("SELECT avatar_key AS avatarKey FROM users WHERE email=?").bind(member.email).first<{ avatarKey:string|null }>();
   await db.batch([db.prepare("UPDATE users SET avatar_key=NULL WHERE email=?").bind(member.email),auditStatement(db,member.email,"profile.avatar","user",member.email,"removed")]);
-  if (current?.avatarKey) await getBucket().delete(`avatars/${current.avatarKey}`).catch(() => undefined);
+  if (current?.avatarKey) await getImageStore().delete(`avatars/${current.avatarKey}`).catch(() => undefined);
   return Response.json({ ok:true });
 }
