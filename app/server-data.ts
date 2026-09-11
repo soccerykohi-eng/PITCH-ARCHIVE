@@ -8,7 +8,8 @@ type PackRow = Omit<PackView,"cards">;
 type RuntimeEnv = { BUCKET:R2Bucket };
 
 export function imageUrl(card:{ id:string;imageKey:string }) {
-  return card.imageKey.startsWith("/") ? card.imageKey : `/api/card-image/${encodeURIComponent(card.id)}`;
+  const version=encodeURIComponent(card.imageKey);
+  return card.imageKey.startsWith("/") ? `${card.imageKey}?v=${version}` : `/api/card-image/${encodeURIComponent(card.id)}?v=${version}`;
 }
 
 export async function getPacksForUser(email:string,includeDrafts=false):Promise<PackView[]> {

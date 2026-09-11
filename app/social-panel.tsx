@@ -19,7 +19,7 @@ type SocialData = { ownFriendId:string;people:Person[];friends:Friend[];trades:T
 type SafetyData = { blockedPeople:Array<{ email:string;displayName:string;avatarUrl:string|null }> };
 
 function MiniCard({ card,selected,onClick }:{ card:SharedCard;selected?:boolean;onClick?:()=>void }) {
-  const content=<><img src={card.imageUrl} alt={`${card.name}のカード`} /><span><strong>{card.name}</strong><small>{card.rarity} · {card.team || card.country}</small></span></>;
+  const content=<><img src={card.imageUrl} alt={`${card.name}のカード`} loading="lazy" decoding="async" /><span><strong>{card.name}</strong><small>{card.rarity} · {card.team || card.country}</small></span></>;
   return onClick ? <button type="button" className={`social-card ${selected ? "is-selected" : ""}`} onClick={onClick}>{content}</button> : <div className="social-card">{content}</div>;
 }
 
