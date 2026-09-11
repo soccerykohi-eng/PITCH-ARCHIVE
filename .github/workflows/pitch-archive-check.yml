@@ -1,0 +1,127 @@
+name: PITCH ARCHIVE Check
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        id: build
+        run: npm run build
+
+      - name: Lint baseline check
+        id: lint
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          npx eslint . --ignore-pattern dist --ignore-pattern .next --format json > lint-report.json
+          set -e
+
+          read -r error_count warning_count < <(
+            node -e 'const fs=require("node:fs");const report=JSON.parse(fs.readFileSync("lint-report.json","utf8"));console.log(report.reduce((sum,item)=>sum+item.errorCount,0),report.reduce((sum,item)=>sum+item.warningCount,0))'
+          )
+
+          echo "ESLint errors: ${error_count} (baseline maximum: 8)"
+          echo "ESLint warnings: ${warning_count} (baseline maximum: 21)"
+
+          if (( error_count > 8 || warning_count > 21 )); then
+            echo "ESLint results exceed the accepted baseline."
+            exit 1
+          fi
+
+      - name: TypeScript baseline check
+        id: typescript
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          npx tsc --noEmit --pretty false > typescript-report.txt 2>&1
+          set -e
+
+          error_count=$(grep -cE 'error TS[0-9]+:' typescript-report.txt || true)
+          echo "TypeScript errors: ${error_count} (baseline maximum: 44)"
+
+          if (( error_count > 44 )); then
+            echo "TypeScript results exceed the accepted baseline."
+            exit 1
+          fi
+
+      - name: Test baseline check
+        id: test
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          node --test tests/*.test.mjs > test-report.txt 2>&1
+          set -e
+
+          read -r pass_count fail_count < <(
+            node -e 'const fs=require("node:fs");const report=fs.readFileSync("test-report.txt","utf8");const count=(label)=>report.match(new RegExp(`^(?:#|ℹ) ${label} ([0-9]+)$`,"m"))?.[1]??"0";console.log(count("pass"),count("fail"))'
+          )
+
+          echo "Tests passed: ${pass_count} (baseline minimum: 3)"
+          echo "Tests failed: ${fail_count} (baseline maximum: 2)"
+
+          if (( pass_count < 3 || fail_count > 2 )); then
+            echo "Test results exceed the accepted baseline."
+            exit 1
+          fi
+
+      - name: Enforce baseline results
+        if: always()
+        shell: bash
+        env:
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+          TYPESCRIPT_OUTCOME: ${{ steps.typescript.outcome }}
+          TEST_OUTCOME: ${{ steps.test.outcome }}
+        run: |
+          if [[ "$BUILD_OUTCOME" != "success" ]]; then
+            echo "Build did not succeed."
+            exit 1
+          fi
+
+          if [[ "$LINT_OUTCOME" != "success" || "$TYPESCRIPT_OUTCOME" != "success" || "$TEST_OUTCOME" != "success" ]]; then
+            echo "One or more quality checks exceeded the accepted baseline."
+            exit 1
+          fi
+
+      - name: Upload diagnostic reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pitch-archive-quality-reports
+          path: |
+            lint-report.json
+            typescript-report.txt
+            test-report.txt
+          if-no-files-found: warn
