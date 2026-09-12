@@ -350,6 +350,10 @@ function DailyAndExchange({
     claimed: boolean;
     available: boolean;
     points: number;
+    streak: number;
+    streakDay: number;
+    nextStreakReward: number;
+    bonusType: "daily" | "wednesday" | "streak";
   };
   const [daily, setDaily] = useState<LoginBonus | null>(null);
   const [cards, setCards] = useState<
@@ -403,7 +407,13 @@ function DailyAndExchange({
       <div className="login-bonus-card">
         <header>
           <div>
-            <p className="section-kicker">DAILY BONUS</p>
+            <p className="section-kicker">
+              {daily?.bonusType === "streak"
+                ? "7 DAY LOGIN BONUS"
+                : daily?.bonusType === "wednesday"
+                  ? "WEDNESDAY BONUS"
+                  : "DAILY BONUS"}
+            </p>
             <strong>ログインボーナス</strong>
           </div>
           <small>毎日 0:00 更新</small>
@@ -412,6 +422,10 @@ function DailyAndExchange({
         <Button disabled={!daily?.available || busy} onClick={() => void claim()}>
           {daily?.claimed ? "受取済み" : "受け取る"}
         </Button>
+        <div className="login-bonus-streak">
+          <strong>連続ログイン {daily?.streakDay ?? 1}日目</strong>
+          <small>7日目 {daily?.nextStreakReward ?? 100} COINS</small>
+        </div>
       </div>
       <button
         type="button"
