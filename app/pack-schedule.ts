@@ -1,5 +1,4 @@
 import { getRawDb } from "@/db";
-import { sendPush } from "@/app/push";
 
 type ScheduledPack = { id:string;name:string;notificationMessage:string };
 
@@ -28,7 +27,6 @@ export async function syncPackSchedule() {
       db.prepare("UPDATE packs SET status='published' WHERE id=? AND status='scheduled'").bind(pack.id),
       ...players.results.map((player) => db.prepare("INSERT INTO notifications (id,user_email,type,title,message,destination,reference_type,reference_id,created_at) VALUES (?,?,'pack',?,?,'packs','pack',?,?)").bind(crypto.randomUUID(),player.email,"新しいパックが公開されました",message,pack.id,now)),
     ]);
-    await Promise.all(players.results.map((player) => sendPush(player.email,"新しいパックが公開されました",message,"packs")));
     active+=1;
   }
 }
