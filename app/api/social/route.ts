@@ -2,7 +2,6 @@ import { requireApprovedMember } from "@/app/server-auth";
 import { auditStatement } from "@/app/audit";
 import { getCollection, imageUrl } from "@/app/server-data";
 import { getRawDb } from "@/db";
-import { sendPush } from "@/app/push";
 import type { SharedCard } from "@/app/types";
 
 export const dynamic = "force-dynamic";
@@ -133,7 +132,6 @@ export async function POST(request:Request) {
         db.prepare("INSERT INTO friendships (user_a_email,user_b_email,requested_by,status,created_at,updated_at) VALUES (?,?,?,'pending',?,?)").bind(userA,userB,member.email,now,now),
         notification(db,targetEmail,"friend",`${member.displayName}さんからフレンド申請`,"フレンド画面で申請を確認できます",now),
       ]);
-      await sendPush(targetEmail,`${member.displayName}さんからフレンド申請`,`フレンド画面で申請を確認できます`,`social`);
       return Response.json({ ok:true });
     }
     if (action === "friend.accept") {
@@ -143,7 +141,6 @@ export async function POST(request:Request) {
         db.prepare("UPDATE friendships SET status='accepted',updated_at=? WHERE user_a_email=? AND user_b_email=?").bind(now,userA,userB),
         notification(db,targetEmail,"friend",`${member.displayName}さんとフレンドになりました`,"カードの確認やトレードができるようになりました",now),
       ]);
-      await sendPush(targetEmail,`${member.displayName}さんとフレンドになりました`,`カードの確認やトレードができるようになりました`,`social`);
       return Response.json({ ok:true });
     }
     if (action === "friend.decline" || action === "friend.remove") {
@@ -153,7 +150,6 @@ export async function POST(request:Request) {
       ];
       if (action === "friend.decline") statements.push(notification(db,targetEmail,"friend",`${member.displayName}さんが申請を辞退しました`,"フレンド申請の結果をお知らせします",now));
       await db.batch(statements);
-      if (action === "friend.decline") await sendPush(targetEmail,`${member.displayName}さんが申請を辞退しました`,`フレンド申請の結果をお知らせします`,`social`);
       return Response.json({ ok:true });
     }
   }
@@ -181,7 +177,6 @@ export async function POST(request:Request) {
       db.prepare("INSERT INTO trades (id,proposer_email,recipient_email,offered_card_id,requested_card_id,status,created_at,updated_at) VALUES (?,?,?,?,?,'pending',?,?)").bind(crypto.randomUUID(),member.email,targetEmail,offeredCardId,requestedCardId,now,now),
       notification(db,targetEmail,"trade",`${member.displayName}さんからトレード申請`,"交換するカードをフレンド画面で確認してください",now),
     ]);
-    await sendPush(targetEmail,`${member.displayName}さんからトレード申請`,`交換するカードをフレンド画面で確認してください`,`social`);
     return Response.json({ ok:true });
   }
 
@@ -218,7 +213,6 @@ export async function POST(request:Request) {
       transferStatements.push(db.prepare(`UPDATE trades SET status='cancelled',updated_at=? WHERE id<>? AND status='pending' AND (offered_card_id IN (${placeholders}) OR requested_card_id IN (${placeholders}))`).bind(now,tradeId,...depletedCardIds,...depletedCardIds));
     }
     await db.batch(transferStatements);
-    await sendPush(trade.proposerEmail,`${member.displayName}さんとのトレードが成立`,`コレクションのカードが交換されました`,`social`);
     return Response.json({ ok:true });
   }
   if (action === "trade.decline" || action === "trade.cancel") {
@@ -231,7 +225,6 @@ export async function POST(request:Request) {
       db.prepare(`UPDATE trades SET status=?,updated_at=? WHERE id=? AND ${ownerColumn}=? AND status='pending'`).bind(nextStatus,now,tradeId,member.email),
       notification(db,notifyEmail,"trade",action === "trade.decline" ? `${member.displayName}さんがトレードを辞退しました` : `${member.displayName}さんがトレード申請を取り消しました`,"フレンド画面でトレード状況を確認できます",now),
     ]);
-    await sendPush(notifyEmail,action === "trade.decline" ? `${member.displayName}さんがトレードを辞退しました` : `${member.displayName}さんがトレード申請を取り消しました`,`フレンド画面でトレード状況を確認できます`,`social`);
     return Response.json({ ok:true });
   }
   return Response.json({ error:"操作を確認してください" },{ status:400 });

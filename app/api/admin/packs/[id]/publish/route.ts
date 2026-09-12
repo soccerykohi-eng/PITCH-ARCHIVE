@@ -1,7 +1,6 @@
 import { requireAdmin } from "@/app/server-auth";
 import { auditStatement } from "@/app/audit";
 import { getRawDb } from "@/db";
-import { sendPush } from "@/app/push";
 import { syncPackSchedule } from "@/app/pack-schedule";
 
 type PackStatus="draft"|"scheduled"|"published"|"archived";
@@ -50,6 +49,5 @@ export async function POST(request:Request,{ params }:{ params:Promise<{ id:stri
     ...players.results.map((player) => db.prepare("INSERT INTO notifications (id,user_email,type,title,message,destination,reference_type,reference_id,created_at) VALUES (?,?,'pack',?,?,'packs','pack',?,?)").bind(crypto.randomUUID(),player.email,"新しいパックが公開されました",message,id,now)),
     auditStatement(db,member.email,"pack.publish","pack",id,pack.name),
   ]);
-  await Promise.all(players.results.map((player) => sendPush(player.email,"新しいパックが公開されました",message,"packs")));
   return Response.json({ ok:true });
 }

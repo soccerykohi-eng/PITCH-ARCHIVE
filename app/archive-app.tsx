@@ -67,7 +67,7 @@ type Dashboard = {
 };
 type NotificationItem = {
   id: string;
-  type: "friend" | "trade" | "pack" | "account" | "announcement";
+  type: "friend" | "trade" | "pack" | "account";
   title: string;
   message: string;
   destination: string;
@@ -1311,9 +1311,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
     notifications: [],
     unreadCount: 0,
   });
-  const [pushStatus, setPushStatus] = useState<
-    "idle" | "enabled" | "unsupported"
-  >("idle");
   const profilePreview = useMemo(
     () => (profileImage ? URL.createObjectURL(profileImage) : ""),
     [profileImage],
@@ -1392,67 +1389,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
     const timer = window.setTimeout(() => setNotice(""), 3000);
     return () => window.clearTimeout(timer);
   }, [notice]);
-  useEffect(() => {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-      setPushStatus("unsupported");
-      return;
-    }
-    void navigator.serviceWorker
-      .register("/push-sw.js")
-      .then(async (registration) => {
-        if (await registration.pushManager.getSubscription())
-          setPushStatus("enabled");
-      })
-      .catch(() => setPushStatus("unsupported"));
-  }, []);
-
-  function pushKeyToBytes(value: string) {
-    const padded = value
-      .replace(/-/g, "+")
-      .replace(/_/g, "/")
-      .padEnd(Math.ceil(value.length / 4) * 4, "=");
-    const binary = atob(padded);
-    return Uint8Array.from(binary, (character) => character.charCodeAt(0));
-  }
-
-  async function enablePushNotifications() {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window))
-      return setNotice("この端末では通知を利用できません");
-    if (Notification.permission === "denied")
-      return setNotice("iPhoneの設定からPITCH ARCHIVEの通知を許可してください");
-    try {
-      const settings = await fetch("/api/push-subscription", {
-        cache: "no-store",
-      });
-      const data = (await settings.json()) as {
-        publicKey?: string;
-        error?: string;
-      };
-      if (!settings.ok || !data.publicKey)
-        return setNotice(data.error ?? "通知の準備中です");
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted")
-        return setNotice("通知は許可されませんでした");
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: pushKeyToBytes(data.publicKey),
-      });
-      const saved = await fetch("/api/push-subscription", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(subscription),
-      });
-      if (!saved.ok) throw new Error("subscription_save_failed");
-      setPushStatus("enabled");
-      setNotice("端末通知を有効にしました");
-    } catch {
-      setNotice(
-        "通知を有効にできませんでした。ホーム画面に追加したアプリからお試しください",
-      );
-    }
-  }
-
   async function createPack() {
     if (!packName.trim()) return setNotice("パック名を入力してください");
     setCreatingPack(true);
@@ -2185,35 +2121,12 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                 <Bell />
                 <span>
                   <strong>通知</strong>
-                  <small>運営やフレンドからのお知らせ</small>
+                  <small>ゲーム内イベントのお知らせ</small>
                 </span>
                 {notificationData.unreadCount ? (
                   <b>{notificationData.unreadCount}</b>
                 ) : null}
                 <ChevronRight />
-              </button>
-              <button
-                type="button"
-                className="push-notification-button"
-                onClick={() => void enablePushNotifications()}
-                disabled={
-                  pushStatus === "enabled" || pushStatus === "unsupported"
-                }
-              >
-                <Bell />
-                <span>
-                  <strong>
-                    {pushStatus === "enabled"
-                      ? "端末通知は有効です"
-                      : "端末通知を受け取る"}
-                  </strong>
-                  <small>
-                    {pushStatus === "unsupported"
-                      ? "ホーム画面に追加したiPhoneアプリで利用できます"
-                      : "パック・フレンド・トレードのお知らせ"}
-                  </small>
-                </span>
-                {pushStatus === "enabled" ? <b>ON</b> : <ChevronRight />}
               </button>
               <button type="button" onClick={openSettings}>
                 <Settings />
@@ -2527,7 +2440,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
               />
             ) : null}
             {adminView === "operations" ? (
-              <AdminOperations users={playerUsers} onNotice={setNotice} />
+              <AdminOperations />
             ) : null}
           </TabsContent>
         ) : null}
@@ -2848,7 +2761,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
               ) : null}
             </div>
             <DialogDescription>
-              運営、パック、フレンド、トレードに関するお知らせです。
+              パック、フレンド、トレードなどゲーム内イベントの通知です。
             </DialogDescription>
           </DialogHeader>
           {notificationData.notifications.length ? (
@@ -2867,9 +2780,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                         ? "T"
                         : item.type === "pack"
                           ? "P"
-                          : item.type === "announcement"
-                            ? "N"
-                            : "A"}
+                          : "A"}
                   </span>
                   <div>
                     <strong>{item.title}</strong>

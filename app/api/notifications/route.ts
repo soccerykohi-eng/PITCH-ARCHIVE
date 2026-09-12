@@ -4,27 +4,16 @@ import { getRawDb } from "@/db";
 export const dynamic = "force-dynamic";
 
 type NotificationRow = {
-  id:string;type:"friend"|"trade"|"pack"|"account"|"announcement";title:string;message:string;
+  id:string;type:"friend"|"trade"|"pack"|"account";title:string;message:string;
   destination:string;readAt:number|null;createdAt:number;
 };
 
 export async function GET() {
   const { member,response }=await requireApprovedMember();
   if (!member || response) return response;
-  const db=getRawDb();const now=Date.now();
-  await db.batch([
-    db.prepare(`INSERT INTO notifications (id,user_email,type,title,message,destination,reference_type,reference_id,created_at)
-      SELECT lower(hex(randomblob(16))),?, 'announcement',a.title,a.message,'packs','announcement',a.id,?
-      FROM announcements a WHERE a.audience='all' AND a.publish_at<=?
-      AND NOT EXISTS (SELECT 1 FROM notifications n WHERE n.user_email=? AND n.reference_type='announcement' AND n.reference_id=a.id)`).bind(member.email,now,now,member.email),
-    db.prepare(`INSERT INTO notifications (id,user_email,type,title,message,destination,reference_type,reference_id,created_at)
-      SELECT lower(hex(randomblob(16))),?, 'announcement',a.title,a.message,'packs','announcement',a.id,?
-      FROM announcements a JOIN announcement_recipients ar ON ar.announcement_id=a.id
-      WHERE a.audience='selected' AND ar.user_email=? AND a.publish_at<=?
-      AND NOT EXISTS (SELECT 1 FROM notifications n WHERE n.user_email=? AND n.reference_type='announcement' AND n.reference_id=a.id)`).bind(member.email,now,member.email,now,member.email),
-  ]);
+  const db=getRawDb();
   const result=await db.prepare(`SELECT id,type,title,message,destination,read_at AS readAt,created_at AS createdAt
-    FROM notifications WHERE user_email=? ORDER BY created_at DESC LIMIT 50`).bind(member.email).all<NotificationRow>();
+    FROM notifications WHERE user_email=? AND type<>'announcement' ORDER BY created_at DESC LIMIT 50`).bind(member.email).all<NotificationRow>();
   return Response.json({ notifications:result.results,unreadCount:result.results.filter((item) => item.readAt === null).length });
 }
 

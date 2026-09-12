@@ -35,7 +35,7 @@ test("removes account reporting while preserving blocking and report history", a
   assert.doesNotMatch(admin, /\/api\/admin\/moderation/);
   assert.doesNotMatch(admin, /resolveReport/);
   assert.doesNotMatch(admin, /value="reports"/);
-  assert.match(admin, /お知らせと操作履歴をまとめて管理します。/);
+  assert.match(admin, /操作履歴を確認します。/);
 
   await assert.rejects(access(new URL("app/api/admin/moderation/route.ts", root)));
   assert.match(schema, /reports/);
