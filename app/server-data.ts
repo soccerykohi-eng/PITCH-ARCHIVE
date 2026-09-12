@@ -21,7 +21,7 @@ export async function getPacksForUser(email:string,includeDrafts=false):Promise<
     FROM packs p ${includeDrafts ? "" : "WHERE p.status IN ('published','archived')"} ORDER BY COALESCE(p.publish_at,p.created_at) DESC`).bind(email,email,email,email).all<PackRow>();
   const output:PackView[]=[];
   for (const pack of packs.results) {
-    const cards=await db.prepare(`SELECT c.id,c.name,c.position,c.country,c.team,c.number,c.rating,c.rarity,c.series,c.card_type AS cardType,c.season,c.image_key AS imageKey
+    const cards=await db.prepare(`SELECT c.id,c.name,c.position,c.country,c.team,c.rarity,c.series,c.image_key AS imageKey
       FROM cards c JOIN pack_cards pc ON pc.card_id=c.id WHERE pc.pack_id=? ORDER BY pc.sort_order,c.created_at`).bind(pack.id).all<CardRow>();
     output.push({ ...pack,cards:cards.results.map((card) => ({ ...card,imageUrl:imageUrl(card) })) });
   }
@@ -29,7 +29,7 @@ export async function getPacksForUser(email:string,includeDrafts=false):Promise<
 }
 
 export async function getCollection(email:string):Promise<SharedCard[]> {
-  const rows=await getRawDb().prepare(`SELECT c.id,c.name,c.position,c.country,c.team,c.number,c.rating,c.rarity,c.series,c.card_type AS cardType,c.season,c.image_key AS imageKey,col.quantity
+  const rows=await getRawDb().prepare(`SELECT c.id,c.name,c.position,c.country,c.team,c.rarity,c.series,c.image_key AS imageKey,col.quantity
     FROM cards c JOIN collection col ON col.card_id=c.id WHERE col.user_email=? ORDER BY col.acquired_at DESC`).bind(email).all<CardRow>();
   return rows.results.map((card) => ({ ...card,imageUrl:imageUrl(card) }));
 }
