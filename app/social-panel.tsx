@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import type { SharedCard } from "./types";
@@ -28,7 +27,7 @@ function PersonAvatar({ person }:{ person:{ displayName:string;avatarUrl:string|
 }
 
 function FriendCard({ friend,ownCards,busy,onTrade,onSafety,onRemove }:{ friend:Friend;ownCards:SharedCard[];busy:boolean;onTrade:(friend:Friend)=>void;onSafety:(friend:Friend)=>void;onRemove:(friend:Friend)=>void }) {
-  return <article className="friend-card"><div className="friend-head"><PersonAvatar person={friend} /><div><strong>{friend.displayName}</strong><small>{friend.cards.length}枚所持</small></div><button type="button" onClick={() => onSafety(friend)}>安全</button><button type="button" onClick={() => onRemove(friend)}>解除</button></div>{friend.showcase.length ? <><span className="showcase-label">FAVORITE SHOWCASE</span><div className="friend-card-strip showcase-strip">{friend.showcase.map((card) => <MiniCard key={card.id} card={card} />)}</div></> : <p className="social-empty">ショーケースは未設定です</p>}<Button disabled={busy || !friend.cards.length || !ownCards.length} onClick={() => onTrade(friend)}>トレードを提案</Button></article>;
+  return <article className="friend-card"><div className="friend-head"><PersonAvatar person={friend} /><div><strong>{friend.displayName}</strong><small>{friend.cards.length}枚所持</small></div><button type="button" onClick={() => onSafety(friend)}>ブロック設定</button><button type="button" onClick={() => onRemove(friend)}>解除</button></div>{friend.showcase.length ? <><span className="showcase-label">FAVORITE SHOWCASE</span><div className="friend-card-strip showcase-strip">{friend.showcase.map((card) => <MiniCard key={card.id} card={card} />)}</div></> : <p className="social-empty">ショーケースは未設定です</p>}<Button disabled={busy || !friend.cards.length || !ownCards.length} onClick={() => onTrade(friend)}>トレードを提案</Button></article>;
 }
 
 export default function SocialPanel({ ownCards,onNotice,onCollectionChanged }:{ ownCards:SharedCard[];onNotice:(message:string)=>void;onCollectionChanged:()=>void }) {
@@ -42,8 +41,6 @@ export default function SocialPanel({ ownCards,onNotice,onCollectionChanged }:{ 
   const [acceptTrade,setAcceptTrade]=useState<Trade | null>(null);
   const [safetyData,setSafetyData]=useState<SafetyData>({ blockedPeople:[] });
   const [safetyTarget,setSafetyTarget]=useState<Person | Friend | null>(null);
-  const [reportReason,setReportReason]=useState("不適切なプロフィール");
-  const [reportDetails,setReportDetails]=useState("");
   const [showAllFriends,setShowAllFriends]=useState(false);
   const [showcaseOpen,setShowcaseOpen]=useState(false);
   const [showcaseIds,setShowcaseIds]=useState<string[]>([]);
@@ -84,8 +81,8 @@ export default function SocialPanel({ ownCards,onNotice,onCollectionChanged }:{ 
     finally { setBusy(false); }
   }
 
-  async function safetyAction(action:"block"|"unblock"|"report",targetEmail:string) {
-    setBusy(true);try { const response=await fetch("/api/safety",{ method:"POST",headers:{ "content-type":"application/json" },body:JSON.stringify({ action,targetEmail,reason:reportReason,details:reportDetails }) });const result=await response.json();if (!response.ok) return onNotice(result.error ?? "操作を完了できませんでした");onNotice(action === "block" ? "参加者をブロックしました" : action === "unblock" ? "ブロックを解除しました" : "運営へ通報しました");setSafetyTarget(null);setReportDetails("");await load(); } finally { setBusy(false); }
+  async function safetyAction(action:"block"|"unblock",targetEmail:string) {
+    setBusy(true);try { const response=await fetch("/api/safety",{ method:"POST",headers:{ "content-type":"application/json" },body:JSON.stringify({ action,targetEmail }) });const result=await response.json();if (!response.ok) return onNotice(result.error ?? "操作を完了できませんでした");onNotice(action === "block" ? "参加者をブロックしました" : "ブロックを解除しました");setSafetyTarget(null);await load(); } finally { setBusy(false); }
   }
 
   const incomingFriends=(data?.people ?? []).filter((person) => person.relationship === "incoming");
@@ -152,6 +149,6 @@ export default function SocialPanel({ ownCards,onNotice,onCollectionChanged }:{ 
 
     <AlertDialog open={Boolean(removeFriend)} onOpenChange={(open) => { if (!open) setRemoveFriend(null); }}><AlertDialogContent className="delete-pack-dialog"><AlertDialogHeader><AlertDialogTitle>フレンドを解除しますか？</AlertDialogTitle><AlertDialogDescription>{removeFriend ? `${removeFriend.displayName}さんとのフレンド登録を解除します。進行中のトレード申請も取り消されます。` : ""}</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>戻る</AlertDialogCancel><AlertDialogAction onClick={() => { if (removeFriend) void act({ action:"friend.remove",targetEmail:removeFriend.email },"フレンドを解除しました");setRemoveFriend(null); }}>解除する</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
     <AlertDialog open={Boolean(acceptTrade)} onOpenChange={(open) => { if (!open) setAcceptTrade(null); }}><AlertDialogContent className="claim-dialog"><AlertDialogHeader><AlertDialogTitle>このカードを交換しますか？</AlertDialogTitle><AlertDialogDescription>承認すると双方のコレクションがすぐに更新されます。成立後は取り消せません。</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>戻る</AlertDialogCancel><AlertDialogAction disabled={busy} onClick={() => { if (acceptTrade) void act({ action:"trade.accept",tradeId:acceptTrade.id },"トレードが成立しました",true);setAcceptTrade(null); }}>交換を確定</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
-    <Dialog open={Boolean(safetyTarget)} onOpenChange={(open) => { if (!open) setSafetyTarget(null); }}><DialogContent className="safety-dialog">{safetyTarget ? <><DialogHeader><p className="section-kicker">SAFETY</p><DialogTitle>{safetyTarget.displayName}さんについて</DialogTitle><DialogDescription>通報内容は運営だけが確認できます。ブロックするとフレンド登録と進行中のトレードも解除されます。</DialogDescription></DialogHeader><div className="report-form"><label>通報理由<select value={reportReason} onChange={(event) => setReportReason(event.target.value)}><option>不適切なプロフィール</option><option>迷惑な申請・行為</option><option>なりすまし</option><option>その他</option></select></label><label>補足（任意）<Textarea rows={3} maxLength={300} value={reportDetails} onChange={(event) => setReportDetails(event.target.value)} /></label><Button variant="outline" disabled={busy} onClick={() => void safetyAction("report",safetyTarget.email)}>運営へ通報</Button><Button className="block-user-button" disabled={busy} onClick={() => void safetyAction("block",safetyTarget.email)}>この参加者をブロック</Button></div></> : null}</DialogContent></Dialog>
+    <Dialog open={Boolean(safetyTarget)} onOpenChange={(open) => { if (!open) setSafetyTarget(null); }}><DialogContent className="safety-dialog">{safetyTarget ? <><DialogHeader><p className="section-kicker">BLOCK</p><DialogTitle>{safetyTarget.displayName}さんをブロック</DialogTitle><DialogDescription>ブロックするとフレンド登録と進行中のトレードも解除されます。</DialogDescription></DialogHeader><div className="block-form"><Button className="block-user-button" disabled={busy} onClick={() => void safetyAction("block",safetyTarget.email)}>この参加者をブロック</Button></div></> : null}</DialogContent></Dialog>
   </div>;
 }
