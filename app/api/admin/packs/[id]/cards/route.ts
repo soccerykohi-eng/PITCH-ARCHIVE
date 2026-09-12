@@ -5,12 +5,7 @@ import { getRawDb } from "@/db";
 
 type Rarity="CORE"|"RARE"|"ELITE"|"ICON";
 
-const RARITY_ALIASES:Record<string,Rarity>={
-  BASE:"CORE",COMMON:"CORE",STANDARD:"CORE",CORE:"CORE",
-  RARE:"RARE",ROOKIE:"RARE",
-  ELITE:"ELITE",EPIC:"ELITE",MOMENT:"ELITE",JERSEY:"ELITE",
-  ICON:"ICON",LEGEND:"ICON",LEGENDARY:"ICON",SIGNATURE:"ICON",
-};
+const RARITIES:Set<string>=new Set<Rarity>(["CORE","RARE","ELITE","ICON"]);
 
 function safeCardId(value:unknown) {
   const normalized=String(value ?? "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,100);
@@ -25,12 +20,13 @@ function parseMeta(raw:string) {
   const value=JSON.parse(cleaned.slice(start,end+1));
   if (value.schema && value.schema !== "pitch-archive-card-v1") throw new Error("schemaは pitch-archive-card-v1 にしてください");
   if (!String(value.name ?? "").trim()) throw new Error("JSONに選手名 name がありません");
-  const cardType=String(value.cardType ?? "BASE").trim().toUpperCase();
-  const rarityInput=String(value.rarity ?? "").trim().toUpperCase();
-  const rarity=RARITY_ALIASES[rarityInput] ?? RARITY_ALIASES[cardType] ?? "RARE";
-  const rawNumber=value.number;
+  const position=String(value.position ?? "").trim().toUpperCase().slice(0,40);
+  const country=String(value.country ?? "").trim().slice(0,60);
+  const rarity=String(value.rarity ?? "").trim().toUpperCase();
+  const series=String(value.series ?? "").trim().slice(0,80);
+  if (!position || !country || !series || !RARITIES.has(rarity)) throw new Error("position・country・rarity・seriesを確認してください");
   return {
-    id:safeCardId(value.id),name:String(value.name).trim().slice(0,80),position:String(value.position ?? "").trim().slice(0,40),country:String(value.country ?? "").trim().slice(0,60),team:String(value.team ?? "").trim().slice(0,80),number:rawNumber !== null && rawNumber !== "" && Number.isInteger(Number(rawNumber)) ? Number(rawNumber) : null,rating:Math.max(70,Math.min(99,Number(value.rating) || 80)),rarity,series:String(value.series ?? "PITCH ARCHIVE").trim().slice(0,80),cardType:cardType.slice(0,40),season:String(value.season ?? "—").trim().slice(0,50)
+    id:safeCardId(value.id),name:String(value.name).trim().slice(0,80),position,country,team:String(value.team ?? "").trim().slice(0,80),rarity:rarity as Rarity,series
   };
 }
 
@@ -59,7 +55,7 @@ async function saveCard(packId:string,meta:ReturnType<typeof parseMeta>,bytes:Ar
     const db=getRawDb();
     await db.batch([
       db.prepare(`INSERT INTO cards (id,name,position,country,team,number,rating,rarity,series,card_type,season,image_key,created_at)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,position=excluded.position,country=excluded.country,team=excluded.team,number=excluded.number,rating=excluded.rating,rarity=excluded.rarity,series=excluded.series,card_type=excluded.card_type,season=excluded.season,image_key=excluded.image_key`).bind(meta.id,meta.name,meta.position,meta.country,meta.team,meta.number,meta.rating,meta.rarity,meta.series,meta.cardType,meta.season,imageKey,Date.now()),
+        VALUES (?,?,?,?,?,NULL,80,?,?,'LEGACY','—',?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,position=excluded.position,country=excluded.country,team=excluded.team,rarity=excluded.rarity,series=excluded.series,image_key=excluded.image_key`).bind(meta.id,meta.name,meta.position,meta.country,meta.team,meta.rarity,meta.series,imageKey,Date.now()),
       db.prepare("INSERT OR IGNORE INTO pack_cards (pack_id,card_id,sort_order) VALUES (?,?,(SELECT COUNT(*) FROM pack_cards WHERE pack_id=?))").bind(packId,meta.id,packId),
       auditStatement(db,actorEmail,old ? "card.update" : "card.create","card",meta.id,`${meta.name} / ${packId}`)
     ]);

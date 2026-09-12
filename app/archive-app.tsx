@@ -629,8 +629,7 @@ function AdminPack({
   let jsonPreview: {
     name?: string;
     rarity?: string;
-    cardType?: string;
-    season?: string;
+    series?: string;
   } | null = null;
   if (json.trim()) {
     try {
@@ -1008,8 +1007,7 @@ function AdminPack({
                           <strong>{jsonPreview.name || "選手名なし"}</strong>
                           <span>
                             {jsonPreview.rarity || "RARITYなし"} ·{" "}
-                            {jsonPreview.cardType || "TYPEなし"} ·{" "}
-                            {jsonPreview.season || "SEASONなし"}
+                            {jsonPreview.series || "SERIESなし"}
                           </span>
                         </>
                       ) : (
@@ -2683,20 +2681,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                     {selectedCard.position}
                   </DialogDescription>
                 </DialogHeader>
-                <div className="collection-card-stats">
-                  <span>
-                    RATING<strong>{selectedCard.rating}</strong>
-                  </span>
-                  <span>
-                    NUMBER<strong>{selectedCard.number ?? "—"}</strong>
-                  </span>
-                  <span>
-                    TYPE<strong>{selectedCard.cardType}</strong>
-                  </span>
-                  <span>
-                    SEASON<strong>{selectedCard.season}</strong>
-                  </span>
-                </div>
               </div>
               <div className="collection-card-pager">
                 <button
@@ -2750,7 +2734,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                 rows={3}
                 value={packDescription}
                 onChange={(event) => setPackDescription(event.target.value)}
-                placeholder="収録テーマやシーズンを入力"
+                placeholder="収録テーマや説明を入力"
               />
             </div>
             <Button

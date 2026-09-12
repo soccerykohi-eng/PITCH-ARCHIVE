@@ -10,7 +10,7 @@ type CardRow=Omit<SharedCard,"imageUrl"> & { imageKey:string;packCount:number;ow
 export async function GET() {
   const { member,response }=await requireAdmin();
   if (!member || response) return response;
-  const rows=await getRawDb().prepare(`SELECT id,name,position,country,team,number,rating,rarity,series,card_type AS cardType,season,image_key AS imageKey,
+  const rows=await getRawDb().prepare(`SELECT id,name,position,country,team,rarity,series,image_key AS imageKey,
     (SELECT COUNT(*) FROM pack_cards pc WHERE pc.card_id=cards.id) AS packCount,
     (SELECT COUNT(*) FROM collection col WHERE col.card_id=cards.id) AS ownerCount
     FROM cards ORDER BY created_at DESC`).all<CardRow>();
@@ -27,17 +27,13 @@ export async function PATCH(request:Request) {
   const country=String(body?.country ?? "").trim();
   const team=String(body?.team ?? "").trim();
   const series=String(body?.series ?? "").trim();
-  const cardType=String(body?.cardType ?? "").trim().toUpperCase();
-  const season=String(body?.season ?? "").trim();
   const rarity=String(body?.rarity ?? "").trim().toUpperCase();
-  const number=body?.number === null || body?.number === undefined || body?.number === "" ? null : Number(body.number);
-  const rating=Number(body?.rating);
-  if (!id || !name || !position || !country || !series || !cardType || !season || !["CORE","RARE","ELITE","ICON"].includes(rarity) || !Number.isInteger(rating) || rating < 1 || rating > 100 || (number !== null && (!Number.isInteger(number) || number < 0 || number > 99))) return Response.json({ error:"カード情報を確認してください" },{ status:400 });
+  if (!id || !name || !position || !country || !series || !["CORE","RARE","ELITE","ICON"].includes(rarity)) return Response.json({ error:"カード情報を確認してください" },{ status:400 });
   const db=getRawDb();
   const existing=await db.prepare("SELECT id FROM cards WHERE id=?").bind(id).first();
   if (!existing) return Response.json({ error:"カードが見つかりません" },{ status:404 });
   await db.batch([
-    db.prepare("UPDATE cards SET name=?,position=?,country=?,team=?,number=?,rating=?,rarity=?,series=?,card_type=?,season=? WHERE id=?").bind(name,position,country,team,number,rating,rarity,series,cardType,season,id),
+    db.prepare("UPDATE cards SET name=?,position=?,country=?,team=?,rarity=?,series=? WHERE id=?").bind(name,position,country,team,rarity,series,id),
     auditStatement(db,member.email,"card.update","card",id,name),
   ]);
   return Response.json({ ok:true });

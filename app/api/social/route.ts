@@ -43,12 +43,12 @@ function notification(db:D1Database,userEmail:string,type:"friend"|"trade",title
 }
 
 async function cardById(id:string) {
-  const row=await getRawDb().prepare(`SELECT id,name,position,country,team,number,rating,rarity,series,card_type AS cardType,season,image_key AS imageKey FROM cards WHERE id=?`).bind(id).first<CardRow>();
+  const row=await getRawDb().prepare(`SELECT id,name,position,country,team,rarity,series,image_key AS imageKey FROM cards WHERE id=?`).bind(id).first<CardRow>();
   return row ? { ...row,imageUrl:imageUrl(row) } : null;
 }
 
 async function showcaseFor(email:string) {
-  const rows=await getRawDb().prepare(`SELECT c.id,c.name,c.position,c.country,c.team,c.number,c.rating,c.rarity,c.series,c.card_type AS cardType,c.season,c.image_key AS imageKey
+  const rows=await getRawDb().prepare(`SELECT c.id,c.name,c.position,c.country,c.team,c.rarity,c.series,c.image_key AS imageKey
     FROM card_showcase s JOIN cards c ON c.id=s.card_id JOIN collection col ON col.user_email=s.user_email AND col.card_id=s.card_id
     WHERE s.user_email=? ORDER BY s.sort_order LIMIT 5`).bind(email).all<CardRow>();
   return rows.results.map((card) => ({ ...card,imageUrl:imageUrl(card) }));

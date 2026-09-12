@@ -6,12 +6,8 @@ export type SharedCard = {
   position:string;
   country:string;
   team:string;
-  number:number | null;
-  rating:number;
   rarity:Rarity;
   series:string;
-  cardType:string;
-  season:string;
   imageUrl:string;
   quantity?:number;
 };

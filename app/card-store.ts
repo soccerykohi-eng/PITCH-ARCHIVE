@@ -7,15 +7,11 @@ export type Card = {
   position: string;
   country: string;
   team?: string;
-  number?: number;
-  rating: number;
   rarity: Rarity;
   palette: string;
   image?: string;
   fullArt?: boolean;
   series?: string;
-  cardType?: string;
-  season?: string;
   custom?: boolean;
 };
 
