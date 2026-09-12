@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/app/server-auth";
 import { auditStatement } from "@/app/audit";
-import { getBucket } from "@/app/server-data";
+import { getImageStore } from "@/app/server-data";
 import { getRawDb } from "@/db";
 
 export async function PATCH(request:Request) {
@@ -17,7 +17,7 @@ export async function PATCH(request:Request) {
       db.prepare("UPDATE users SET display_name='参加者',avatar_key=NULL WHERE email=? AND role='player'").bind(email),
       auditStatement(db,member.email,"profile.reset","user",email),
     ]);
-    if (current?.avatarKey) await getBucket().delete(`avatars/${current.avatarKey}`).catch(() => undefined);
+    if (current?.avatarKey) await getImageStore().delete(`avatars/${current.avatarKey}`).catch(() => undefined);
     return Response.json({ ok:true });
   }
   if (!status) return Response.json({ error:"変更内容が正しくありません" },{ status:400 });

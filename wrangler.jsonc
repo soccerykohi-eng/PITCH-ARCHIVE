@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pitch-archive",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-09-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "public",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "pitch-archive-db",
+    "database_id": "1af58bda-e72a-4b17-aeaa-b569c9603d97",
+    "migrations_dir": "drizzle"
+  }],
+  "kv_namespaces": [{
+    "binding": "CARD_IMAGES",
+    "id": "ebcadd19bda6456f885530321f2b40c1"
+  }],
+  "observability": { "enabled": true }
+}

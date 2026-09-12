@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/app/server-auth";
 import { auditStatement } from "@/app/audit";
-import { getBucket } from "@/app/server-data";
+import { getImageStore } from "@/app/server-data";
 import { getRawDb } from "@/db";
 
 type Rarity="CORE"|"RARE"|"ELITE"|"ICON";
@@ -54,7 +54,7 @@ async function saveCard(packId:string,meta:ReturnType<typeof parseMeta>,bytes:Ar
   const old=await getRawDb().prepare("SELECT image_key AS imageKey FROM cards WHERE id = ?").bind(meta.id).first<{ imageKey:string }>();
   const extension=contentType === "image/png" ? "png" : contentType === "image/webp" ? "webp" : "jpg";
   const imageKey=`cards/${meta.id}/${crypto.randomUUID()}.${extension}`;
-  await getBucket().put(imageKey,bytes,{ httpMetadata:{ contentType,cacheControl:"public, max-age=31536000, immutable" } });
+  await getImageStore().put(imageKey,bytes,{ metadata:{ contentType } });
   try {
     const db=getRawDb();
     await db.batch([
@@ -64,10 +64,10 @@ async function saveCard(packId:string,meta:ReturnType<typeof parseMeta>,bytes:Ar
       auditStatement(db,actorEmail,old ? "card.update" : "card.create","card",meta.id,`${meta.name} / ${packId}`)
     ]);
   } catch (error) {
-    await getBucket().delete(imageKey);
+    await getImageStore().delete(imageKey);
     throw error;
   }
-  if (old?.imageKey && !old.imageKey.startsWith("/")) await getBucket().delete(old.imageKey);
+  if (old?.imageKey && !old.imageKey.startsWith("/")) await getImageStore().delete(old.imageKey);
   return meta.id;
 }
 
@@ -107,7 +107,7 @@ export async function PUT(request:Request,{ params }:{ params:Promise<{ id:strin
     const chunk=form.get("chunk");
     if (!validUploadId(uploadId) || !Number.isInteger(index) || index < 0 || index >= MAX_CHUNKS) throw new Error("画像の送信情報が正しくありません");
     if (!(chunk instanceof File) || chunk.size === 0 || chunk.size > MAX_CHUNK_BYTES) throw new Error("画像データが大きすぎます");
-    await getBucket().put(chunkKey(packId,uploadId,index),await chunk.arrayBuffer(),{ httpMetadata:{ contentType:"application/octet-stream" } });
+    await getImageStore().put(chunkKey(packId,uploadId,index),await chunk.arrayBuffer());
     return Response.json({ ok:true,index });
   } catch (error) {
     return Response.json({ error:error instanceof Error ? error.message : "画像を送信できませんでした" },{ status:400 });
@@ -133,9 +133,9 @@ export async function POST(request:Request,{ params }:{ params:Promise<{ id:stri
       const parts:ArrayBuffer[]=[];
       let totalBytes=0;
       for (let index=0;index<totalChunks;index++) {
-        const object=await getBucket().get(chunkKey(packId,uploadId,index));
+        const object=await getImageStore().get(chunkKey(packId,uploadId,index),"arrayBuffer");
         if (!object) throw new Error(`画像データが不足しています（${index+1}/${totalChunks}）`);
-        const part=await object.arrayBuffer();
+        const part=object;
         totalBytes+=part.byteLength;
         if (totalBytes > MAX_IMAGE_BYTES) throw new Error("画像データが大きすぎます");
         parts.push(part);
@@ -144,7 +144,7 @@ export async function POST(request:Request,{ params }:{ params:Promise<{ id:stri
       let offset=0;
       for (const part of parts) { combined.set(new Uint8Array(part),offset);offset+=part.byteLength; }
       const cardId=await saveCard(packId,meta,combined,contentType,member.email);
-      await Promise.all(Array.from({ length:totalChunks },(_,index) => getBucket().delete(chunkKey(packId,uploadId,index))));
+      await Promise.all(Array.from({ length:totalChunks },(_,index) => getImageStore().delete(chunkKey(packId,uploadId,index))));
       return Response.json({ ok:true,id:cardId });
     }
     const form=await request.formData();

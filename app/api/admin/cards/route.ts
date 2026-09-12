@@ -1,7 +1,7 @@
 import { imageUrl } from "@/app/server-data";
 import { requireAdmin } from "@/app/server-auth";
 import { auditStatement } from "@/app/audit";
-import { getBucket } from "@/app/server-data";
+import { getImageStore } from "@/app/server-data";
 import type { SharedCard } from "@/app/types";
 import { getRawDb } from "@/db";
 
@@ -59,6 +59,6 @@ export async function DELETE(request:Request) {
     db.prepare("DELETE FROM cards WHERE id=?").bind(id),
     auditStatement(db,member.email,"card.delete","card",id,"登録カードを削除"),
   ]);
-  if (card.imageKey && !card.imageKey.startsWith("/")) await getBucket().delete(card.imageKey).catch(() => undefined);
+  if (card.imageKey && !card.imageKey.startsWith("/")) await getImageStore().delete(card.imageKey).catch(() => undefined);
   return Response.json({ ok:true });
 }
