@@ -344,22 +344,14 @@ function DailyAndExchange({
   onChanged: () => void;
   onNotice: (message: string) => void;
 }) {
-  type Mission = {
-    key: string;
-    title: string;
-    current: number;
-    target: number;
+  type LoginBonus = {
+    date: string;
     reward: number;
-    complete: boolean;
     claimed: boolean;
     available: boolean;
-  };
-  const [daily, setDaily] = useState<{
-    missions: Mission[];
-    dailyBonus: Mission;
-    weekly: Mission;
     points: number;
-  } | null>(null);
+  };
+  const [daily, setDaily] = useState<LoginBonus | null>(null);
   const [cards, setCards] = useState<
     Array<SharedCard & { price: number; owned: boolean }>
   >([]);
@@ -367,7 +359,7 @@ function DailyAndExchange({
   const [busy, setBusy] = useState(false);
   const load = useCallback(async () => {
     const [dailyResponse, shopResponse] = await Promise.all([
-      fetch("/api/daily-mission", { cache: "no-store" }),
+      fetch("/api/login-bonus", { cache: "no-store" }),
       fetch("/api/exchange", { cache: "no-store" }),
     ]);
     if (dailyResponse.ok) setDaily(await dailyResponse.json());
@@ -376,12 +368,12 @@ function DailyAndExchange({
   useEffect(() => {
     void load();
   }, [load]);
-  async function claim(rewardKey: string) {
+  async function claim() {
     setBusy(true);
-    const response = await fetch("/api/daily-mission", {
+    const response = await fetch("/api/login-bonus", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ action: "claim", rewardKey }),
+      body: JSON.stringify({ action: "claim" }),
     });
     const data = await response.json();
     setBusy(false);
@@ -408,47 +400,18 @@ function DailyAndExchange({
   }
   return (
     <section className="daily-exchange">
-      <div className="daily-mission-board">
+      <div className="login-bonus-card">
         <header>
           <div>
-            <p className="section-kicker">DAILY MISSIONS</p>
-            <strong>今日のチャレンジ</strong>
+            <p className="section-kicker">DAILY BONUS</p>
+            <strong>ログインボーナス</strong>
           </div>
           <small>毎日 0:00 更新</small>
         </header>
-        <div className="daily-task-list">
-          {(daily?.missions ?? []).map((mission) => (
-            <article className={mission.complete ? "is-complete" : ""} key={mission.key}>
-              <div>
-                <strong>{mission.title}</strong>
-                <span>{mission.current} / {mission.target}</span>
-                <i><b style={{ width: `${Math.min(100, mission.current / mission.target * 100)}%` }} /></i>
-              </div>
-              <Button disabled={!mission.available || busy} onClick={() => void claim(mission.key)}>
-                {mission.claimed ? "受取済み" : mission.available ? `+${mission.reward}` : `${mission.reward} COINS`}
-              </Button>
-            </article>
-          ))}
-        </div>
-        {daily?.dailyBonus ? (
-          <div className={`daily-complete-bonus ${daily.dailyBonus.complete ? "is-complete" : ""}`}>
-            <span><strong>全達成ボーナス</strong><small>{daily.dailyBonus.current} / 3 達成</small></span>
-            <Button disabled={!daily.dailyBonus.available || busy} onClick={() => void claim(daily.dailyBonus.key)}>
-              {daily.dailyBonus.claimed ? "受取済み" : `+${daily.dailyBonus.reward} COINS`}
-            </Button>
-          </div>
-        ) : null}
-        {daily?.weekly ? (
-          <div className="weekly-mission">
-            <span><strong>WEEKLY · 5日達成</strong><small>{daily.weekly.current} / {daily.weekly.target} DAYS</small></span>
-            <div className="weekly-dots" aria-label={`週間進捗 ${daily.weekly.current}/${daily.weekly.target}`}>
-              {Array.from({ length: daily.weekly.target }, (_, index) => <i className={index < daily.weekly.current ? "is-filled" : ""} key={index} />)}
-            </div>
-            <Button disabled={!daily.weekly.available || busy} onClick={() => void claim(daily.weekly.key)}>
-              {daily.weekly.claimed ? "受取済み" : `+${daily.weekly.reward} COINS`}
-            </Button>
-          </div>
-        ) : null}
+        <strong className="login-bonus-reward">{daily?.reward ?? 30} COINS</strong>
+        <Button disabled={!daily?.available || busy} onClick={() => void claim()}>
+          {daily?.claimed ? "受取済み" : "受け取る"}
+        </Button>
       </div>
       <button
         type="button"
@@ -1698,22 +1661,10 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
   function openCard(card: SharedCard, cards: SharedCard[]) {
     setSelectedCardScope(cards);
     setSelectedCard(card);
-    void fetch("/api/daily-mission", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ action: "event", eventType: "card_view", referenceId: card.id }),
-    });
   }
 
   function openPackCatalog(pack: PackView) {
     setViewingPack(pack);
-    if (pack.status === "archived") {
-      void fetch("/api/daily-mission", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "event", eventType: "past_pack_view", referenceId: pack.id }),
-      });
-    }
   }
 
   if (loading)
