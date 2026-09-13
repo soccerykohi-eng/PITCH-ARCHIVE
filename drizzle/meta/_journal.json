@@ -127,6 +127,13 @@
       "when": 1788149062504,
       "tag": "0017_needy_chamber",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1789311948356,
+      "tag": "0018_cheerful_jubilee",
+      "breakpoints": true
     }
   ]
 }
