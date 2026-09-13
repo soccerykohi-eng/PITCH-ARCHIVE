@@ -2145,7 +2145,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                   <ShieldCheck />
                   <span>
                     <strong>運営ダッシュボード</strong>
-                    <small>参加者・パック・お知らせを管理</small>
+                    <small>参加者・パック・操作ログを管理</small>
                   </span>
                   {pendingUsers.length ? <b>{pendingUsers.length}</b> : null}
                   <ChevronRight />
