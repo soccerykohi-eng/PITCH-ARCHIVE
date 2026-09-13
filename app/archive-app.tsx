@@ -237,10 +237,16 @@ function PublicPack({
 }) {
   const previewCards = pack.cards.slice(0, 3);
   const completed = pack.openCount >= pack.openLimit;
+  const remaining = Math.max(0, pack.openLimit - pack.openCount);
+  const openingStatus = completed
+    ? "開封済み"
+    : pack.openLimit === 1
+      ? "あと1回開封できます"
+      : `残り ${remaining} / ${pack.openLimit}回`;
   return (
     <section className={`featured-pack ${completed ? "is-opened" : ""}`}>
       <div className="featured-pack-top">
-        <span>{completed ? "OPENED" : "NOW AVAILABLE"}</span>
+        <span>CURRENT PACK</span>
         <small>{pack.cards.length} CARDS</small>
       </div>
       <div className="pack-showcase" aria-hidden="true">
@@ -269,14 +275,9 @@ function PublicPack({
       </div>
       <div className="featured-pack-status">
         <div>
-          <span>
-            {completed
-              ? "開封上限に到達"
-              : `あと${pack.openLimit - pack.openCount}回開封可能`}
-          </span>
+          <span>{openingStatus}</span>
           <strong>
-            {pack.openCount} / {pack.openLimit}回 · {pack.cards.length}
-            種類から1枚
+            {pack.cards.length}種類から1枚獲得
           </strong>
         </div>
         <i aria-hidden="true" />
@@ -287,7 +288,7 @@ function PublicPack({
           {completed ? "開封済み" : "パックを開ける"}
         </Button>
         <button type="button" onClick={onViewCards}>
-          収録カードをすべて見る
+          収録カードを見る
           <ChevronRight size={15} />
         </button>
       </div>
@@ -309,12 +310,12 @@ function PackCardCatalog({
       <header className="pack-catalog-header">
         <button type="button" onClick={onBack}>
           <ChevronLeft aria-hidden="true" />
-          パックへ戻る
+          戻る
         </button>
         <div>
           <p className="section-kicker">CARD LIST</p>
           <h1>{pack.name}</h1>
-          <span>{pack.cards.length}種類</span>
+          <span>{pack.cards.length} CARDS</span>
         </div>
       </header>
       <div className="pack-catalog-grid">
@@ -328,7 +329,7 @@ function PackCardCatalog({
             </i>
             <CardTile card={card} onSelect={() => onCardSelect(card)} />
             {pack.claimedCardId === card.id ? (
-              <span className="drawn-label">獲得カード</span>
+              <span className="drawn-label">所持</span>
             ) : null}
           </div>
         ))}
@@ -1839,9 +1840,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                       ? "BOOSTER RELEASES"
                       : "PAST RELEASES"}
                   </p>
-                  <h1>
-                    {packView === "active" ? "パックを開ける" : "過去パック"}
-                  </h1>
+                  <h1>{packView === "active" ? "パック" : "過去パック"}</h1>
                 </div>
                 <span>
                   {packView === "active"
@@ -2459,9 +2458,18 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
           }
         }}
       >
-        <AlertDialogContent className="claim-dialog pack-open-dialog">
+        <AlertDialogContent
+          className={`claim-dialog pack-open-dialog ${drawing ? "is-opening" : ""}`}
+        >
           {claim ? (
             <>
+              <AlertDialogCancel
+                className="pack-open-close"
+                disabled={drawing}
+                aria-label="開封画面を閉じる"
+              >
+                ×
+              </AlertDialogCancel>
               <div className="pack-open-copy">
                 <p className="section-kicker">READY TO OPEN</p>
                 <AlertDialogHeader>
@@ -2547,17 +2555,11 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
           {drawnCard ? (
             <>
               <div className="draw-result-glow" aria-hidden="true" />
-              <div className="reveal-stars" aria-hidden="true">
-                <i />
-                <i />
-                <i />
-                <i />
-              </div>
               <p className="section-kicker">NEW CARD</p>
               <DialogHeader>
                 <DialogTitle>{drawnCard.name}</DialogTitle>
                 <DialogDescription>
-                  {drawnCard.rarity} · {drawnCard.team || drawnCard.country}
+                  {drawnCard.rarity} · {drawnCard.series}
                 </DialogDescription>
               </DialogHeader>
               <div className="revealed-card">
@@ -2575,6 +2577,13 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
               >
                 コレクションで見る
               </Button>
+              <button
+                type="button"
+                className="draw-result-close"
+                onClick={() => setDrawnCard(null)}
+              >
+                閉じる
+              </button>
             </>
           ) : null}
         </DialogContent>
