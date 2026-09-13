@@ -36,13 +36,14 @@ test("uses the mobile app shell at supported phone widths", () => {
   for (const width of [768, 1024, 1440]) assert.ok(width >= 768);
   assert.match(css, /@media \(max-width:767px\)/);
   assert.match(css, /\.network-nav \{[\s\S]*?position:fixed;[\s\S]*?inset:auto 0 0;/);
-  assert.match(css, /height:calc\(76px \+ env\(safe-area-inset-bottom\)\)/);
-  assert.match(css, /padding:6px 8px max\(10px,env\(safe-area-inset-bottom\)\)/);
+  assert.match(css, /height:calc\(84px \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(css, /padding:6px 8px calc\(env\(safe-area-inset-bottom\) \+ 16px\)/);
+  assert.match(css, /align-items:start;/);
   assert.match(css, /padding:calc\(env\(safe-area-inset-top\) \+ var\(--pa-space-2\)\)/);
-  assert.match(css, /padding:0 var\(--pa-space-4\) calc\(96px \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(css, /padding:0 var\(--pa-space-4\) calc\(106px \+ env\(safe-area-inset-bottom\)\)/);
   assert.match(css, /\.brand-lockup h1 \{ display:block;/);
   assert.match(css, /\.collection-pill,\.account-button \{ display:none!important;/);
-  assert.match(css, /\.network-nav button \{ width:100%;height:58px!important;min-height:58px;/);
+  assert.match(css, /\.network-nav button \{ width:100%;height:54px!important;min-height:54px;/);
 });
 
 test("keeps the four player tabs, PWA setup, and current admin wording", () => {
