@@ -666,3 +666,13 @@ body { background:radial-gradient(circle at 50% -20%,#253018 0,transparent 38%),
 .passkey-settings { grid-column:1 / -1;display:grid;gap:12px;margin-top:4px;padding:15px;border:1px solid var(--pa-border);border-radius:var(--pa-radius-md);background:var(--pa-surface-1); }
 .passkey-settings>div { display:flex;align-items:center;gap:10px; }.passkey-settings svg { color:var(--pa-accent); }.passkey-settings span { display:flex;flex-direction:column;gap:2px; }.passkey-settings strong { font-size:11px; }.passkey-settings small,.passkey-settings p { margin:0;color:var(--pa-text-2);font-size:9px; }.passkey-settings button { min-height:42px;background:var(--pa-accent);color:var(--pa-bg);font-weight:900; }
 @media (max-width:767px) { .account-protection-card { grid-template-columns:40px minmax(0,1fr); }.account-protection-card>svg { width:40px;height:40px; }.account-protection-card button { grid-column:1 / -1;width:100%; }.account-gateway>section { padding:32px 18px; } }
+
+/* Legacy card purge */
+.card-library-actions .card-purge-button { border-color:color-mix(in srgb,var(--pa-danger) 30%,transparent);color:var(--pa-danger);background:transparent; }
+.card-purge-dialog { width:min(520px,calc(100vw - 24px))!important;max-width:520px!important; }
+.card-purge-dialog dl { display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:4px 0; }
+.card-purge-dialog dl>div { display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border:1px solid var(--pa-border);border-radius:9px;background:var(--pa-surface-1); }
+.card-purge-dialog dt { color:var(--pa-text-2);font-size:9px; }.card-purge-dialog dd { margin:0;color:var(--pa-text-1);font-size:11px;font-weight:900; }
+.card-purge-dialog label { display:grid;gap:7px;color:var(--pa-text-2);font-size:10px;font-weight:800; }.card-purge-dialog label input { border-color:color-mix(in srgb,var(--pa-danger) 28%,var(--pa-border));background:var(--pa-bg);color:var(--pa-text-1); }
+.purge-history-note,.purge-blocked-note,.purge-danger-note,.purge-loading { margin:2px 0;font-size:10px;line-height:1.55; }.purge-history-note { color:var(--pa-accent); }.purge-blocked-note,.purge-danger-note { color:var(--pa-danger); }.purge-loading { color:var(--pa-text-2); }
+@media (max-width:767px) { .card-purge-dialog dl { grid-template-columns:1fr; }.card-library-actions button { min-width:64px; } }
