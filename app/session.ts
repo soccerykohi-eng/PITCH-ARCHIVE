@@ -2,8 +2,10 @@ const encoder = new TextEncoder();
 
 export const GUEST_SESSION_COOKIE = "pa_session";
 export const ADMIN_SESSION_COOKIE = "pa_admin_session";
+export const WEBAUTHN_CHALLENGE_COOKIE = "pa_webauthn_challenge";
 export const GUEST_SESSION_MAX_AGE = 365 * 24 * 60 * 60;
 export const ADMIN_SESSION_MAX_AGE = 12 * 60 * 60;
+export const WEBAUTHN_CHALLENGE_MAX_AGE = 5 * 60;
 
 type SessionKind = "guest" | "admin";
 
@@ -14,6 +16,12 @@ function toBase64Url(bytes: Uint8Array) {
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/g, "");
+}
+
+function fromBase64Url(value: string) {
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+  const binary = atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "="));
+  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
 }
 
 async function hmac(value: string, secret: string) {
@@ -119,6 +127,57 @@ export async function secretsEqual(left: string, right: string) {
     toBase64Url(new Uint8Array(leftHash)),
     toBase64Url(new Uint8Array(rightHash)),
   );
+}
+
+export type WebAuthnChallenge = {
+  challenge: string;
+  operation: "register" | "login";
+  userEmail?: string;
+  expiresAt: number;
+};
+
+export async function createWebAuthnChallengeToken(
+  challenge: Omit<WebAuthnChallenge, "expiresAt">,
+  secret: string,
+  now = Date.now(),
+) {
+  const payload = toBase64Url(
+    encoder.encode(
+      JSON.stringify({
+        ...challenge,
+        expiresAt: now + WEBAUTHN_CHALLENGE_MAX_AGE * 1000,
+      }),
+    ),
+  );
+  return `${payload}.${await hmac(payload, secret)}`;
+}
+
+export async function verifyWebAuthnChallengeToken(
+  token: string | undefined,
+  secret: string,
+  now = Date.now(),
+): Promise<WebAuthnChallenge | null> {
+  if (!token || !secret) return null;
+  const separator = token.lastIndexOf(".");
+  if (separator < 1) return null;
+  const payload = token.slice(0, separator);
+  const signature = token.slice(separator + 1);
+  if (!constantTimeEqual(signature, await hmac(payload, secret))) return null;
+  try {
+    const value = JSON.parse(
+      new TextDecoder().decode(fromBase64Url(payload)),
+    ) as WebAuthnChallenge;
+    if (
+      !value.challenge ||
+      (value.operation !== "register" && value.operation !== "login") ||
+      !Number.isSafeInteger(value.expiresAt) ||
+      value.expiresAt <= now
+    )
+      return null;
+    return value;
+  } catch {
+    return null;
+  }
 }
 
 export function isSecureRequest(request: Request) {

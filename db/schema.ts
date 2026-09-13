@@ -217,3 +217,15 @@ export const auditLogs = sqliteTable("audit_logs", {
   detail: text("detail").notNull().default(""),
   createdAt: integer("created_at", { mode:"timestamp_ms" }).notNull(),
 });
+
+export const passkeyCredentials = sqliteTable("passkey_credentials", {
+  credentialId: text("credential_id").primaryKey(),
+  userEmail: text("user_email").notNull().references(() => users.email, { onDelete:"cascade" }),
+  publicKey: text("public_key").notNull(),
+  counter: integer("counter").notNull().default(0),
+  transports: text("transports").notNull().default("[]"),
+  deviceType: text("device_type").notNull().default(""),
+  backedUp: integer("backed_up", { mode:"boolean" }).notNull().default(false),
+  createdAt: integer("created_at", { mode:"timestamp_ms" }).notNull(),
+  lastUsedAt: integer("last_used_at", { mode:"timestamp_ms" }),
+}, (table) => [index("idx_passkey_credentials_user_email").on(table.userEmail)]);
