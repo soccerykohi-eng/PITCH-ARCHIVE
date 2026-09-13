@@ -65,7 +65,7 @@ export const cardShowcase = sqliteTable("card_showcase", {
 export const packClaims = sqliteTable("pack_claims", {
   userEmail: text("user_email").notNull().references(() => users.email, { onDelete:"cascade" }),
   packId: text("pack_id").notNull().references(() => packs.id, { onDelete:"cascade" }),
-  cardId: text("card_id").notNull().references(() => cards.id, { onDelete:"cascade" }),
+  cardId: text("card_id").references(() => cards.id, { onDelete:"set null" }),
   claimedAt: integer("claimed_at", { mode:"timestamp_ms" }).notNull(),
 }, (table) => [primaryKey({ columns:[table.userEmail,table.packId] })]);
 
@@ -73,7 +73,7 @@ export const packOpenings = sqliteTable("pack_openings", {
   id: text("id").primaryKey(),
   userEmail: text("user_email").notNull().references(() => users.email, { onDelete:"cascade" }),
   packId: text("pack_id").notNull().references(() => packs.id, { onDelete:"cascade" }),
-  cardId: text("card_id").notNull().references(() => cards.id, { onDelete:"cascade" }),
+  cardId: text("card_id").references(() => cards.id, { onDelete:"set null" }),
   openedAt: integer("opened_at", { mode:"timestamp_ms" }).notNull(),
 }, (table) => [index("idx_pack_openings_user_pack").on(table.userEmail,table.packId)]);
 
