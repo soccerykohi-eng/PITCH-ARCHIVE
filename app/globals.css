@@ -452,7 +452,7 @@ body { background:radial-gradient(circle at 50% -20%,#253018 0,transparent 38%),
   html,body { overflow-x:clip; }
   .network-shell {
     width:100%;max-width:none;min-height:100svh;overflow-x:clip;
-    padding:0 var(--pa-space-4) calc(88px + env(safe-area-inset-bottom));
+    padding:0 var(--pa-space-4) calc(96px + env(safe-area-inset-bottom));
   }
   .network-header {
     position:sticky;z-index:20;top:0;
@@ -474,14 +474,14 @@ body { background:radial-gradient(circle at 50% -20%,#253018 0,transparent 38%),
   .network-tabs { margin-top:0; }
   .network-nav {
     position:fixed;z-index:50;inset:auto 0 0;
-    width:100%;height:calc(68px + env(safe-area-inset-bottom))!important;margin:0;
-    padding:6px 8px env(safe-area-inset-bottom)!important;
+    width:100%;height:calc(76px + env(safe-area-inset-bottom))!important;margin:0;
+    padding:6px 8px max(10px,env(safe-area-inset-bottom))!important;
     border:0!important;border-top:1px solid var(--pa-border)!important;border-radius:0!important;
     background:rgba(12,14,12,.92)!important;
     box-shadow:0 -12px 30px #0007;
     backdrop-filter:blur(22px) saturate(1.15);
   }
-  .network-nav button { width:100%;height:56px!important;min-height:56px;gap:3px;border-radius:var(--pa-radius-sm)!important; }
+  .network-nav button { width:100%;height:58px!important;min-height:58px;gap:3px;border-radius:var(--pa-radius-sm)!important; }
   .network-nav button svg { width:22px;height:22px; }
   .network-nav button small { font-size:var(--pa-font-caption);line-height:1;font-weight:800; }
   .network-nav button[data-state="active"] { background:color-mix(in srgb,var(--pa-accent) 7%,transparent)!important;box-shadow:none; }
