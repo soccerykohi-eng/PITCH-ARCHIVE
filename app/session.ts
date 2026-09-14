@@ -4,6 +4,7 @@ export const GUEST_SESSION_COOKIE = "pa_session";
 export const ADMIN_SESSION_COOKIE = "pa_admin_session";
 export const GOOGLE_OAUTH_COOKIE = "pa_google_oauth";
 export const GOOGLE_PENDING_COOKIE = "pa_google_pending";
+export const ADMIN_GOOGLE_VERIFIED_COOKIE = "pa_admin_google_verified";
 export const GUEST_SESSION_MAX_AGE = 365 * 24 * 60 * 60;
 export const ADMIN_SESSION_MAX_AGE = 12 * 60 * 60;
 export const GOOGLE_FLOW_MAX_AGE = 10 * 60;

@@ -238,3 +238,12 @@ export const googleIdentities = sqliteTable("google_identities", {
   createdAt: integer("created_at", { mode:"timestamp_ms" }).notNull(),
   lastLoginAt: integer("last_login_at", { mode:"timestamp_ms" }),
 });
+
+export const adminGoogleIdentities = sqliteTable("admin_google_identities", {
+  googleSub: text("google_sub").primaryKey(),
+  adminEmail: text("admin_email").notNull().unique().references(() => users.email, { onDelete:"cascade" }),
+  googleEmail: text("google_email"),
+  googleName: text("google_name"),
+  createdAt: integer("created_at", { mode:"timestamp_ms" }).notNull(),
+  lastVerifiedAt: integer("last_verified_at", { mode:"timestamp_ms" }),
+});

@@ -148,6 +148,13 @@
       "when": 1789387064190,
       "tag": "0020_secret_satana",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1789387767469,
+      "tag": "0021_bizarre_chimera",
+      "breakpoints": true
     }
   ]
 }

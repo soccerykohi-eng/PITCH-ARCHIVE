@@ -1308,6 +1308,10 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
   const [savingProfile, setSavingProfile] = useState(false);
   const [googleLinked, setGoogleLinked] = useState<boolean | null>(null);
   const [googleEmail, setGoogleEmail] = useState<string | null>(null);
+  const [adminGoogleLinked, setAdminGoogleLinked] = useState<boolean | null>(null);
+  const [adminGoogleEmail, setAdminGoogleEmail] = useState<string | null>(null);
+  const [adminLinkKey, setAdminLinkKey] = useState("");
+  const [linkingAdminGoogle, setLinkingAdminGoogle] = useState(false);
   const [managedUser, setManagedUser] = useState<UserView | null>(null);
   const [activeTab, setActiveTab] = useState("packs");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -1401,6 +1405,18 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
     return () => controller.abort();
   }, [dashboard]);
   useEffect(() => {
+    if (!dashboard || dashboard.session.role !== "admin") return;
+    const controller=new AbortController();
+    void fetch("/api/admin/auth/google/status",{ cache:"no-store",signal:controller.signal })
+      .then(async (response) => {
+        if (!response.ok) return;
+        const result=await response.json() as { linked:boolean;email:string | null };
+        setAdminGoogleLinked(result.linked);setAdminGoogleEmail(result.email);
+      })
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [dashboard]);
+  useEffect(() => {
     if (!notice) return;
     const timer = window.setTimeout(() => setNotice(""), 3000);
     return () => window.clearTimeout(timer);
@@ -1427,6 +1443,18 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
     } finally {
       setCreatingPack(false);
     }
+  }
+
+  async function linkAdminGoogle() {
+    if (!adminLinkKey) return setNotice("運営用アクセスキーを入力してください");
+    setLinkingAdminGoogle(true);
+    try {
+      const response=await fetch("/api/admin/auth/google/link/start",{ method:"POST",headers:{ "content-type":"application/json" },body:JSON.stringify({ accessKey:adminLinkKey }) });
+      const result=await response.json() as { url?:string;error?:string };
+      if (!response.ok || !result.url) return setNotice(result.error ?? "Google連携を開始できませんでした");
+      window.location.assign(result.url);
+    } catch { setNotice("Google連携を開始できませんでした"); }
+    finally { setLinkingAdminGoogle(false); }
   }
 
   function seedInitialPack() {
@@ -2130,6 +2158,13 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                 <a href="/api/auth/google/start?mode=link">Googleアカウントを連携</a>
               </section>
             ) : null}
+            {isAdmin && adminGoogleLinked === false ? (
+              <section className="account-protection-card">
+                <KeyRound aria-hidden="true" />
+                <div><strong>管理者Googleアカウントを連携してください</strong><p>次回以降の運営ログインは、Google本人確認とアクセスキーの2段階になります。</p></div>
+                <button type="button" onClick={() => setSettingsOpen(true)}>連携設定を開く</button>
+              </section>
+            ) : null}
             <DailyAndExchange
               onChanged={() => void load()}
               onNotice={setNotice}
@@ -2789,7 +2824,12 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                   <a href="/api/auth/google/start?mode=link">Googleアカウントを連携</a>
                 )}
               </section>
-            ) : null}
+            ) : (
+              <section className="account-security-settings google-account-settings">
+                <div><KeyRound aria-hidden="true" /><span><strong>管理者2段階認証</strong><small>Googleアカウント　{adminGoogleLinked ? "連携済み" : "未連携"}</small></span></div>
+                {adminGoogleLinked ? <p>{adminGoogleEmail}<br />次回からGoogle確認とアクセスキーが必要です</p> : <div className="admin-google-link-form"><Input type="password" autoComplete="current-password" placeholder="運営用アクセスキーを再入力" value={adminLinkKey} onChange={(event) => setAdminLinkKey(event.target.value)} /><Button disabled={linkingAdminGoogle || !adminLinkKey} onClick={() => void linkAdminGoogle()}>{linkingAdminGoogle ? "連携開始中…" : "Googleアカウントを連携"}</Button></div>}
+              </section>
+            )}
           </div>
         </DialogContent>
       </Dialog>
