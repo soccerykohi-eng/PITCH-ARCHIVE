@@ -19,7 +19,7 @@ export type AppMember = {
   points:number;
 };
 
-type RuntimeEnv = { SESSION_SECRET?:string;ADMIN_ACCESS_KEY?:string };
+type RuntimeEnv = { SESSION_SECRET?:string;ADMIN_ACCESS_KEY?:string;GOOGLE_CLIENT_ID?:string;GOOGLE_CLIENT_SECRET?:string };
 
 type SessionIdentity =
   | { kind:"guest";email:string;displayName:string }
@@ -31,6 +31,11 @@ export function getSessionSecret() {
 
 export function getAdminAccessKey() {
   return String((env as unknown as RuntimeEnv).ADMIN_ACCESS_KEY ?? "");
+}
+
+export function getGoogleClient() {
+  const runtime=env as unknown as RuntimeEnv;
+  return { clientId:String(runtime.GOOGLE_CLIENT_ID ?? ""),clientSecret:String(runtime.GOOGLE_CLIENT_SECRET ?? "") };
 }
 
 export async function getSessionIdentity():Promise<SessionIdentity | null> {

@@ -4,8 +4,8 @@ import { getOrCreateMember } from "./server-auth";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+export default async function Home({ searchParams }:{ searchParams:Promise<{ google?:string }> }) {
   const member=await getOrCreateMember();
-  if (!member) return <AccountGateway />;
+  if (!member) return <AccountGateway google={(await searchParams).google ?? ""} />;
   return <ArchiveApp initialName={member.displayName} />;
 }

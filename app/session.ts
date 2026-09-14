@@ -2,10 +2,12 @@ const encoder = new TextEncoder();
 
 export const GUEST_SESSION_COOKIE = "pa_session";
 export const ADMIN_SESSION_COOKIE = "pa_admin_session";
-export const WEBAUTHN_CHALLENGE_COOKIE = "pa_webauthn_challenge";
+export const GOOGLE_OAUTH_COOKIE = "pa_google_oauth";
+export const GOOGLE_PENDING_COOKIE = "pa_google_pending";
+export const ADMIN_GOOGLE_VERIFIED_COOKIE = "pa_admin_google_verified";
 export const GUEST_SESSION_MAX_AGE = 365 * 24 * 60 * 60;
 export const ADMIN_SESSION_MAX_AGE = 12 * 60 * 60;
-export const WEBAUTHN_CHALLENGE_MAX_AGE = 5 * 60;
+export const GOOGLE_FLOW_MAX_AGE = 10 * 60;
 
 type SessionKind = "guest" | "admin";
 
@@ -129,34 +131,39 @@ export async function secretsEqual(left: string, right: string) {
   );
 }
 
-export type WebAuthnChallenge = {
-  challenge: string;
-  operation: "register" | "login";
+export type SignedFlow = {
+  purpose: "google-oauth" | "google-pending" | "admin-google-verified";
+  state?: string;
+  codeVerifier?: string;
+  mode?: "login" | "link" | "admin-login" | "admin-link";
   userEmail?: string;
+  googleSub?: string;
+  googleEmail?: string;
+  googleName?: string;
   expiresAt: number;
 };
 
-export async function createWebAuthnChallengeToken(
-  challenge: Omit<WebAuthnChallenge, "expiresAt">,
+export async function createSignedFlowToken(
+  flow: Omit<SignedFlow, "expiresAt">,
   secret: string,
   now = Date.now(),
 ) {
   const payload = toBase64Url(
     encoder.encode(
       JSON.stringify({
-        ...challenge,
-        expiresAt: now + WEBAUTHN_CHALLENGE_MAX_AGE * 1000,
+        ...flow,
+        expiresAt: now + GOOGLE_FLOW_MAX_AGE * 1000,
       }),
     ),
   );
   return `${payload}.${await hmac(payload, secret)}`;
 }
 
-export async function verifyWebAuthnChallengeToken(
+export async function verifySignedFlowToken(
   token: string | undefined,
   secret: string,
   now = Date.now(),
-): Promise<WebAuthnChallenge | null> {
+): Promise<SignedFlow | null> {
   if (!token || !secret) return null;
   const separator = token.lastIndexOf(".");
   if (separator < 1) return null;
@@ -166,10 +173,9 @@ export async function verifyWebAuthnChallengeToken(
   try {
     const value = JSON.parse(
       new TextDecoder().decode(fromBase64Url(payload)),
-    ) as WebAuthnChallenge;
+    ) as SignedFlow;
     if (
-      !value.challenge ||
-      (value.operation !== "register" && value.operation !== "login") ||
+      !["google-oauth","google-pending","admin-google-verified"].includes(value.purpose) ||
       !Number.isSafeInteger(value.expiresAt) ||
       value.expiresAt <= now
     )

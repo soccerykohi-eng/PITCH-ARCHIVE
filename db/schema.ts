@@ -229,3 +229,21 @@ export const passkeyCredentials = sqliteTable("passkey_credentials", {
   createdAt: integer("created_at", { mode:"timestamp_ms" }).notNull(),
   lastUsedAt: integer("last_used_at", { mode:"timestamp_ms" }),
 }, (table) => [index("idx_passkey_credentials_user_email").on(table.userEmail)]);
+
+export const googleIdentities = sqliteTable("google_identities", {
+  googleSub: text("google_sub").primaryKey(),
+  userEmail: text("user_email").notNull().unique().references(() => users.email, { onDelete:"cascade" }),
+  googleEmail: text("google_email"),
+  googleName: text("google_name"),
+  createdAt: integer("created_at", { mode:"timestamp_ms" }).notNull(),
+  lastLoginAt: integer("last_login_at", { mode:"timestamp_ms" }),
+});
+
+export const adminGoogleIdentities = sqliteTable("admin_google_identities", {
+  googleSub: text("google_sub").primaryKey(),
+  adminEmail: text("admin_email").notNull().unique().references(() => users.email, { onDelete:"cascade" }),
+  googleEmail: text("google_email"),
+  googleName: text("google_name"),
+  createdAt: integer("created_at", { mode:"timestamp_ms" }).notNull(),
+  lastVerifiedAt: integer("last_verified_at", { mode:"timestamp_ms" }),
+});

@@ -38,15 +38,16 @@ test("creates secure production cookies without storing access keys", async () =
   assert.doesNotMatch(cookie, new RegExp(secret));
 });
 
-test("signs short-lived WebAuthn challenges and rejects tampering or expiry", async () => {
-  const token = await sessions.createWebAuthnChallengeToken({
-    challenge:"registration-challenge",
-    operation:"register",
-    userEmail:"guest+550e8400-e29b-41d4-a716-446655440000@pitcharchive.local",
+test("signs short-lived OAuth state and rejects tampering or expiry", async () => {
+  const token = await sessions.createSignedFlowToken({
+    purpose:"google-oauth",
+    state:"oauth-state",
+    codeVerifier:"pkce-verifier",
+    mode:"login",
   },secret,now);
-  const verified = await sessions.verifyWebAuthnChallengeToken(token,secret,now);
-  assert.equal(verified?.challenge,"registration-challenge");
-  assert.equal(verified?.operation,"register");
-  assert.equal(await sessions.verifyWebAuthnChallengeToken(`${token}x`,secret,now),null);
-  assert.equal(await sessions.verifyWebAuthnChallengeToken(token,secret,now + 5 * 60 * 1000),null);
+  const verified = await sessions.verifySignedFlowToken(token,secret,now);
+  assert.equal(verified?.state,"oauth-state");
+  assert.equal(verified?.codeVerifier,"pkce-verifier");
+  assert.equal(await sessions.verifySignedFlowToken(`${token}x`,secret,now),null);
+  assert.equal(await sessions.verifySignedFlowToken(token,secret,now + 10 * 60 * 1000),null);
 });

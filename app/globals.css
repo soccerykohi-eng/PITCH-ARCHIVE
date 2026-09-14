@@ -653,7 +653,8 @@ body { background:radial-gradient(circle at 50% -20%,#253018 0,transparent 38%),
 .account-gateway { min-height:100dvh;display:grid;place-items:center;padding:calc(24px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));background:radial-gradient(circle at 50% 18%,rgba(217,255,67,.09),transparent 34%),var(--pa-bg);color:var(--pa-text-1); }
 .account-gateway>section { width:min(420px,100%);display:grid;justify-items:center;padding:38px 24px;border:1px solid var(--pa-border);border-radius:var(--pa-radius-lg);background:var(--pa-surface-1);box-shadow:0 28px 80px #000a;text-align:center; }
 .account-gateway h1 { margin:10px 0 32px;font-size:clamp(30px,9vw,43px);line-height:1.04;letter-spacing:-.055em; }
-.account-gateway button { width:100%;min-height:52px;border:0;border-radius:var(--pa-radius-sm);background:var(--pa-accent);color:var(--pa-bg);font-size:13px;font-weight:900; }
+.account-gateway button,.google-login-button { width:100%;min-height:52px;display:flex;align-items:center;justify-content:center;gap:10px;border:0;border-radius:var(--pa-radius-sm);background:#fff;color:#202124;font-size:13px;font-weight:800;text-decoration:none; }
+.google-login-button b { width:22px;height:22px;display:grid;place-items:center;border-radius:50%;color:#4285f4;font:700 17px Arial,sans-serif; }
 .account-gateway button:disabled { opacity:.6; }
 .account-gateway button.is-secondary { border:1px solid var(--pa-border);background:var(--pa-surface-2);color:var(--pa-text-1); }
 .account-gateway small { margin-top:9px;color:var(--pa-text-2);font-size:10px; }
@@ -662,10 +663,12 @@ body { background:radial-gradient(circle at 50% -20%,#253018 0,transparent 38%),
 .account-protection-card { display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;margin:0 0 16px;padding:15px;border:1px solid color-mix(in srgb,var(--pa-accent) 24%,var(--pa-border));border-radius:var(--pa-radius-md);background:color-mix(in srgb,var(--pa-accent) 5%,var(--pa-surface-1)); }
 .account-protection-card>svg { width:44px;height:44px;padding:11px;border-radius:12px;background:color-mix(in srgb,var(--pa-accent) 10%,var(--pa-surface-2));color:var(--pa-accent); }
 .account-protection-card strong { font-size:12px; }.account-protection-card p { margin:3px 0 0;color:var(--pa-text-2);font-size:9px;line-height:1.5; }
-.account-protection-card button { min-height:40px;background:var(--pa-accent);color:var(--pa-bg);font-size:10px;font-weight:900; }
-.passkey-settings { grid-column:1 / -1;display:grid;gap:12px;margin-top:4px;padding:15px;border:1px solid var(--pa-border);border-radius:var(--pa-radius-md);background:var(--pa-surface-1); }
-.passkey-settings>div { display:flex;align-items:center;gap:10px; }.passkey-settings svg { color:var(--pa-accent); }.passkey-settings span { display:flex;flex-direction:column;gap:2px; }.passkey-settings strong { font-size:11px; }.passkey-settings small,.passkey-settings p { margin:0;color:var(--pa-text-2);font-size:9px; }.passkey-settings button { min-height:42px;background:var(--pa-accent);color:var(--pa-bg);font-weight:900; }
+.account-protection-card button,.account-protection-card a { min-height:40px;display:flex;align-items:center;justify-content:center;padding:0 12px;border-radius:8px;background:var(--pa-accent);color:var(--pa-bg);font-size:10px;font-weight:900;text-decoration:none; }
+.account-security-settings { grid-column:1 / -1;display:grid;gap:12px;margin-top:4px;padding:15px;border:1px solid var(--pa-border);border-radius:var(--pa-radius-md);background:var(--pa-surface-1); }
+.account-security-settings>div { display:flex;align-items:center;gap:10px; }.account-security-settings svg { color:var(--pa-accent); }.account-security-settings span { display:flex;flex-direction:column;gap:2px; }.account-security-settings strong { font-size:11px; }.account-security-settings small,.account-security-settings p { margin:0;color:var(--pa-text-2);font-size:9px; }.account-security-settings button,.account-security-settings a { min-height:42px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--pa-accent);color:var(--pa-bg);font-weight:900;text-decoration:none; }
 @media (max-width:767px) { .account-protection-card { grid-template-columns:40px minmax(0,1fr); }.account-protection-card>svg { width:40px;height:40px; }.account-protection-card button { grid-column:1 / -1;width:100%; }.account-gateway>section { padding:32px 18px; } }
+.gateway-new-copy { margin:0 0 20px;color:var(--pa-text-2);font-size:12px;line-height:1.7; }.gateway-back { margin-top:16px;color:var(--pa-text-2);font-size:11px; }.google-account-settings p { overflow-wrap:anywhere; }
+.account-security-settings>.admin-google-link-form { display:grid;gap:8px; }.admin-google-link-form input { min-height:42px; }
 
 /* Legacy card purge */
 .card-library-actions .card-purge-button { border-color:color-mix(in srgb,var(--pa-danger) 30%,transparent);color:var(--pa-danger);background:transparent; }
