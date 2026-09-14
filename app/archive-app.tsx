@@ -8,10 +8,6 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import {
-  browserSupportsWebAuthn,
-  startRegistration,
-} from "@simplewebauthn/browser";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1310,8 +1306,8 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileFileKey, setProfileFileKey] = useState(0);
   const [savingProfile, setSavingProfile] = useState(false);
-  const [passkeyConfigured, setPasskeyConfigured] = useState<boolean | null>(null);
-  const [passkeyBusy, setPasskeyBusy] = useState(false);
+  const [googleLinked, setGoogleLinked] = useState<boolean | null>(null);
+  const [googleEmail, setGoogleEmail] = useState<string | null>(null);
   const [managedUser, setManagedUser] = useState<UserView | null>(null);
   const [activeTab, setActiveTab] = useState("packs");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -1395,11 +1391,11 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
   useEffect(() => {
     if (!dashboard || dashboard.session.role === "admin") return;
     const controller=new AbortController();
-    void fetch("/api/passkey/status",{ cache:"no-store",signal:controller.signal })
+    void fetch("/api/auth/google/status",{ cache:"no-store",signal:controller.signal })
       .then(async (response) => {
         if (!response.ok) return;
-        const result=await response.json() as { configured:boolean };
-        setPasskeyConfigured(result.configured);
+        const result=await response.json() as { linked:boolean;email:string | null };
+        setGoogleLinked(result.linked);setGoogleEmail(result.email);
       })
       .catch(() => undefined);
     return () => controller.abort();
@@ -1481,31 +1477,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
     setProfileImage(null);
     setProfileFileKey((value) => value + 1);
     setSettingsOpen(true);
-  }
-
-  async function registerPasskey() {
-    if (!browserSupportsWebAuthn()) {
-      setNotice("この端末ではパスキーを利用できません");
-      return;
-    }
-    setPasskeyBusy(true);
-    try {
-      const optionsResponse=await fetch("/api/passkey/register/options",{ method:"POST" });
-      const options=await optionsResponse.json();
-      if (!optionsResponse.ok) throw new Error(options.error ?? "パスキーを開始できませんでした");
-      const registration=await startRegistration({ optionsJSON:options });
-      const verifyResponse=await fetch("/api/passkey/register/verify",{
-        method:"POST",headers:{ "content-type":"application/json" },body:JSON.stringify(registration),
-      });
-      const result=await verifyResponse.json();
-      if (!verifyResponse.ok) throw new Error(result.error ?? "パスキーを登録できませんでした");
-      setPasskeyConfigured(true);
-      setNotice("パスキーを設定しました");
-    } catch (error) {
-      setNotice(error instanceof Error && error.name === "NotAllowedError" ? "パスキー登録はキャンセルされました" : error instanceof Error ? error.message : "パスキーを登録できませんでした");
-    } finally {
-      setPasskeyBusy(false);
-    }
   }
 
   async function saveProfile() {
@@ -2149,16 +2120,14 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                 <span>未読通知</span>
               </div>
             </div>
-            {!isAdmin && passkeyConfigured === false ? (
+            {!isAdmin && googleLinked === false ? (
               <section className="account-protection-card">
                 <KeyRound aria-hidden="true" />
                 <div>
                   <strong>このアカウントを保護</strong>
-                  <p>パスキーを設定すると、ブラウザのデータを消してもこのアカウントに戻れます。</p>
+                  <p>Googleアカウントを連携すると、ブラウザのデータを消してもこのアカウントに戻れます。</p>
                 </div>
-                <Button disabled={passkeyBusy} onClick={() => void registerPasskey()}>
-                  {passkeyBusy ? "設定中…" : "パスキーを設定"}
-                </Button>
+                <a href="/api/auth/google/start?mode=link">Googleアカウントを連携</a>
               </section>
             ) : null}
             <DailyAndExchange
@@ -2806,20 +2775,18 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
               {savingProfile ? "保存中…" : "変更を保存"}
             </Button>
             {!isAdmin ? (
-              <section className="passkey-settings">
+              <section className="account-security-settings google-account-settings">
                 <div>
                   <KeyRound aria-hidden="true" />
                   <span>
                     <strong>アカウント保護</strong>
-                    <small>パスキー　{passkeyConfigured ? "設定済み" : "未設定"}</small>
+                    <small>Googleアカウント　{googleLinked ? "連携済み" : "未連携"}</small>
                   </span>
                 </div>
-                {passkeyConfigured ? (
-                  <p>このアカウントは復元できます</p>
+                {googleLinked ? (
+                  <p>{googleEmail}<br />Googleアカウントで復元できます</p>
                 ) : (
-                  <Button disabled={passkeyBusy} onClick={() => void registerPasskey()}>
-                    {passkeyBusy ? "設定中…" : "パスキーを設定"}
-                  </Button>
+                  <a href="/api/auth/google/start?mode=link">Googleアカウントを連携</a>
                 )}
               </section>
             ) : null}
