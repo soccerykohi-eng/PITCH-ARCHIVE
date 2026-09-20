@@ -96,6 +96,10 @@ type NotificationData = {
   unreadCount: number;
 };
 
+export type ArchiveRoute="/packs" | "/collection" | "/friends" | "/friends/requests" | "/friends/trades" | "/menu" | "/notifications" | "/exchange" | "/settings" | "/settings/safety";
+
+const ROOT_ROUTES={ packs:"/packs",collection:"/collection",social:"/friends",menu:"/menu" } as const;
+
 const CARD_IMAGE_MAX_SIDE = 1200;
 const UPLOAD_TARGET_BYTES = 250 * 1024;
 const UPLOAD_CHUNK_BYTES = 160 * 1024;
@@ -348,9 +352,11 @@ function PackCardCatalog({
 function DailyAndExchange({
   onChanged,
   onNotice,
+  exchangePage=false,
 }: {
   onChanged: () => void;
   onNotice: (message: string) => void;
+  exchangePage?: boolean;
 }) {
   type LoginBonus = {
     date: string;
@@ -367,7 +373,7 @@ function DailyAndExchange({
   const [cards, setCards] = useState<
     Array<SharedCard & { price: number; owned: boolean }>
   >([]);
-  const [shopOpen, setShopOpen] = useState(false);
+  const [shopOpen, setShopOpen] = useState(exchangePage);
   const [busy, setBusy] = useState(false);
   const load = useCallback(async () => {
     const [dailyResponse, shopResponse] = await Promise.all([
@@ -438,7 +444,7 @@ function DailyAndExchange({
       <button
         type="button"
         className="exchange-entry"
-        onClick={() => setShopOpen(true)}
+        onClick={() => window.location.assign("/exchange")}
       >
         <span>
           <strong>カード交換所</strong>
@@ -447,7 +453,7 @@ function DailyAndExchange({
         <b>{daily?.points ?? 0} COINS</b>
         <ChevronRight />
       </button>
-      <Dialog open={shopOpen} onOpenChange={setShopOpen}>
+      <Dialog open={shopOpen} onOpenChange={(open) => { setShopOpen(open);if (!open && exchangePage) window.location.assign("/menu"); }}>
         <DialogContent className="exchange-dialog">
           <DialogHeader>
             <p className="section-kicker">TODAY'S 6 CARDS</p>
@@ -1184,7 +1190,7 @@ function AdminPack({
   );
 }
 
-export default function ArchiveApp({ initialName }: { initialName: string }) {
+export default function ArchiveApp({ initialName,initialRoute="/packs" }: { initialName: string;initialRoute?:ArchiveRoute }) {
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [cardCatalog, setCardCatalog] = useState<CatalogCard[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1217,8 +1223,8 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
   const [adminView, setAdminView] = useState<
     "players" | "packs" | "cards" | "operations"
   >("packs");
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [profileName, setProfileName] = useState("");
+  const [settingsOpen, setSettingsOpen] = useState(initialRoute === "/settings");
+  const [profileName, setProfileName] = useState(initialName);
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileFileKey, setProfileFileKey] = useState(0);
   const [savingProfile, setSavingProfile] = useState(false);
@@ -1229,11 +1235,12 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
   const [adminLinkKey, setAdminLinkKey] = useState("");
   const [linkingAdminGoogle, setLinkingAdminGoogle] = useState(false);
   const [managedUser, setManagedUser] = useState<UserView | null>(null);
-  const [activeTab, setActiveTab] = useState("packs");
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const initialTab=initialRoute === "/collection" ? "collection" : initialRoute.startsWith("/friends") ? "social" : initialRoute === "/packs" ? "packs" : "menu";
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [notificationsOpen, setNotificationsOpen] = useState(initialRoute === "/notifications");
   const [socialSubpageOpen, setSocialSubpageOpen] = useState(false);
-  const [safetyOpen, setSafetyOpen] = useState(false);
-  const [socialInitialView, setSocialInitialView] = useState<"friends" | "requests" | "trades">("friends");
+  const [safetyOpen, setSafetyOpen] = useState(initialRoute === "/settings/safety");
+  const [socialInitialView] = useState<"friends" | "requests" | "trades">(initialRoute === "/friends/requests" ? "requests" : initialRoute === "/friends/trades" ? "trades" : "friends");
   const [notificationData, setNotificationData] = useState<NotificationData>({
     notifications: [],
     unreadCount: 0,
@@ -1452,14 +1459,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
     finally { setPurgingUsers(false); }
   }
 
-  function openSettings() {
-    if (!dashboard) return;
-    setProfileName(dashboard.session.displayName);
-    setProfileImage(null);
-    setProfileFileKey((value) => value + 1);
-    setSettingsOpen(true);
-  }
-
   async function saveProfile() {
     if (!profileName.trim()) return setNotice("アカウント名を入力してください");
     setSavingProfile(true);
@@ -1491,6 +1490,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
       setSettingsOpen(false);
       setNotice("アカウント設定を保存しました");
       await load();
+      if (initialRoute === "/settings") window.location.assign("/menu");
     } catch {
       setNotice("通信に失敗しました。もう一度お試しください");
     } finally {
@@ -1527,10 +1527,8 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
       });
     }
     if (item.destination === "social") {
-      setSocialInitialView(item.type === "trade" ? "trades" : "requests");
-      setActiveTab("social");
-    } else if (item.destination === "packs") setActiveTab(item.destination);
-    setNotificationsOpen(false);
+      window.location.assign(item.type === "trade" ? "/friends/trades" : "/friends/requests");
+    } else if (item.destination === "packs") window.location.assign("/packs");
     void loadNotifications();
   }
 
@@ -1665,10 +1663,10 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
       : dashboard.collection;
 
   return (
-    <main className={`network-shell ${socialSubpageOpen || safetyOpen || settingsOpen || notificationsOpen || viewingPack || selectedCard || claim ? "has-native-subpage" : ""}`}>
+    <main className={`network-shell ${initialRoute === "/settings" || initialRoute === "/notifications" || initialRoute === "/exchange" ? "route-dialog-subpage " : ""}${socialSubpageOpen || safetyOpen || settingsOpen || notificationsOpen || viewingPack || selectedCard || claim ? "has-native-subpage" : ""}`}>
       <Tabs
         value={activeTab}
-        onValueChange={setActiveTab}
+        onValueChange={(value) => window.location.assign(ROOT_ROUTES[value as keyof typeof ROOT_ROUTES])}
         className="network-tabs"
       >
         <TabsList className="network-nav">
@@ -1923,17 +1921,17 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
           />
         </TabsContent>
         <TabsContent value="menu" className="network-page">
-          {safetyOpen ? <SafetySettings onBack={() => setSafetyOpen(false)} onNotice={setNotice} /> : <section className="menu-page"><h1 className="root-page-title">メニュー</h1>
+          {safetyOpen ? <SafetySettings onBack={() => initialRoute === "/settings/safety" ? window.location.assign("/settings") : setSafetyOpen(false)} onNotice={setNotice} /> : <section className="menu-page"><h1 className="root-page-title">メニュー</h1>
             <p className="menu-section-label">TODAY</p><DailyAndExchange
               onChanged={() => void load()}
               onNotice={setNotice}
+              exchangePage={initialRoute === "/exchange"}
             />
             <p className="menu-section-label">ACCOUNT</p><div className="menu-list">
               <button
                 type="button"
                 onClick={() => {
-                  setNotificationsOpen(true);
-                  void loadNotifications();
+                  window.location.assign("/notifications");
                 }}
               >
                 <Bell />
@@ -1946,7 +1944,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                 ) : null}
                 <ChevronRight />
               </button>
-              <button type="button" onClick={openSettings}>
+              <button type="button" onClick={() => window.location.assign("/settings")}>
                 <Settings />
                 <span>
                   <strong>アカウント設定</strong>
@@ -1954,7 +1952,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                 </span>
                 <ChevronRight />
               </button>
-              <button type="button" onClick={() => setSafetyOpen(true)}>
+              <button type="button" onClick={() => window.location.assign("/settings/safety")}>
                 <ShieldCheck />
                 <span><strong>プライバシー・安全</strong><small>ブロック中のユーザーとフレンドID</small></span>
                 <ChevronRight />
@@ -2003,7 +2001,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
               <section className="account-protection-card">
                 <KeyRound aria-hidden="true" />
                 <div><strong>管理者Googleアカウントを連携してください</strong><p>次回以降の運営ログインは、Google本人確認とアクセスキーの2段階になります。</p></div>
-                <button type="button" onClick={() => setSettingsOpen(true)}>連携設定を開く</button>
+                <button type="button" onClick={() => window.location.assign("/settings")}>連携設定を開く</button>
               </section>
             ) : null}
             <p className="menu-section-label">ABOUT</p><a className="menu-policy-link" href="/privacy">プライバシーポリシー <ChevronRight /></a>
@@ -2388,7 +2386,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
       <Dialog
         open={settingsOpen}
         onOpenChange={(open) => {
-          if (!savingProfile) setSettingsOpen(open);
+          if (!savingProfile) { setSettingsOpen(open);if (!open && initialRoute === "/settings") window.location.assign("/menu"); }
         }}
       >
         <DialogContent className="account-settings-dialog">
@@ -2476,7 +2474,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
           </div>
         </DialogContent>
       </Dialog>
-      <Dialog open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+      <Dialog open={notificationsOpen} onOpenChange={(open) => { setNotificationsOpen(open);if (!open && initialRoute === "/notifications") window.location.assign("/menu"); }}>
         <DialogContent className="notifications-dialog">
           <DialogHeader>
             <div className="notifications-heading">
