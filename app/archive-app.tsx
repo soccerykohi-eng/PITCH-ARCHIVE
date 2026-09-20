@@ -548,7 +548,7 @@ function CollectionMilestones({
       <div className="collection-milestones-head">
         <div>
           <p className="section-kicker">COLLECTION REWARDS</p>
-          <h2>次の報酬まで</h2>
+          <h2>次の報酬</h2>
           <p>{data.owned} / {next?.count ?? data.owned}種類</p>
         </div>
         <button type="button" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}>{expanded ? "閉じる" : "詳細を見る ›"}</button>
@@ -1917,7 +1917,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
               <h1>コレクション</h1>
               <p>
                 {dashboard.collection.length}種類 · {totalCardCount}枚
-                <small>{duplicateCardCount ? `${duplicateCardCount}枚の重複` : "重複なし"}</small>
               </p>
             </div>
           </section>
