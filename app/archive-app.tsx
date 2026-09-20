@@ -57,8 +57,23 @@ import AdminCardLibrary, { type CatalogCard } from "./admin-card-library";
 
 type UserView = SessionView & {
   createdAt: number;
+  points: number;
+  lastSeenAt: number | null;
+  googleLinked: number;
+  cardCount: number;
+  packOpeningCount: number;
   friendCount: number;
   tradeCount: number;
+};
+type PurgePreview = {
+  userCount:number;
+  googleLinkedCount:number;
+  cardCopies:number;
+  packOpenings:number;
+  friendRelations:number;
+  trades:number;
+  notifications:number;
+  pointsTotal:number;
 };
 type Dashboard = {
   session: SessionView;
@@ -1295,6 +1310,11 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
     "ALL" | PackView["status"]
   >("ALL");
   const [userSearch, setUserSearch] = useState("");
+  const [userFilter, setUserFilter] = useState<"all" | "unlinked" | "candidate">("all");
+  const [selectedUserEmails, setSelectedUserEmails] = useState<string[]>([]);
+  const [purgePreview, setPurgePreview] = useState<PurgePreview | null>(null);
+  const [purgeConfirmation, setPurgeConfirmation] = useState("");
+  const [purgingUsers, setPurgingUsers] = useState(false);
   const [userPage, setUserPage] = useState(1);
   const [adminPackSearch, setAdminPackSearch] = useState("");
   const [adminPackPage, setAdminPackPage] = useState(1);
@@ -1497,6 +1517,40 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
     setNotice("名前とプロフィール画像を初期化しました");
     setManagedUser(null);
     void load();
+  }
+
+  async function previewUserPurge() {
+    if (!selectedUserEmails.length) return;
+    try {
+      const response=await fetch("/api/admin/users/purge-preview",{
+        method:"POST",headers:{ "content-type":"application/json" },body:JSON.stringify({ emails:selectedUserEmails }),
+      });
+      const result=await response.json() as PurgePreview & { error?:string };
+      if (!response.ok) return setNotice(result.error ?? "削除内容を確認できませんでした");
+      setPurgeConfirmation("");
+      setPurgePreview(result);
+    } catch { setNotice("削除内容を確認できませんでした"); }
+  }
+
+  async function purgeSelectedUsers() {
+    if (!purgePreview) return;
+    setPurgingUsers(true);
+    try {
+      const response=await fetch("/api/admin/users/purge",{
+        method:"POST",headers:{ "content-type":"application/json" },body:JSON.stringify({ emails:selectedUserEmails,confirmation:purgeConfirmation }),
+      });
+      const result=await response.json() as { error?:string;userCount?:number };
+      if (!response.ok) {
+        setPurgePreview(null);
+        return setNotice(result.error ?? "アカウントを削除できませんでした");
+      }
+      setNotice(`${result.userCount ?? selectedUserEmails.length}件のアカウントを削除しました`);
+      setSelectedUserEmails([]);
+      setPurgePreview(null);
+      setPurgeConfirmation("");
+      void load();
+    } catch { setNotice("アカウントを削除できませんでした"); }
+    finally { setPurgingUsers(false); }
   }
 
   function openSettings() {
@@ -1708,12 +1762,10 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
   );
   const playerUsers = dashboard.users.filter((user) => user.role === "player");
   const normalizedUserSearch = userSearch.trim().toLocaleLowerCase();
-  const filteredUsers = playerUsers.filter(
-    (user) =>
-      !normalizedUserSearch ||
-      `${user.displayName} ${user.email}`
-        .toLocaleLowerCase()
-        .includes(normalizedUserSearch),
+  const isCleanupCandidate=(user:UserView) => !user.googleLinked && user.cardCount === 0 && user.friendCount === 0 && user.tradeCount === 0 && user.packOpeningCount === 0;
+  const filteredUsers = playerUsers.filter((user) =>
+    (userFilter === "all" || (userFilter === "unlinked" && !user.googleLinked) || (userFilter === "candidate" && isCleanupCandidate(user))) &&
+    (!normalizedUserSearch || `${user.displayName} ${user.email}`.toLocaleLowerCase().includes(normalizedUserSearch)),
   );
   const userPageCount = Math.max(
     1,
@@ -2309,17 +2361,28 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                     onChange={(event) => {
                       setUserSearch(event.target.value);
                       setUserPage(1);
+                      setSelectedUserEmails([]);
                     }}
                     placeholder="名前・メールで検索"
                     aria-label="参加者を検索"
                   />
                   <span>{filteredUsers.length}人</span>
                 </div>
+                <div className="user-cleanup-filters" aria-label="参加者フィルター">
+                  {([ ["all","全員"],["unlinked","Google未連携"],["candidate","整理候補"] ] as const).map(([value,label]) => (
+                    <button type="button" className={userFilter === value ? "is-active" : ""} key={value} onClick={() => { setUserFilter(value);setUserPage(1);setSelectedUserEmails([]); }}>{label}</button>
+                  ))}
+                  <button type="button" onClick={() => {
+                    const selectable=filteredUsers.filter((user) => !user.googleLinked).slice(0,50).map((user) => user.email);
+                    setSelectedUserEmails(selectedUserEmails.length === selectable.length && selectable.every((email) => selectedUserEmails.includes(email)) ? [] : selectable);
+                  }}>表示中を全選択</button>
+                </div>
                 <div className="user-list">
                   {pagedUsers.length ? (
                     pagedUsers.map((user) => (
                       <div className="user-row" key={user.email}>
                         <div>
+                          <input className="user-select-checkbox" type="checkbox" aria-label={`${user.displayName}を選択`} disabled={Boolean(user.googleLinked)} checked={selectedUserEmails.includes(user.email)} onChange={(event) => setSelectedUserEmails((current) => event.target.checked ? [...current,user.email].slice(0,50) : current.filter((email) => email !== user.email))} />
                           {user.avatarUrl ? (
                             <img
                               className="admin-user-avatar"
@@ -2331,9 +2394,11 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                             <strong>{user.displayName}</strong>
                             <small>{user.email}</small>
                             <em>
-                              {user.friendCount}フレンド · {user.tradeCount}
-                              トレード
+                              {user.cardCount}カード · {user.friendCount}フレンド · {user.packOpeningCount}開封 · {user.tradeCount}トレード
                             </em>
+                            <em className={user.googleLinked ? "google-linked" : "google-unlinked"}>{user.googleLinked ? "Google 連携済み" : "Google 未連携"}</em>
+                            <em>コイン {user.points} · 最終利用 {user.lastSeenAt ? new Date(user.lastSeenAt).toLocaleDateString("ja-JP",{ timeZone:"Asia/Tokyo" }) : "記録なし"}</em>
+                            {isCleanupCandidate(user) ? <b className="cleanup-candidate">整理候補</b> : null}
                           </span>
                         </div>
                         <div>
@@ -2361,6 +2426,9 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                     </p>
                   )}
                 </div>
+                {selectedUserEmails.length ? (
+                  <div className="user-selection-bar"><strong>{selectedUserEmails.length}件選択中</strong><Button onClick={() => void previewUserPurge()}>削除内容を確認</Button></div>
+                ) : null}
                 {filteredUsers.length > USERS_PER_PAGE ? (
                   <div className="admin-pagination">
                     <Button
@@ -2601,6 +2669,30 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
               </AlertDialogFooter>
             </>
           ) : null}
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog open={Boolean(purgePreview)} onOpenChange={(open) => { if (!open && !purgingUsers) { setPurgePreview(null);setPurgeConfirmation(""); } }}>
+        <AlertDialogContent className="user-purge-dialog">
+          <AlertDialogHeader>
+            <p className="section-kicker">ADMIN ACCOUNT CLEANUP</p>
+            <AlertDialogTitle>アカウントを完全削除</AlertDialogTitle>
+            <AlertDialogDescription>アカウントと関連データは完全に削除されます。この操作は元に戻せません。</AlertDialogDescription>
+          </AlertDialogHeader>
+          {purgePreview ? <div className="purge-summary">
+            <span>対象アカウント<strong>{purgePreview.userCount}</strong></span>
+            <span>Google連携<strong>{purgePreview.googleLinkedCount}</strong></span>
+            <span>所持カード<strong>{purgePreview.cardCopies}</strong></span>
+            <span>パック開封履歴<strong>{purgePreview.packOpenings}</strong></span>
+            <span>フレンド関係<strong>{purgePreview.friendRelations}</strong></span>
+            <span>トレード<strong>{purgePreview.trades}</strong></span>
+            <span>通知<strong>{purgePreview.notifications}</strong></span>
+            <span>所持コイン<strong>{purgePreview.pointsTotal}</strong></span>
+          </div> : null}
+          {purgePreview ? <div className="purge-confirmation"><label htmlFor="purge-confirmation">確認のため <strong>{`DELETE ${purgePreview.userCount} ACCOUNTS`}</strong> と入力</label><Input id="purge-confirmation" value={purgeConfirmation} onChange={(event) => setPurgeConfirmation(event.target.value)} autoComplete="off" /></div> : null}
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={purgingUsers}>キャンセル</AlertDialogCancel>
+            <AlertDialogAction className="purge-users-button" disabled={!purgePreview || purgeConfirmation !== `DELETE ${purgePreview.userCount} ACCOUNTS` || purgePreview.googleLinkedCount > 0 || purgingUsers} onClick={(event) => { event.preventDefault();void purgeSelectedUsers(); }}>{purgingUsers ? "削除中..." : "完全削除する"}</AlertDialogAction>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
       <Dialog
