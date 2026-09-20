@@ -327,7 +327,7 @@ function PackCardCatalog({
       <header className="pack-catalog-header">
         <button type="button" onClick={onBack}>
           <ChevronLeft aria-hidden="true" />
-          戻る
+          パック
         </button>
         <div>
           <p className="section-kicker">CARD LIST</p>
@@ -1767,57 +1767,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
       : dashboard.collection;
 
   return (
-    <main className={`network-shell ${socialSubpageOpen || safetyOpen || settingsOpen || notificationsOpen ? "has-native-subpage" : ""}`}>
-      <header className="network-header">
-        <div className="brand-lockup">
-          <img src="/icon-192.png" alt="" />
-          <div>
-            <p className="eyebrow">DIGITAL FOOTBALL CARDS</p>
-            <h1>PITCH ARCHIVE</h1>
-          </div>
-        </div>
-        <div className="header-account">
-          <button
-            type="button"
-            className="notification-button"
-            onClick={() => {
-              setNotificationsOpen(true);
-              void loadNotifications();
-            }}
-            aria-label={`通知を開く${notificationData.unreadCount ? `、未読${notificationData.unreadCount}件` : ""}`}
-          >
-            <Bell size={19} aria-hidden="true" />
-            {notificationData.unreadCount ? (
-              <span>
-                {notificationData.unreadCount > 99
-                  ? "99+"
-                  : notificationData.unreadCount}
-              </span>
-            ) : null}
-          </button>
-          <div className="collection-pill">
-            <span>MY CARDS</span>
-            <strong>{totalCardCount}</strong>
-          </div>
-          <button
-            type="button"
-            className="account-button"
-            onClick={openSettings}
-            aria-label="アカウント設定を開く"
-          >
-            {dashboard.session.avatarUrl ? (
-              <img src={dashboard.session.avatarUrl} alt="" />
-            ) : (
-              <span>{dashboard.session.displayName.slice(0, 1)}</span>
-            )}
-            <div>
-              <small>{isAdmin ? "ADMIN" : "PLAYER"}</small>
-              <strong>{dashboard.session.displayName}</strong>
-            </div>
-            <b aria-hidden="true">›</b>
-          </button>
-        </div>
-      </header>
+    <main className={`network-shell ${socialSubpageOpen || safetyOpen || settingsOpen || notificationsOpen || viewingPack || selectedCard || claim ? "has-native-subpage" : ""}`}>
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
@@ -2076,7 +2026,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
           />
         </TabsContent>
         <TabsContent value="menu" className="network-page">
-          {safetyOpen ? <SafetySettings onBack={() => setSafetyOpen(false)} onNotice={setNotice} /> : <section className="menu-page">
+          {safetyOpen ? <SafetySettings onBack={() => setSafetyOpen(false)} onNotice={setNotice} /> : <section className="menu-page"><h1 className="root-page-title">メニュー</h1>
             <div className="menu-profile">
               {dashboard.session.avatarUrl ? (
                 <img src={dashboard.session.avatarUrl} alt="" />
