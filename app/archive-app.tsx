@@ -54,6 +54,7 @@ import AdminOperations from "./admin-operations";
 import AdminCardLibrary, { type CatalogCard } from "./admin-card-library";
 import PackOpeningExperience from "./components/pack-opening-experience";
 import CollectionCardViewer from "./components/collection-card-viewer";
+import SafetySettings from "./components/safety-settings";
 
 type UserView = SessionView & {
   createdAt: number;
@@ -1332,6 +1333,9 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
   const [managedUser, setManagedUser] = useState<UserView | null>(null);
   const [activeTab, setActiveTab] = useState("packs");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [socialSubpageOpen, setSocialSubpageOpen] = useState(false);
+  const [safetyOpen, setSafetyOpen] = useState(false);
+  const [socialInitialView, setSocialInitialView] = useState<"friends" | "requests" | "trades">("friends");
   const [notificationData, setNotificationData] = useState<NotificationData>({
     notifications: [],
     unreadCount: 0,
@@ -1624,8 +1628,10 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
         body: JSON.stringify({ action: "read", id: item.id }),
       });
     }
-    if (item.destination === "social" || item.destination === "packs")
-      setActiveTab(item.destination);
+    if (item.destination === "social") {
+      setSocialInitialView(item.type === "trade" ? "trades" : "requests");
+      setActiveTab("social");
+    } else if (item.destination === "packs") setActiveTab(item.destination);
     setNotificationsOpen(false);
     void loadNotifications();
   }
@@ -1761,7 +1767,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
       : dashboard.collection;
 
   return (
-    <main className="network-shell">
+    <main className={`network-shell ${socialSubpageOpen || safetyOpen || settingsOpen || notificationsOpen ? "has-native-subpage" : ""}`}>
       <header className="network-header">
         <div className="brand-lockup">
           <img src="/icon-192.png" alt="" />
@@ -2061,13 +2067,16 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
         </TabsContent>
         <TabsContent value="social" className="network-page">
           <SocialPanel
+            key={socialInitialView}
             ownCards={dashboard.collection}
             onNotice={setNotice}
             onCollectionChanged={() => void load()}
+            onSubpageChange={setSocialSubpageOpen}
+            initialView={socialInitialView}
           />
         </TabsContent>
         <TabsContent value="menu" className="network-page">
-          <section className="menu-page">
+          {safetyOpen ? <SafetySettings onBack={() => setSafetyOpen(false)} onNotice={setNotice} /> : <section className="menu-page">
             <div className="menu-profile">
               {dashboard.session.avatarUrl ? (
                 <img src={dashboard.session.avatarUrl} alt="" />
@@ -2079,21 +2088,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                   {isAdmin ? "ADMINISTRATOR" : "PITCH ARCHIVE MEMBER"}
                 </small>
                 <h2>{dashboard.session.displayName}</h2>
-                <p>{dashboard.collection.length} unique cards</p>
-              </div>
-            </div>
-            <div className="menu-stats">
-              <div>
-                <strong>{dashboard.collection.length}</strong>
-                <span>所持カード</span>
-              </div>
-              <div>
-                <strong>{dashboard.session.points}</strong>
-                <span>コイン</span>
-              </div>
-              <div>
-                <strong>{notificationData.unreadCount}</strong>
-                <span>未読通知</span>
+                <p>{totalCardCount} cards · {dashboard.session.points} coins</p>
               </div>
             </div>
             {!isAdmin && googleLinked === false ? (
@@ -2113,11 +2108,11 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                 <button type="button" onClick={() => setSettingsOpen(true)}>連携設定を開く</button>
               </section>
             ) : null}
-            <DailyAndExchange
+            <p className="menu-section-label">TODAY</p><DailyAndExchange
               onChanged={() => void load()}
               onNotice={setNotice}
             />
-            <div className="menu-list">
+            <p className="menu-section-label">ACCOUNT</p><div className="menu-list">
               <button
                 type="button"
                 onClick={() => {
@@ -2143,6 +2138,11 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                 </span>
                 <ChevronRight />
               </button>
+              <button type="button" onClick={() => setSafetyOpen(true)}>
+                <ShieldCheck />
+                <span><strong>プライバシー・安全</strong><small>ブロック中のユーザーとフレンドID</small></span>
+                <ChevronRight />
+              </button>
               {isAdmin ? (
                 <button
                   type="button"
@@ -2159,7 +2159,8 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                 </button>
               ) : null}
             </div>
-          </section>
+            <p className="menu-section-label">ABOUT</p><a className="menu-policy-link" href="/privacy">プライバシーポリシー <ChevronRight /></a>
+          </section>}
         </TabsContent>
         {isAdmin ? (
           <TabsContent value="admin" className="network-page">
