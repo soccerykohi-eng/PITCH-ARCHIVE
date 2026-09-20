@@ -53,6 +53,7 @@ import SocialPanel from "./social-panel";
 import AdminOperations from "./admin-operations";
 import AdminCardLibrary, { type CatalogCard } from "./admin-card-library";
 import PackOpeningExperience from "./components/pack-opening-experience";
+import CollectionCardViewer from "./components/collection-card-viewer";
 
 type UserView = SessionView & {
   createdAt: number;
@@ -519,6 +520,7 @@ function CollectionMilestones({
     }>;
   } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const load = useCallback(async () => {
     const response = await fetch("/api/collection-milestones", {
       cache: "no-store",
@@ -549,17 +551,18 @@ function CollectionMilestones({
     }
   }
   if (!data) return null;
+  const next=data.milestones.find((item) => !item.claimed) ?? data.milestones.at(-1);
   return (
     <section className="collection-milestones">
       <div className="collection-milestones-head">
         <div>
           <p className="section-kicker">COLLECTION REWARDS</p>
-          <h2>図鑑の達成報酬</h2>
-          <p>現在 {data.owned}種類を登録</p>
+          <h2>次の報酬まで</h2>
+          <p>{data.owned} / {next?.count ?? data.owned}種類</p>
         </div>
-        <strong>{data.coins} COINS</strong>
+        <button type="button" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}>{expanded ? "閉じる" : "詳細を見る ›"}</button>
       </div>
-      <div className="reward-board">
+      {expanded ? <div className="reward-board">
         {data.milestones.map((item) => (
           <article className="reward-row" key={item.id}>
             <div>
@@ -585,7 +588,7 @@ function CollectionMilestones({
             </Button>
           </article>
         ))}
-      </div>
+      </div> : null}
     </section>
   );
 }
@@ -1756,18 +1759,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
         visibleCollection.some((card) => card.id === selectedCard.id)
       ? visibleCollection
       : dashboard.collection;
-  const selectedCardIndex = selectedCard
-    ? selectedCardList.findIndex((card) => card.id === selectedCard.id)
-    : -1;
-  function moveSelectedCard(offset: number) {
-    if (!selectedCardList.length || selectedCardIndex < 0) return;
-    setSelectedCard(
-      selectedCardList[
-        (selectedCardIndex + offset + selectedCardList.length) %
-          selectedCardList.length
-      ],
-    );
-  }
 
   return (
     <main className="network-shell">
@@ -1978,19 +1969,12 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
               <p className="section-kicker">MY ARCHIVE</p>
               <h1>コレクション</h1>
               <p>
-                全{totalCardCount}枚 ·{" "}
-                {duplicateCardCount
-                  ? `重複${duplicateCardCount}枚`
-                  : "重複なし"}
+                {dashboard.collection.length}種類 · {totalCardCount}枚
+                <small>{duplicateCardCount ? `${duplicateCardCount}枚の重複` : "重複なし"}</small>
               </p>
             </div>
-            <div className="completion-ring collection-count-ring">
-              <span>
-                <strong>{dashboard.collection.length}</strong>
-                <small>種類</small>
-              </span>
-            </div>
           </section>
+          <CollectionMilestones onChanged={() => void load()} onNotice={setNotice} />
           {dashboard.collection.length ? (
             <>
               <div className="collection-tools">
@@ -2005,22 +1989,10 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                     aria-label="カードを検索"
                   />
                 </label>
+                <div className="rarity-chips" aria-label="レアリティで絞り込み">
+                  {(["ALL","CORE","RARE","ELITE","ICON"] as const).map((rarity) => <button type="button" key={rarity} className={rarityFilter === rarity ? "is-active" : ""} onClick={() => setRarityFilter(rarity)}>{rarity === "ALL" ? "すべて" : rarity}</button>)}
+                </div>
                 <div className="collection-filters">
-                  <Select value={rarityFilter} onValueChange={setRarityFilter}>
-                    <SelectTrigger
-                      className="filter-select"
-                      aria-label="レアリティで絞り込み"
-                    >
-                      <SelectValue placeholder="レアリティ" />
-                    </SelectTrigger>
-                    <SelectContent className="filter-select-content">
-                      <SelectItem value="ALL">すべてのレアリティ</SelectItem>
-                      <SelectItem value="CORE">CORE</SelectItem>
-                      <SelectItem value="RARE">RARE</SelectItem>
-                      <SelectItem value="ELITE">ELITE</SelectItem>
-                      <SelectItem value="ICON">ICON</SelectItem>
-                    </SelectContent>
-                  </Select>
                   <Select value={seriesFilter} onValueChange={setSeriesFilter}>
                     <SelectTrigger
                       className="filter-select"
@@ -2072,6 +2044,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                       ? "同じカードを2枚以上獲得すると、ここに表示されます。"
                       : "検索または絞り込み条件を変更してください。"}
                   </p>
+                  <Button variant="outline" onClick={() => { setCollectionSearch("");setRarityFilter("ALL");setSeriesFilter("ALL");setDuplicatesOnly(false); }}>絞り込みをリセット</Button>
                 </div>
               )}
             </>
@@ -2085,15 +2058,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
               </Button>
             </div>
           )}
-        </TabsContent>
-        <TabsContent
-          value="collection"
-          className="network-page collection-reward-page"
-        >
-          <CollectionMilestones
-            onChanged={() => void load()}
-            onNotice={setNotice}
-          />
         </TabsContent>
         <TabsContent value="social" className="network-page">
           <SocialPanel
@@ -2534,62 +2498,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <Dialog
-        open={Boolean(selectedCard)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setSelectedCard(null);
-            setSelectedCardScope([]);
-          }
-        }}
-      >
-        <DialogContent className="collection-card-dialog">
-          {selectedCard ? (
-            <>
-              <div className="collection-card-art">
-                <img
-                  src={selectedCard.imageUrl}
-                  alt={`${selectedCard.name}のカード`}
-                />
-              </div>
-              <div className="collection-card-info">
-                <p className="section-kicker">
-                  {selectedCard.rarity} · {selectedCard.series}
-                </p>
-                <DialogHeader>
-                  <DialogTitle>{selectedCard.name}</DialogTitle>
-                  <DialogDescription>
-                    {selectedCard.team || selectedCard.country} ·{" "}
-                    {selectedCard.position}
-                  </DialogDescription>
-                </DialogHeader>
-              </div>
-              <div className="collection-card-pager">
-                <button
-                  type="button"
-                  onClick={() => moveSelectedCard(-1)}
-                  disabled={selectedCardList.length < 2}
-                >
-                  <ChevronLeft aria-hidden="true" />
-                  前のカード
-                </button>
-                <span>
-                  {selectedCardIndex >= 0 ? selectedCardIndex + 1 : 1} /{" "}
-                  {selectedCardList.length || 1}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => moveSelectedCard(1)}
-                  disabled={selectedCardList.length < 2}
-                >
-                  次のカード
-                  <ChevronRight aria-hidden="true" />
-                </button>
-              </div>
-            </>
-          ) : null}
-        </DialogContent>
-      </Dialog>
+      {selectedCard ? <CollectionCardViewer card={selectedCard} cards={selectedCardList} onChange={setSelectedCard} onClose={() => { setSelectedCard(null);setSelectedCardScope([]); }} /> : null}
       <Dialog open={packDialogOpen} onOpenChange={setPackDialogOpen}>
         <DialogContent className="pack-create-dialog">
           <DialogHeader>
