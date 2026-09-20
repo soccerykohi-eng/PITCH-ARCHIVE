@@ -25,5 +25,5 @@ test("mobile subpages hide bottom navigation and respect safe area",()=>{
 });
 
 test("notifications route directly to request or trade tabs",()=>{
-  assert.match(archive,/item\.type === "trade" \? "trades" : "requests"/);assert.match(archive,/initialView=\{socialInitialView\}/);
+  assert.match(archive,/item\.type === "trade" \? "\/friends\/trades" : "\/friends\/requests"/);assert.match(archive,/initialView=\{socialInitialView\}/);
 });
