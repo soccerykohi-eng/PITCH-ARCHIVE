@@ -15,11 +15,14 @@ export async function GET() {
   const [packs,collection]=await Promise.all([getPacksForUser(member.email,member.role === "admin"),getCollection(member.email)]);
   let users:unknown[]=[];
   if (member.role === "admin") {
-    const result=await getRawDb().prepare(`SELECT u.email,u.display_name AS displayName,u.avatar_key AS avatarKey,u.role,u.status,u.created_at AS createdAt,
-      (SELECT COUNT(*) FROM friendships f WHERE f.status='accepted' AND (f.user_a_email=u.email OR f.user_b_email=u.email)) AS friendCount,
-      (SELECT COUNT(*) FROM trades t WHERE t.status='accepted' AND (t.proposer_email=u.email OR t.recipient_email=u.email)) AS tradeCount
-      FROM users u ORDER BY u.created_at DESC`).all<{ email:string;displayName:string;avatarKey:string|null;role:string;status:string;createdAt:number;friendCount:number;tradeCount:number }>();
-    users=result.results.map(({ avatarKey,...user }) => ({ ...user,avatarUrl:avatarKey ? `/api/avatar/${encodeURIComponent(avatarKey)}` : null }));
+    const result=await getRawDb().prepare(`SELECT u.email,u.display_name AS displayName,u.avatar_key AS avatarKey,u.role,u.status,u.points,u.last_seen_at AS lastSeenAt,u.created_at AS createdAt,
+      CASE WHEN gi.user_email IS NULL THEN 0 ELSE 1 END AS googleLinked,
+      COALESCE((SELECT SUM(c.quantity) FROM collection c WHERE c.user_email=u.email),0) AS cardCount,
+      ((SELECT COUNT(*) FROM pack_openings po WHERE po.user_email=u.email)+(SELECT COUNT(*) FROM pack_claims pc WHERE pc.user_email=u.email)) AS packOpeningCount,
+      (SELECT COUNT(*) FROM friendships f WHERE f.user_a_email=u.email OR f.user_b_email=u.email) AS friendCount,
+      (SELECT COUNT(*) FROM trades t WHERE t.proposer_email=u.email OR t.recipient_email=u.email) AS tradeCount
+      FROM users u LEFT JOIN google_identities gi ON gi.user_email=u.email ORDER BY u.created_at DESC`).all<{ email:string;displayName:string;avatarKey:string|null;role:string;status:string;points:number;lastSeenAt:number|null;createdAt:number;googleLinked:number;cardCount:number;packOpeningCount:number;friendCount:number;tradeCount:number }>();
+    users=result.results.map(({ avatarKey,...user }:{ email:string;displayName:string;avatarKey:string|null;role:string;status:string;points:number;lastSeenAt:number|null;createdAt:number;googleLinked:number;cardCount:number;packOpeningCount:number;friendCount:number;tradeCount:number }) => ({ ...user,avatarUrl:avatarKey ? `/api/avatar/${encodeURIComponent(avatarKey)}` : null }));
   }
   return Response.json({ session:member,packs,collection,users });
 }
