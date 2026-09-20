@@ -4,9 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useRef,
   useState,
-  type PointerEvent as ReactPointerEvent,
 } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -54,6 +52,7 @@ import type { PackView, SessionView, SharedCard } from "./types";
 import SocialPanel from "./social-panel";
 import AdminOperations from "./admin-operations";
 import AdminCardLibrary, { type CatalogCard } from "./admin-card-library";
+import PackOpeningExperience from "./components/pack-opening-experience";
 
 type UserView = SessionView & {
   createdAt: number;
@@ -1295,12 +1294,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
   const [claim, setClaim] = useState<PackView | null>(null);
   const [viewingPack, setViewingPack] = useState<PackView | null>(null);
   const [packView, setPackView] = useState<"active" | "past">("active");
-  const [drawnCard, setDrawnCard] = useState<SharedCard | null>(null);
-  const [drawing, setDrawing] = useState(false);
   const [selectedCardScope, setSelectedCardScope] = useState<SharedCard[]>([]);
-  const [packSwipeDistance, setPackSwipeDistance] = useState(0);
-  const [packSwiping, setPackSwiping] = useState(false);
-  const packSwipeOrigin = useRef<number | null>(null);
   const [selectedCard, setSelectedCard] = useState<SharedCard | null>(null);
   const [collectionSearch, setCollectionSearch] = useState("");
   const [rarityFilter, setRarityFilter] = useState("ALL");
@@ -1640,68 +1634,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
       body: JSON.stringify({ action: "read-all" }),
     });
     if (response.ok) void loadNotifications();
-  }
-
-  async function confirmClaim() {
-    if (!claim) return;
-    setDrawing(true);
-    try {
-      const response = await fetch(`/api/packs/${claim.id}/claim`, {
-        method: "POST",
-      });
-      const result = (await response.json()) as {
-        error?: string;
-        cardId?: string;
-      };
-      if (!response.ok)
-        setNotice(result.error ?? "パックを開封できませんでした");
-      else {
-        const card = claim.cards.find((item) => item.id === result.cardId);
-        if (card) setDrawnCard(card);
-        setNotice(card ? `${card.name}を獲得しました` : "カードを獲得しました");
-        void load();
-      }
-    } catch {
-      setNotice("通信に失敗しました。もう一度お試しください");
-    } finally {
-      setDrawing(false);
-      setPackSwipeDistance(0);
-      setClaim(null);
-    }
-  }
-
-  function resetPackSwipe() {
-    packSwipeOrigin.current = null;
-    setPackSwiping(false);
-    setPackSwipeDistance(0);
-  }
-
-  function beginPackSwipe(event: ReactPointerEvent<HTMLDivElement>) {
-    if (drawing) return;
-    packSwipeOrigin.current = event.clientX;
-    setPackSwiping(true);
-    event.currentTarget.setPointerCapture(event.pointerId);
-  }
-
-  function movePackSwipe(event: ReactPointerEvent<HTMLDivElement>) {
-    if (packSwipeOrigin.current === null || drawing) return;
-    setPackSwipeDistance(
-      Math.max(0, Math.min(176, event.clientX - packSwipeOrigin.current)),
-    );
-  }
-
-  function endPackSwipe(event: ReactPointerEvent<HTMLDivElement>) {
-    if (packSwipeOrigin.current === null) return;
-    const distance = Math.max(
-      0,
-      Math.min(176, event.clientX - packSwipeOrigin.current),
-    );
-    const shouldOpen = distance >= 104;
-    packSwipeOrigin.current = null;
-    setPackSwiping(false);
-    setPackSwipeDistance(distance);
-    if (shouldOpen) void confirmClaim();
-    else setPackSwipeDistance(0);
   }
 
   function openCard(card: SharedCard, cards: SharedCard[]) {
@@ -2577,100 +2509,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
           {notice}
         </button>
       ) : null}
-      <AlertDialog
-        open={Boolean(claim)}
-        onOpenChange={(open) => {
-          if (!open && !drawing) {
-            resetPackSwipe();
-            setClaim(null);
-          }
-        }}
-      >
-        <AlertDialogContent
-          className={`claim-dialog pack-open-dialog ${drawing ? "is-opening" : ""}`}
-        >
-          {claim ? (
-            <>
-              <AlertDialogCancel
-                className="pack-open-close"
-                disabled={drawing}
-                aria-label="開封画面を閉じる"
-              >
-                ×
-              </AlertDialogCancel>
-              <div className="pack-open-copy">
-                <p className="section-kicker">READY TO OPEN</p>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>{claim.name}</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    パックを右へスワイプして開封します。収録カードから1枚を獲得できます。
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-              </div>
-              <div
-                className={`pack-swipe-stage ${packSwiping ? "is-swiping" : ""}`}
-                onPointerDown={beginPackSwipe}
-                onPointerMove={movePackSwipe}
-                onPointerUp={endPackSwipe}
-                onPointerCancel={resetPackSwipe}
-                role="slider"
-                aria-label="パックを右にスワイプして開封"
-                aria-valuemin={0}
-                aria-valuemax={104}
-                aria-valuenow={Math.min(104, packSwipeDistance)}
-                aria-valuetext={
-                  packSwipeDistance >= 104 ? "開封できます" : "右へスワイプ"
-                }
-              >
-                <div className="pack-swipe-track" aria-hidden="true">
-                  <span>SWIPE TO OPEN</span>
-                  <i>
-                    <b
-                      style={{
-                        width: `${Math.min(100, (packSwipeDistance / 104) * 100)}%`,
-                      }}
-                    />
-                  </i>
-                  <em>→</em>
-                </div>
-                <div
-                  className="pack-swipe-pack"
-                  style={{
-                    transform: `translateX(${packSwipeDistance}px) rotate(${packSwipeDistance / 18}deg)`,
-                  }}
-                >
-                  <div className="pack-swipe-pack-top">
-                    <span>PA</span>
-                    <small>FOOTBALL CARD</small>
-                  </div>
-                  {claim.cards[0] ? (
-                    <img src={claim.cards[0].imageUrl} alt="" />
-                  ) : null}
-                  <div className="pack-swipe-pack-bottom">
-                    <strong>{claim.name}</strong>
-                    <small>1 RANDOM CARD</small>
-                  </div>
-                  <i aria-hidden="true" />
-                </div>
-              </div>
-              <div className="pack-swipe-hint">
-                <span>右にスワイプして開封</span>
-                <small>
-                  {packSwipeDistance >= 104
-                    ? "離すと開封します"
-                    : "PCではドラッグでも操作できます"}
-                </small>
-              </div>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={drawing}>戻る</AlertDialogCancel>
-                <AlertDialogAction disabled={drawing} onClick={confirmClaim}>
-                  {drawing ? "開封中…" : "タップで開封"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </>
-          ) : null}
-        </AlertDialogContent>
-      </AlertDialog>
+      {claim ? <PackOpeningExperience pack={claim} onClose={() => setClaim(null)} onClaimed={(card) => { setNotice(card ? `${card.name}を獲得しました` : "カードを獲得しました");void load(); }} onViewCollection={() => { setClaim(null);setActiveTab("collection"); }} /> : null}
       <AlertDialog open={Boolean(purgePreview)} onOpenChange={(open) => { if (!open && !purgingUsers) { setPurgePreview(null);setPurgeConfirmation(""); } }}>
         <AlertDialogContent className="user-purge-dialog">
           <AlertDialogHeader>
@@ -2695,51 +2534,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <Dialog
-        open={Boolean(drawnCard)}
-        onOpenChange={(open) => {
-          if (!open) setDrawnCard(null);
-        }}
-      >
-        <DialogContent
-          className={`draw-result-dialog rarity-${drawnCard?.rarity.toLocaleLowerCase() ?? "core"}`}
-        >
-          {drawnCard ? (
-            <>
-              <div className="draw-result-glow" aria-hidden="true" />
-              <p className="section-kicker">NEW CARD</p>
-              <DialogHeader>
-                <DialogTitle>{drawnCard.name}</DialogTitle>
-                <DialogDescription>
-                  {drawnCard.rarity} · {drawnCard.series}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="revealed-card">
-                <img
-                  src={drawnCard.imageUrl}
-                  alt={`${drawnCard.name}のカード`}
-                />
-              </div>
-              <Button
-                className="draw-result-collection-button"
-                onClick={() => {
-                  setDrawnCard(null);
-                  setActiveTab("collection");
-                }}
-              >
-                コレクションで見る
-              </Button>
-              <button
-                type="button"
-                className="draw-result-close"
-                onClick={() => setDrawnCard(null)}
-              >
-                閉じる
-              </button>
-            </>
-          ) : null}
-        </DialogContent>
-      </Dialog>
       <Dialog
         open={Boolean(selectedCard)}
         onOpenChange={(open) => {
