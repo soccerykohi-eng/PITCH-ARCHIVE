@@ -492,98 +492,6 @@ function DailyAndExchange({
   );
 }
 
-function CollectionMilestones({
-  onChanged,
-  onNotice,
-}: {
-  onChanged: () => void;
-  onNotice: (message: string) => void;
-}) {
-  const [data, setData] = useState<{
-    owned: number;
-    coins: number;
-    milestones: Array<{
-      id: number;
-      count: number;
-      reward: number;
-      claimed: boolean;
-      available: boolean;
-    }>;
-  } | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const load = useCallback(async () => {
-    const response = await fetch("/api/collection-milestones", {
-      cache: "no-store",
-    });
-    if (response.ok) setData(await response.json());
-  }, []);
-  useEffect(() => {
-    void load();
-  }, [load]);
-  async function claim(milestone: number, count: number) {
-    setBusy(true);
-    try {
-      const response = await fetch("/api/collection-milestones", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ milestone }),
-      });
-      const result = (await response.json()) as typeof data & {
-        error?: string;
-      };
-      if (!response.ok)
-        return onNotice(result.error ?? "報酬を受け取れませんでした");
-      setData(result);
-      onNotice(`${count}種類達成報酬を受け取りました`);
-      onChanged();
-    } finally {
-      setBusy(false);
-    }
-  }
-  if (!data) return null;
-  const next=data.milestones.find((item) => !item.claimed) ?? data.milestones.at(-1);
-  return (
-    <section className="collection-milestones">
-      <div className="collection-milestones-head">
-        <div>
-          <p className="section-kicker">COLLECTION REWARDS</p>
-          <h2>次の報酬</h2>
-          <p>{data.owned} / {next?.count ?? data.owned}種類</p>
-        </div>
-        <button type="button" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}>{expanded ? "閉じる" : "詳細を見る ›"}</button>
-      </div>
-      {expanded ? <div className="reward-board">
-        {data.milestones.map((item) => (
-          <article className="reward-row" key={item.id}>
-            <div>
-              <span>{item.count} CARDS</span>
-              <strong>{item.reward} コイン</strong>
-              <small>
-                {item.claimed
-                  ? "受取済み"
-                  : item.available
-                    ? "受取可能です"
-                    : `あと${Math.max(0, item.count - data.owned)}種類`}
-              </small>
-            </div>
-            <Button
-              disabled={busy || item.claimed || !item.available}
-              onClick={() => void claim(item.id, item.count)}
-            >
-              {item.claimed
-                ? "受取済み"
-                : item.available
-                  ? "受け取る"
-                  : "未達成"}
-            </Button>
-          </article>
-        ))}
-      </div> : null}
-    </section>
-  );
-}
-
 function AdminPack({
   pack,
   catalog,
@@ -1920,7 +1828,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
               </p>
             </div>
           </section>
-          <CollectionMilestones onChanged={() => void load()} onNotice={setNotice} />
           {dashboard.collection.length ? (
             <>
               <div className="collection-tools">

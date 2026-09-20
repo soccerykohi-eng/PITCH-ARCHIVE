@@ -8,11 +8,10 @@ const [app,viewer,css]=await Promise.all([
   readFile(new URL("../app/globals.css",import.meta.url),"utf8"),
 ]);
 
-test("uses one integrated collection tab with compact rewards",() => {
+test("uses one collection tab without collection rewards",() => {
   assert.equal((app.match(/<TabsContent value="collection"/g) ?? []).length,1);
-  assert.match(app,/CollectionMilestones onChanged/);
-  assert.match(app,/詳細を見る ›/);
-  assert.match(app,/aria-expanded=\{expanded\}/);
+  assert.doesNotMatch(app,/CollectionMilestones/);
+  assert.doesNotMatch(app,/\/api\/collection-milestones/);
 });
 
 test("keeps search, series, duplicate, and compound rarity filters with reset",() => {

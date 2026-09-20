@@ -10,9 +10,8 @@ test("keeps collection root focused on cards and filters",()=>{
   assert.doesNotMatch(app,/\$\{duplicateCardCount\}枚の重複/);
 });
 
-test("keeps rewards compact until requested",()=>{
-  assert.match(app,/<h2>次の報酬<\/h2>/);assert.match(app,/aria-expanded=\{expanded\}/);assert.match(app,/expanded \? <div className="reward-board">/);
-  assert.match(styles,/collection-milestones\{padding:12px 0;border-bottom/);
+test("does not render collection rewards",()=>{
+  assert.doesNotMatch(app,/CollectionMilestones/);assert.doesNotMatch(app,/\/api\/collection-milestones/);assert.doesNotMatch(app,/COLLECTION REWARDS/);
 });
 
 test("preserves the native filtered card viewer",()=>{
