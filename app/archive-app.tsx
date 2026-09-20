@@ -252,7 +252,7 @@ function PublicPack({
   onOpen: () => void;
   onViewCards: () => void;
 }) {
-  const previewCards = pack.cards.slice(0, 3);
+  const previewCards = pack.cards.slice(0, 1);
   const completed = pack.openCount >= pack.openLimit;
   const remaining = Math.max(0, pack.openLimit - pack.openCount);
   const openingStatus = completed
@@ -262,10 +262,7 @@ function PublicPack({
       : `残り ${remaining} / ${pack.openLimit}回`;
   return (
     <section className={`featured-pack ${completed ? "is-opened" : ""}`}>
-      <div className="featured-pack-top">
-        <span>CURRENT PACK</span>
-        <small>{pack.cards.length} CARDS</small>
-      </div>
+      <span className="sr-only">CURRENT PACK</span>
       <div className="pack-showcase" aria-hidden="true">
         <div className="pack-orbit" />
         {previewCards.length ? (
@@ -286,18 +283,12 @@ function PublicPack({
         )}
       </div>
       <div className="featured-pack-copy">
-        <p className="section-kicker">PITCH ARCHIVE RELEASE</p>
         <h2>{pack.name}</h2>
-        <p>{pack.description || "新しいカードコレクション"}</p>
       </div>
       <div className="featured-pack-status">
         <div>
           <span>{openingStatus}</span>
-          <strong>
-            {pack.cards.length}種類から1枚獲得
-          </strong>
         </div>
-        <i aria-hidden="true" />
       </div>
       <div className="featured-pack-actions">
         <Button disabled={completed || !pack.cards.length} onClick={onOpen}>
@@ -330,7 +321,6 @@ function PackCardCatalog({
           パック
         </button>
         <div>
-          <p className="section-kicker">CARD LIST</p>
           <h1>{pack.name}</h1>
           <span>{pack.cards.length} CARDS</span>
         </div>
@@ -1844,6 +1834,7 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="active" className="pack-view-content">
+                  <h2 className="pack-section-title">現在のパック</h2>
                   {publishedPacks.length ? (
                     <div className="featured-pack-rail">
                       {publishedPacks.map((pack) => (
