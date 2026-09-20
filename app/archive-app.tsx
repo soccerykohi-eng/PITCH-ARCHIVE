@@ -1924,37 +1924,6 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
         </TabsContent>
         <TabsContent value="menu" className="network-page">
           {safetyOpen ? <SafetySettings onBack={() => setSafetyOpen(false)} onNotice={setNotice} /> : <section className="menu-page"><h1 className="root-page-title">メニュー</h1>
-            <div className="menu-profile">
-              {dashboard.session.avatarUrl ? (
-                <img src={dashboard.session.avatarUrl} alt="" />
-              ) : (
-                <span>{dashboard.session.displayName.slice(0, 1)}</span>
-              )}
-              <div>
-                <small>
-                  {isAdmin ? "ADMINISTRATOR" : "PITCH ARCHIVE MEMBER"}
-                </small>
-                <h2>{dashboard.session.displayName}</h2>
-                <p>{totalCardCount} cards · {dashboard.session.points} coins</p>
-              </div>
-            </div>
-            {!isAdmin && googleLinked === false ? (
-              <section className="account-protection-card">
-                <KeyRound aria-hidden="true" />
-                <div>
-                  <strong>このアカウントを保護</strong>
-                  <p>Googleアカウントを連携すると、ブラウザのデータを消してもこのアカウントに戻れます。</p>
-                </div>
-                <a href="/api/auth/google/start?mode=link">Googleアカウントを連携</a>
-              </section>
-            ) : null}
-            {isAdmin && adminGoogleLinked === false ? (
-              <section className="account-protection-card">
-                <KeyRound aria-hidden="true" />
-                <div><strong>管理者Googleアカウントを連携してください</strong><p>次回以降の運営ログインは、Google本人確認とアクセスキーの2段階になります。</p></div>
-                <button type="button" onClick={() => setSettingsOpen(true)}>連携設定を開く</button>
-              </section>
-            ) : null}
             <p className="menu-section-label">TODAY</p><DailyAndExchange
               onChanged={() => void load()}
               onNotice={setNotice}
@@ -2006,6 +1975,37 @@ export default function ArchiveApp({ initialName }: { initialName: string }) {
                 </button>
               ) : null}
             </div>
+            <div className="menu-profile">
+              {dashboard.session.avatarUrl ? (
+                <img src={dashboard.session.avatarUrl} alt="" />
+              ) : (
+                <span>{dashboard.session.displayName.slice(0, 1)}</span>
+              )}
+              <div>
+                <small>
+                  {isAdmin ? "ADMINISTRATOR" : "PITCH ARCHIVE MEMBER"}
+                </small>
+                <h2>{dashboard.session.displayName}</h2>
+                <p>{totalCardCount} cards · {dashboard.session.points} coins</p>
+              </div>
+            </div>
+            {!isAdmin && googleLinked === false ? (
+              <section className="account-protection-card">
+                <KeyRound aria-hidden="true" />
+                <div>
+                  <strong>このアカウントを保護</strong>
+                  <p>Googleアカウントを連携すると、ブラウザのデータを消してもこのアカウントに戻れます。</p>
+                </div>
+                <a href="/api/auth/google/start?mode=link">Googleアカウントを連携</a>
+              </section>
+            ) : null}
+            {isAdmin && adminGoogleLinked === false ? (
+              <section className="account-protection-card">
+                <KeyRound aria-hidden="true" />
+                <div><strong>管理者Googleアカウントを連携してください</strong><p>次回以降の運営ログインは、Google本人確認とアクセスキーの2段階になります。</p></div>
+                <button type="button" onClick={() => setSettingsOpen(true)}>連携設定を開く</button>
+              </section>
+            ) : null}
             <p className="menu-section-label">ABOUT</p><a className="menu-policy-link" href="/privacy">プライバシーポリシー <ChevronRight /></a>
           </section>}
         </TabsContent>
