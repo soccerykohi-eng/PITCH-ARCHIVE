@@ -1097,8 +1097,13 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
   const [adminGoogleLinked, setAdminGoogleLinked] = useState<boolean | null>(null);
   const [managedUser, setManagedUser] = useState<UserView | null>(null);
   const [activeTab, setActiveTab] = useState<string>(initialTab);
+  const [activeRouteTab, setActiveRouteTab] = useState(initialTab);
   const [socialSubpageOpen, setSocialSubpageOpen] = useState(false);
-  const [socialInitialView] = useState(initialSocialView);
+  if (activeRouteTab !== initialTab) {
+    setActiveRouteTab(initialTab);
+    setActiveTab(initialTab);
+    setSocialSubpageOpen(false);
+  }
   const load = useCallback(async () => {
     const result = await refreshDashboard();
     if (result?.session.role === "admin") {
@@ -1590,12 +1595,12 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
         </TabsContent>
         <TabsContent value="social" className="network-page">
           <SocialPanel
-            key={socialInitialView}
+            key={initialSocialView}
             ownCards={dashboard.collection}
             onNotice={setNotice}
             onCollectionChanged={() => void load()}
             onSubpageChange={setSocialSubpageOpen}
-            initialView={socialInitialView}
+            initialView={initialSocialView}
           />
         </TabsContent>
         <TabsContent value="menu" className="network-page">

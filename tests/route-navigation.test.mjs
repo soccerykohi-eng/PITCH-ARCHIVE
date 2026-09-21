@@ -30,7 +30,8 @@ test("exposes real root and standalone utility routes",async()=>{
   assert.match(playerLayout,/initialDashboard=\{dashboard\}/);
   assert.match(playerLayout,/BottomNavigation/);
   assert.match(provider,/refreshDashboard/);
-  assert.match(routePage,/<ArchiveApp key=\{route\}/);
+  assert.doesNotMatch(routePage,/<ArchiveApp key=\{route\}/);
+  assert.match(app,/activeRouteTab !== initialTab/);
   assert.doesNotMatch(`${app}\n${nav}`,/window\.location\.assign|location\.href/);
   assert.doesNotMatch(app,/アーカイブを読み込んでいます/);
   for(const removed of ["initialRoute","notificationsOpen","settingsOpen","safetyOpen"])assert.doesNotMatch(app,new RegExp(removed));
