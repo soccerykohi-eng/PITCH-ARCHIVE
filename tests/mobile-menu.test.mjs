@@ -10,7 +10,7 @@ const [app,css]=await Promise.all([
 test("keeps primary mobile menu actions before the profile card",() => {
   const today=app.indexOf('<p className="menu-section-label">TODAY</p>');
   const exchange=app.indexOf("<DailyAndExchange",today);
-  const notifications=app.indexOf('window.location.assign("/notifications")',exchange);
+  const notifications=app.indexOf('router.push("/notifications")',exchange);
   const settings=app.indexOf('<strong>アカウント設定</strong>',notifications);
   const profile=app.indexOf('<div className="menu-profile">',settings);
   assert.ok(today>=0 && exchange>today && notifications>exchange && settings>notifications && profile>settings);

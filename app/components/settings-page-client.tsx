@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +23,7 @@ async function optimize(file: File) {
 }
 
 export default function SettingsPageClient({ member }: { member: AppMember }) {
+  const router = useRouter();
   const [name, setName] = useState(member.displayName);
   const [image, setImage] = useState<File | null>(null);
   const [linked, setLinked] = useState<boolean | null>(null);
@@ -41,20 +44,21 @@ export default function SettingsPageClient({ member }: { member: AppMember }) {
       const result = await response.json();
       if (!response.ok) return setNotice(result.error ?? "保存できませんでした");
       if (image) { const form = new FormData(); form.set("avatar", await optimize(image)); const upload = await fetch("/api/profile", { method: "PUT", body: form }); if (!upload.ok) return setNotice((await upload.json()).error ?? "画像を保存できませんでした"); }
-      window.location.assign("/menu");
+      router.push("/menu");
+      router.refresh();
     } finally { setBusy(false); }
   }
-  async function removeImage() { setBusy(true); const response = await fetch("/api/profile", { method: "DELETE" }); setBusy(false); if (response.ok) window.location.reload(); else setNotice((await response.json()).error ?? "画像を削除できませんでした"); }
-  async function logout() { setBusy(true); const response = await fetch("/api/session/logout", { method: "POST" }); if (response.ok) window.location.assign("/"); else { setBusy(false); setNotice("ログアウトできませんでした"); } }
+  async function removeImage() { setBusy(true); const response = await fetch("/api/profile", { method: "DELETE" }); setBusy(false); if (response.ok) router.refresh(); else setNotice((await response.json()).error ?? "画像を削除できませんでした"); }
+  async function logout() { setBusy(true); const response = await fetch("/api/session/logout", { method: "POST" }); if (response.ok) { router.push("/");router.refresh(); } else { setBusy(false); setNotice("ログアウトできませんでした"); } }
   return <main className="route-page">
-    <header className="route-page-header"><a href="/menu">‹ メニュー</a><h1>アカウント設定</h1></header>
+    <header className="route-page-header"><Link href="/menu">‹ メニュー</Link><h1>アカウント設定</h1></header>
     <section className="route-settings-section"><h2>プロフィール</h2><div className="profile-editor">
       <div className="profile-avatar-preview">{preview || member.avatarUrl ? <img src={preview || member.avatarUrl || ""} alt="プロフィール画像のプレビュー" /> : <span>{name.slice(0, 1)}</span>}</div>
       <div className="profile-image-actions"><label htmlFor="profile-image">画像を選択</label><Input id="profile-image" type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={(event) => setImage(event.target.files?.[0] ?? null)} />{member.avatarUrl ? <button type="button" disabled={busy} onClick={() => void removeImage()}>現在の画像を削除</button> : null}</div>
       <div className="profile-name-field"><label htmlFor="profile-name">名前</label><Input id="profile-name" maxLength={24} value={name} disabled={busy} onChange={(event) => setName(event.target.value)} /><small>{name.trim().length} / 24文字</small></div>
       <Button className="profile-save" disabled={busy || !name.trim()} onClick={() => void save()}>{busy ? "保存中…" : "変更を保存"}</Button>
     </div></section>
-    <section className="route-settings-section"><h2>アカウント</h2><div className="account-security-settings"><div><KeyRound /><span><strong>Googleアカウント</strong><small>{linked ? "連携済み" : "未連携"}</small></span></div>{linked ? <p>{email}</p> : member.role === "player" ? <a href="/api/auth/google/start?mode=link">Googleアカウントを連携</a> : <p>運営アカウントの連携は管理画面から行えます。</p>}</div><a className="settings-row-link" href="/settings/safety">プライバシー・安全 <span>›</span></a><button className="settings-logout" type="button" disabled={busy} onClick={() => void logout()}>ログアウト</button></section>
+    <section className="route-settings-section"><h2>アカウント</h2><div className="account-security-settings"><div><KeyRound /><span><strong>Googleアカウント</strong><small>{linked ? "連携済み" : "未連携"}</small></span></div>{linked ? <p>{email}</p> : member.role === "player" ? <a href="/api/auth/google/start?mode=link">Googleアカウントを連携</a> : <p>運営アカウントの連携は管理画面から行えます。</p>}</div><Link className="settings-row-link" href="/settings/safety">プライバシー・安全 <span>›</span></Link><button className="settings-logout" type="button" disabled={busy} onClick={() => void logout()}>ログアウト</button></section>
     {notice ? <p className="route-notice" role="status">{notice}</p> : null}
   </main>;
 }
