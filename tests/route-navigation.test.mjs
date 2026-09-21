@@ -13,7 +13,7 @@ test("exposes real root and standalone utility routes",async()=>{
     assert.match(page,/ArchiveRoutePage/);
   }
   for(const route of ["notifications","exchange","settings","settings/safety"]){
-    const page=await readFile(new URL(`../app/${route}/page.tsx`,import.meta.url),"utf8");
+    const page=await readFile(new URL(`../app/(player)/${route}/page.tsx`,import.meta.url),"utf8");
     assert.doesNotMatch(page,/ArchiveRoutePage|ArchiveApp|DialogContent|Portal/);
     assert.match(page,/PageClient/);
   }
@@ -26,8 +26,10 @@ test("exposes real root and standalone utility routes",async()=>{
     assert.match(nav,new RegExp(path.replaceAll("/","\\/")));
   }
   assert.match(playerLayout,/AppDataProvider/);
+  assert.match(playerLayout,/initialDashboard=\{dashboard\}/);
   assert.match(playerLayout,/BottomNavigation/);
   assert.match(provider,/refreshDashboard/);
   assert.doesNotMatch(`${app}\n${nav}`,/window\.location\.assign|location\.href/);
+  assert.doesNotMatch(app,/アーカイブを読み込んでいます/);
   for(const removed of ["initialRoute","notificationsOpen","settingsOpen","safetyOpen"])assert.doesNotMatch(app,new RegExp(removed));
 });

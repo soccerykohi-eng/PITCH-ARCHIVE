@@ -4,8 +4,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { Dashboard } from "../../dashboard-types";
 
 type AppData = {
-  dashboard: Dashboard | null;
-  loading: boolean;
+  dashboard: Dashboard;
+  initializing: boolean;
+  refreshing: boolean;
   error: string;
   unreadCount: number;
   refreshDashboard: () => Promise<Dashboard | null>;
@@ -14,13 +15,14 @@ type AppData = {
 
 const AppDataContext = createContext<AppData | null>(null);
 
-export function AppDataProvider({ children }: { children: React.ReactNode }) {
-  const [dashboard, setDashboard] = useState<Dashboard | null>(null);
-  const [loading, setLoading] = useState(true);
+export function AppDataProvider({ children,initialDashboard }: { children: React.ReactNode;initialDashboard:Dashboard }) {
+  const [dashboard, setDashboard] = useState(initialDashboard);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
 
   const refreshDashboard = useCallback(async () => {
+    setRefreshing(true);
     try {
       const response = await fetch("/api/dashboard", { cache: "no-store" });
       const result = await response.json();
@@ -35,7 +37,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       setError("データを読み込めませんでした");
       return null;
     } finally {
-      setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
@@ -47,17 +49,13 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => void refreshDashboard(), 0);
-    return () => window.clearTimeout(timer);
-  }, [refreshDashboard]);
-  useEffect(() => {
     if (dashboard?.session.status !== "approved") return;
     const initialTimer = window.setTimeout(() => void refreshNotifications(), 0);
     const timer = window.setInterval(() => void refreshNotifications(), 30000);
     return () => { window.clearTimeout(initialTimer);window.clearInterval(timer); };
   }, [dashboard?.session.status, refreshNotifications]);
 
-  const value = useMemo(() => ({ dashboard, loading, error, unreadCount, refreshDashboard, refreshNotifications }), [dashboard, loading, error, unreadCount, refreshDashboard, refreshNotifications]);
+  const value = useMemo(() => ({ dashboard, initializing:false, refreshing, error, unreadCount, refreshDashboard, refreshNotifications }), [dashboard, refreshing, error, unreadCount, refreshDashboard, refreshNotifications]);
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }
 

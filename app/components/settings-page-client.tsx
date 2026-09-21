@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { AppMember } from "../server-auth";
+import { useAppData } from "./app/app-data-provider";
 
 async function optimize(file: File) {
   const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
@@ -22,8 +22,10 @@ async function optimize(file: File) {
   return new File([blob], "profile.webp", { type: "image/webp", lastModified: Date.now() });
 }
 
-export default function SettingsPageClient({ member }: { member: AppMember }) {
+export default function SettingsPageClient() {
   const router = useRouter();
+  const {dashboard,refreshDashboard}=useAppData();
+  const member=dashboard.session;
   const [name, setName] = useState(member.displayName);
   const [image, setImage] = useState<File | null>(null);
   const [linked, setLinked] = useState<boolean | null>(null);
@@ -44,11 +46,11 @@ export default function SettingsPageClient({ member }: { member: AppMember }) {
       const result = await response.json();
       if (!response.ok) return setNotice(result.error ?? "保存できませんでした");
       if (image) { const form = new FormData(); form.set("avatar", await optimize(image)); const upload = await fetch("/api/profile", { method: "PUT", body: form }); if (!upload.ok) return setNotice((await upload.json()).error ?? "画像を保存できませんでした"); }
+      await refreshDashboard();
       router.push("/menu");
-      router.refresh();
     } finally { setBusy(false); }
   }
-  async function removeImage() { setBusy(true); const response = await fetch("/api/profile", { method: "DELETE" }); setBusy(false); if (response.ok) router.refresh(); else setNotice((await response.json()).error ?? "画像を削除できませんでした"); }
+  async function removeImage() { setBusy(true); const response = await fetch("/api/profile", { method: "DELETE" }); setBusy(false); if (response.ok) await refreshDashboard(); else setNotice((await response.json()).error ?? "画像を削除できませんでした"); }
   async function logout() { setBusy(true); const response = await fetch("/api/session/logout", { method: "POST" }); if (response.ok) { router.push("/");router.refresh(); } else { setBusy(false); setNotice("ログアウトできませんでした"); } }
   return <main className="route-page">
     <header className="route-page-header"><Link href="/menu">‹ メニュー</Link><h1>アカウント設定</h1></header>
