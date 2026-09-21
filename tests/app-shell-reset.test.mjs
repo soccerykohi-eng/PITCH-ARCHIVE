@@ -18,7 +18,8 @@ test("keeps exactly four player root navigation destinations",()=>{
 });
 
 test("hides root navigation throughout detail flows",()=>{
-  for(const state of ["socialSubpageOpen","safetyOpen","settingsOpen","notificationsOpen","viewingPack","selectedCard","claim"])assert.match(app,new RegExp(state));
+  for(const state of ["socialSubpageOpen","viewingPack","selectedCard","claim"])assert.match(app,new RegExp(state));
+  for(const removed of ["safetyOpen","settingsOpen","notificationsOpen","initialRoute"])assert.doesNotMatch(app,new RegExp(removed));
   assert.match(styles,/has-native-subpage \.network-nav\{display:none/);
   assert.match(styles,/safe-area-inset-top/);
 });
