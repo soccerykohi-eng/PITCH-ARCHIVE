@@ -1,0 +1,29 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { LibraryBig, Menu, PackageOpen, UsersRound } from "lucide-react";
+import { useAppData } from "./app-data-provider";
+
+const items = [
+  { href: "/packs", label: "パック", icon: PackageOpen, active: (path: string) => path.startsWith("/packs") },
+  { href: "/collection", label: "コレクション", icon: LibraryBig, active: (path: string) => path.startsWith("/collection") },
+  { href: "/friends", label: "フレンド", icon: UsersRound, active: (path: string) => path.startsWith("/friends") },
+  { href: "/menu", label: "メニュー", icon: Menu, active: (path: string) => path.startsWith("/menu") },
+] as const;
+
+export default function BottomNavigation() {
+  const pathname = usePathname();
+  const { dashboard, unreadCount } = useAppData();
+  return <nav className="network-nav app-bottom-navigation" aria-label="メインナビゲーション">
+    {items.map((item) => {
+      const Icon = item.icon;
+      const badge = item.href === "/collection" ? dashboard?.collection.length : item.href === "/menu" ? unreadCount : 0;
+      return <Link key={item.href} href={item.href} prefetch className={item.active(pathname) ? "is-active" : ""} aria-current={item.active(pathname) ? "page" : undefined}>
+        <Icon aria-hidden="true" />
+        <small>{item.label}</small>
+        {badge ? <span>{badge}</span> : null}
+      </Link>;
+    })}
+  </nav>;
+}

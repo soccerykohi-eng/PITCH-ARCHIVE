@@ -4,6 +4,8 @@ import test from "node:test";
 
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 const app = await readFile(new URL("../app/archive-app.tsx", import.meta.url), "utf8");
+const nav = await readFile(new URL("../app/components/app/bottom-navigation.tsx", import.meta.url), "utf8");
+const playerLayout = await readFile(new URL("../app/(player)/layout.tsx", import.meta.url), "utf8");
 const layout = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
 const manifest = JSON.parse(
   await readFile(new URL("../public/site.webmanifest", import.meta.url), "utf8"),
@@ -43,13 +45,14 @@ test("uses the mobile app shell at supported phone widths", () => {
   assert.match(css, /padding:0 var\(--pa-space-4\) calc\(106px \+ env\(safe-area-inset-bottom\)\)/);
   assert.match(css, /\.brand-lockup h1 \{ display:block;/);
   assert.match(css, /\.collection-pill,\.account-button \{ display:none!important;/);
-  assert.match(css, /\.network-nav button \{ width:100%;height:54px!important;min-height:54px;/);
+  assert.match(css, /\.app-bottom-navigation a\{width:100%;height:54px;min-height:54px;/);
 });
 
-test("keeps the four player tabs, PWA setup, and current admin wording", () => {
-  for (const tab of ["packs", "collection", "social", "menu"]) {
-    assert.match(app, new RegExp(`<TabsTrigger value="${tab}">`));
+test("keeps the four player routes, persistent shell, PWA setup, and current admin wording", () => {
+  for (const route of ["/packs", "/collection", "/friends", "/menu"]) {
+    assert.match(nav, new RegExp(`href: "${route}"`));
   }
+  assert.match(playerLayout, /AppDataProvider/);
   assert.doesNotMatch(app, /参加者・パック・お知らせを管理/);
   assert.match(app, /参加者・パック・操作ログを管理/);
   assert.equal(manifest.display, "standalone");

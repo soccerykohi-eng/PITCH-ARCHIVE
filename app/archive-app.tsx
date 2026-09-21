@@ -6,6 +6,8 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,7 +42,6 @@ import {
   ChevronRight,
   LibraryBig,
   KeyRound,
-  Menu,
   PackageOpen,
   Search,
   Settings,
@@ -48,23 +49,16 @@ import {
   Sparkles,
   UsersRound,
 } from "lucide-react";
-import type { PackView, SessionView, SharedCard } from "./types";
+import type { PackView, SharedCard } from "./types";
 import SocialPanel from "./social-panel";
 import AdminOperations from "./admin-operations";
 import AdminCardLibrary, { type CatalogCard } from "./admin-card-library";
 import PackOpeningExperience from "./components/pack-opening-experience";
 import CollectionCardViewer from "./components/collection-card-viewer";
+import { useAppData } from "./components/app/app-data-provider";
+import type { DashboardUser } from "./dashboard-types";
 
-type UserView = SessionView & {
-  createdAt: number;
-  points: number;
-  lastSeenAt: number | null;
-  googleLinked: number;
-  cardCount: number;
-  packOpeningCount: number;
-  friendCount: number;
-  tradeCount: number;
-};
+type UserView = DashboardUser;
 type PurgePreview = {
   userCount:number;
   googleLinkedCount:number;
@@ -75,29 +69,7 @@ type PurgePreview = {
   notifications:number;
   pointsTotal:number;
 };
-type Dashboard = {
-  session: SessionView;
-  packs: PackView[];
-  collection: SharedCard[];
-  users: UserView[];
-};
-type NotificationItem = {
-  id: string;
-  type: "friend" | "trade" | "pack" | "account";
-  title: string;
-  message: string;
-  destination: string;
-  readAt: number | null;
-  createdAt: number;
-};
-type NotificationData = {
-  notifications: NotificationItem[];
-  unreadCount: number;
-};
-
 export type RootRoute="/packs" | "/collection" | "/friends" | "/friends/requests" | "/friends/trades" | "/menu";
-
-const ROOT_ROUTES={ packs:"/packs",collection:"/collection",social:"/friends",menu:"/menu" } as const;
 
 const CARD_IMAGE_MAX_SIDE = 1200;
 const UPLOAD_TARGET_BYTES = 250 * 1024;
@@ -384,18 +356,14 @@ function DailyAndExchange({ onChanged,onNotice }: {
           <small>7日目 {daily?.nextStreakReward ?? 100} COINS</small>
         </div>
       </div>
-      <button
-        type="button"
-        className="exchange-entry"
-        onClick={() => window.location.assign("/exchange")}
-      >
+      <Link className="exchange-entry" href="/exchange" prefetch>
         <span>
           <strong>カード交換所</strong>
           <small>毎日更新される6枚から好きなカードを獲得</small>
         </span>
         <b>{daily?.points ?? 0} COINS</b>
         <ChevronRight />
-      </button>
+      </Link>
     </section>
   );
 }
@@ -1092,10 +1060,10 @@ function AdminPack({
   );
 }
 
-export default function ArchiveApp({ initialName,initialTab="packs",initialSocialView="friends" }: { initialName:string;initialTab?:"packs"|"collection"|"social"|"menu";initialSocialView?:"friends"|"requests"|"trades" }) {
-  const [dashboard, setDashboard] = useState<Dashboard | null>(null);
+export default function ArchiveApp({ initialTab="packs",initialSocialView="friends" }: { initialTab?:"packs"|"collection"|"social"|"menu";initialSocialView?:"friends"|"requests"|"trades" }) {
+  const router = useRouter();
+  const { dashboard, loading, error, unreadCount, refreshDashboard } = useAppData();
   const [cardCatalog, setCardCatalog] = useState<CatalogCard[]>([]);
-  const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState("");
   const [packName, setPackName] = useState("");
   const [packDescription, setPackDescription] = useState("");
@@ -1131,72 +1099,34 @@ export default function ArchiveApp({ initialName,initialTab="packs",initialSocia
   const [activeTab, setActiveTab] = useState<string>(initialTab);
   const [socialSubpageOpen, setSocialSubpageOpen] = useState(false);
   const [socialInitialView] = useState(initialSocialView);
-  const [notificationData, setNotificationData] = useState<NotificationData>({
-    notifications: [],
-    unreadCount: 0,
-  });
   const load = useCallback(async () => {
-    const response = await fetch("/api/dashboard", { cache: "no-store" });
-    const result = await response.json();
-    if (response.ok) {
-      setDashboard(result);
-      if (result.session?.role === "admin") {
+    const result = await refreshDashboard();
+    if (result?.session.role === "admin") {
         const cardsResponse = await fetch("/api/admin/cards", {
           cache: "no-store",
         });
         const cardsResult = await cardsResponse.json();
         if (cardsResponse.ok) setCardCatalog(cardsResult.cards ?? []);
-      }
-    } else setNotice(result.error ?? "データを読み込めませんでした");
-    setLoading(false);
-  }, []);
-  const loadNotifications = useCallback(async () => {
-    const response = await fetch("/api/notifications", { cache: "no-store" });
-    if (!response.ok) return;
-    const result = (await response.json()) as NotificationData;
-    setNotificationData(result);
-  }, []);
+    }
+  }, [refreshDashboard]);
   useEffect(() => {
+    if (dashboard?.session.role !== "admin" || cardCatalog.length) return;
     const controller = new AbortController();
-    void fetch("/api/dashboard", {
+    void fetch("/api/admin/cards", {
       cache: "no-store",
       signal: controller.signal,
     })
       .then(async (response) => {
         const result = await response.json();
-        if (!response.ok) {
-          setNotice(result.error ?? "データを読み込めませんでした");
-          setLoading(false);
-          return;
-        }
-        setDashboard(result);
-        if (result.session?.role === "admin") {
-          const cardsResponse = await fetch("/api/admin/cards", {
-            cache: "no-store",
-            signal: controller.signal,
-          });
-          const cardsResult = await cardsResponse.json();
-          if (cardsResponse.ok) setCardCatalog(cardsResult.cards ?? []);
-        }
-        setLoading(false);
+        if (response.ok) setCardCatalog(result.cards ?? []);
       })
       .catch((error) => {
         if (error instanceof Error && error.name !== "AbortError") {
           setNotice("データを読み込めませんでした");
-          setLoading(false);
         }
       });
     return () => controller.abort();
-  }, []);
-  useEffect(() => {
-    if (dashboard?.session.status !== "approved") return;
-    const initialTimer = window.setTimeout(() => void loadNotifications(), 0);
-    const timer = window.setInterval(() => void loadNotifications(), 30000);
-    return () => {
-      window.clearTimeout(initialTimer);
-      window.clearInterval(timer);
-    };
-  }, [dashboard?.session.status, loadNotifications]);
+  }, [cardCatalog.length, dashboard?.session.role]);
   useEffect(() => {
     if (!dashboard || dashboard.session.role === "admin") return;
     const controller=new AbortController();
@@ -1345,7 +1275,7 @@ export default function ArchiveApp({ initialName,initialTab="packs",initialSocia
   if (!dashboard)
     return (
       <main className="state-shell">
-        <p>データを読み込めませんでした。</p>
+        <p>{error || "データを読み込めませんでした。"}</p>
         <Button onClick={() => location.reload()}>再読み込み</Button>
       </main>
     );
@@ -1367,7 +1297,7 @@ export default function ArchiveApp({ initialName,initialTab="packs",initialSocia
           <img src="/icon-192.png" alt="" />
           <p className="section-kicker">SESSION UNAVAILABLE</p>
           <h1>現在利用できません</h1>
-          <p>{initialName}さんの利用状況については運営へ確認してください。</p>
+          <p>{dashboard.session.displayName}さんの利用状況については運営へ確認してください。</p>
         </div>
       </main>
     );
@@ -1451,31 +1381,8 @@ export default function ArchiveApp({ initialName,initialTab="packs",initialSocia
     <main className={`network-shell ${socialSubpageOpen || viewingPack || selectedCard || claim ? "has-native-subpage" : ""}`}>
       <Tabs
         value={activeTab}
-        onValueChange={(value) => window.location.assign(ROOT_ROUTES[value as keyof typeof ROOT_ROUTES])}
         className="network-tabs"
       >
-        <TabsList className="network-nav">
-          <TabsTrigger value="packs">
-            <PackageOpen aria-hidden="true" />
-            <small>パック</small>
-          </TabsTrigger>
-          <TabsTrigger value="collection">
-            <LibraryBig aria-hidden="true" />
-            <small>コレクション</small>
-            <span>{dashboard.collection.length}</span>
-          </TabsTrigger>
-          <TabsTrigger value="social">
-            <UsersRound aria-hidden="true" />
-            <small>フレンド</small>
-          </TabsTrigger>
-          <TabsTrigger value="menu">
-            <Menu aria-hidden="true" />
-            <small>メニュー</small>
-            {notificationData.unreadCount ? (
-              <span>{notificationData.unreadCount}</span>
-            ) : null}
-          </TabsTrigger>
-        </TabsList>
         <TabsContent
           value="packs"
           className={`network-page ${packView === "past" && !viewingPack ? "is-past-pack-view" : ""}`}
@@ -1689,7 +1596,7 @@ export default function ArchiveApp({ initialName,initialTab="packs",initialSocia
               <LibraryBig size={32} />
               <strong>最初のカードを集めよう</strong>
               <p>公開パックを開けると、獲得したカードがここに並びます。</p>
-              <Button onClick={() => setActiveTab("packs")}>
+              <Button onClick={() => router.push("/packs")}>
                 パックを見る
               </Button>
             </div>
@@ -1715,7 +1622,7 @@ export default function ArchiveApp({ initialName,initialTab="packs",initialSocia
               <button
                 type="button"
                 onClick={() => {
-                  window.location.assign("/notifications");
+                  router.push("/notifications");
                 }}
               >
                 <Bell />
@@ -1723,12 +1630,12 @@ export default function ArchiveApp({ initialName,initialTab="packs",initialSocia
                   <strong>通知</strong>
                   <small>ゲーム内イベントのお知らせ</small>
                 </span>
-                {notificationData.unreadCount ? (
-                  <b>{notificationData.unreadCount}</b>
+                {unreadCount ? (
+                  <b>{unreadCount}</b>
                 ) : null}
                 <ChevronRight />
               </button>
-              <button type="button" onClick={() => window.location.assign("/settings")}>
+              <button type="button" onClick={() => router.push("/settings")}>
                 <Settings />
                 <span>
                   <strong>アカウント設定</strong>
@@ -1736,7 +1643,7 @@ export default function ArchiveApp({ initialName,initialTab="packs",initialSocia
                 </span>
                 <ChevronRight />
               </button>
-              <button type="button" onClick={() => window.location.assign("/settings/safety")}>
+              <button type="button" onClick={() => router.push("/settings/safety")}>
                 <ShieldCheck />
                 <span><strong>プライバシー・安全</strong><small>ブロック中のユーザーとフレンドID</small></span>
                 <ChevronRight />
@@ -1785,7 +1692,7 @@ export default function ArchiveApp({ initialName,initialTab="packs",initialSocia
               <section className="account-protection-card">
                 <KeyRound aria-hidden="true" />
                 <div><strong>管理者Googleアカウントを連携してください</strong><p>次回以降の運営ログインは、Google本人確認とアクセスキーの2段階になります。</p></div>
-                <button type="button" onClick={() => window.location.assign("/settings")}>連携設定を開く</button>
+                <button type="button" onClick={() => router.push("/settings")}>連携設定を開く</button>
               </section>
             ) : null}
             <p className="menu-section-label">ABOUT</p><a className="menu-policy-link" href="/privacy">プライバシーポリシー <ChevronRight /></a>
@@ -2103,7 +2010,7 @@ export default function ArchiveApp({ initialName,initialTab="packs",initialSocia
           {notice}
         </button>
       ) : null}
-      {claim ? <PackOpeningExperience pack={claim} onClose={() => setClaim(null)} onClaimed={(card) => { setNotice(card ? `${card.name}を獲得しました` : "カードを獲得しました");void load(); }} onViewCollection={() => { setClaim(null);setActiveTab("collection"); }} /> : null}
+      {claim ? <PackOpeningExperience pack={claim} onClose={() => setClaim(null)} onClaimed={(card) => { setNotice(card ? `${card.name}を獲得しました` : "カードを獲得しました");void load(); }} onViewCollection={() => { setClaim(null);router.push("/collection"); }} /> : null}
       <AlertDialog open={Boolean(purgePreview)} onOpenChange={(open) => { if (!open && !purgingUsers) { setPurgePreview(null);setPurgeConfirmation(""); } }}>
         <AlertDialogContent className="user-purge-dialog">
           <AlertDialogHeader>
