@@ -54,7 +54,6 @@ import AdminOperations from "./admin-operations";
 import AdminCardLibrary, { type CatalogCard } from "./admin-card-library";
 import PackOpeningExperience from "./components/pack-opening-experience";
 import CollectionCardViewer from "./components/collection-card-viewer";
-import SafetySettings from "./components/safety-settings";
 
 type UserView = SessionView & {
   createdAt: number;
@@ -96,7 +95,7 @@ type NotificationData = {
   unreadCount: number;
 };
 
-export type ArchiveRoute="/packs" | "/collection" | "/friends" | "/friends/requests" | "/friends/trades" | "/menu" | "/notifications" | "/exchange" | "/settings" | "/settings/safety";
+export type RootRoute="/packs" | "/collection" | "/friends" | "/friends/requests" | "/friends/trades" | "/menu";
 
 const ROOT_ROUTES={ packs:"/packs",collection:"/collection",social:"/friends",menu:"/menu" } as const;
 
@@ -168,34 +167,6 @@ async function optimizeCardImage(file: File) {
   if (!output) throw new Error("画像を圧縮できませんでした");
   const base = file.name.replace(/\.[^.]+$/, "") || "card";
   return new File([output], `${base}.webp`, {
-    type: "image/webp",
-    lastModified: Date.now(),
-  });
-}
-
-async function optimizeAvatarImage(file: File) {
-  const bitmap = await createImageBitmap(file, {
-    imageOrientation: "from-image",
-  });
-  const size = Math.min(bitmap.width, bitmap.height);
-  const sourceX = (bitmap.width - size) / 2;
-  const sourceY = (bitmap.height - size) / 2;
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 512;
-  const context = canvas.getContext("2d", { alpha: false });
-  if (!context) {
-    bitmap.close();
-    throw new Error("画像を処理できませんでした");
-  }
-  context.imageSmoothingEnabled = true;
-  context.imageSmoothingQuality = "high";
-  context.fillStyle = "#111311";
-  context.fillRect(0, 0, 512, 512);
-  context.drawImage(bitmap, sourceX, sourceY, size, size, 0, 0, 512, 512);
-  bitmap.close();
-  const blob = await canvasBlob(canvas, "image/webp", 0.84);
-  return new File([blob], "profile.webp", {
     type: "image/webp",
     lastModified: Date.now(),
   });
@@ -349,14 +320,9 @@ function PackCardCatalog({
   );
 }
 
-function DailyAndExchange({
-  onChanged,
-  onNotice,
-  exchangePage=false,
-}: {
+function DailyAndExchange({ onChanged,onNotice }: {
   onChanged: () => void;
   onNotice: (message: string) => void;
-  exchangePage?: boolean;
 }) {
   type LoginBonus = {
     date: string;
@@ -370,18 +336,10 @@ function DailyAndExchange({
     bonusType: "daily" | "wednesday" | "streak";
   };
   const [daily, setDaily] = useState<LoginBonus | null>(null);
-  const [cards, setCards] = useState<
-    Array<SharedCard & { price: number; owned: boolean }>
-  >([]);
-  const [shopOpen, setShopOpen] = useState(exchangePage);
   const [busy, setBusy] = useState(false);
   const load = useCallback(async () => {
-    const [dailyResponse, shopResponse] = await Promise.all([
-      fetch("/api/login-bonus", { cache: "no-store" }),
-      fetch("/api/exchange", { cache: "no-store" }),
-    ]);
+    const dailyResponse = await fetch("/api/login-bonus", { cache: "no-store" });
     if (dailyResponse.ok) setDaily(await dailyResponse.json());
-    if (shopResponse.ok) setCards((await shopResponse.json()).cards ?? []);
   }, []);
   useEffect(() => {
     void load();
@@ -398,21 +356,6 @@ function DailyAndExchange({
     if (!response.ok)
       return onNotice(data.error ?? "報酬を受け取れませんでした");
     onNotice(`${data.reward}コインを受け取りました`);
-    void load();
-    onChanged();
-  }
-  async function exchange(card: SharedCard & { price: number }) {
-    setBusy(true);
-    const response = await fetch("/api/exchange", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ cardId: card.id }),
-    });
-    const data = await response.json();
-    setBusy(false);
-    if (!response.ok)
-      return onNotice(data.error ?? "カードを交換できませんでした");
-    onNotice(`${card.name}を交換しました`);
     void load();
     onChanged();
   }
@@ -453,47 +396,6 @@ function DailyAndExchange({
         <b>{daily?.points ?? 0} COINS</b>
         <ChevronRight />
       </button>
-      <Dialog open={shopOpen} onOpenChange={(open) => { setShopOpen(open);if (!open && exchangePage) window.location.assign("/menu"); }}>
-        <DialogContent className="exchange-dialog">
-          <DialogHeader>
-            <p className="section-kicker">TODAY'S 6 CARDS</p>
-            <DialogTitle>今日のカード交換所</DialogTitle>
-            <DialogDescription>
-              毎日ランダムで選ばれる6枚のうち、好きな未所持カードを獲得できます。
-            </DialogDescription>
-          </DialogHeader>
-          <div className="exchange-balance">
-            所持コイン <strong>{daily?.points ?? 0}</strong>
-          </div>
-          <div className="exchange-grid">
-            {cards.map((card) => (
-              <article key={card.id}>
-                <img
-                  src={card.imageUrl}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                />
-                <div>
-                  <span>{card.rarity}</span>
-                  <strong>{card.name}</strong>
-                  <small>
-                    {card.owned ? "交換済み" : card.team || card.country}
-                  </small>
-                </div>
-                <Button
-                  disabled={
-                    busy || card.owned || (daily?.points ?? 0) < card.price
-                  }
-                  onClick={() => void exchange(card)}
-                >
-                  {card.owned ? "交換済み" : `${card.price} COINS`}
-                </Button>
-              </article>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
     </section>
   );
 }
@@ -1190,7 +1092,7 @@ function AdminPack({
   );
 }
 
-export default function ArchiveApp({ initialName,initialRoute="/packs" }: { initialName: string;initialRoute?:ArchiveRoute }) {
+export default function ArchiveApp({ initialName,initialTab="packs",initialSocialView="friends" }: { initialName:string;initialTab?:"packs"|"collection"|"social"|"menu";initialSocialView?:"friends"|"requests"|"trades" }) {
   const [dashboard, setDashboard] = useState<Dashboard | null>(null);
   const [cardCatalog, setCardCatalog] = useState<CatalogCard[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1223,39 +1125,16 @@ export default function ArchiveApp({ initialName,initialRoute="/packs" }: { init
   const [adminView, setAdminView] = useState<
     "players" | "packs" | "cards" | "operations"
   >("packs");
-  const [settingsOpen, setSettingsOpen] = useState(initialRoute === "/settings");
-  const [profileName, setProfileName] = useState(initialName);
-  const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [profileFileKey, setProfileFileKey] = useState(0);
-  const [savingProfile, setSavingProfile] = useState(false);
   const [googleLinked, setGoogleLinked] = useState<boolean | null>(null);
-  const [googleEmail, setGoogleEmail] = useState<string | null>(null);
   const [adminGoogleLinked, setAdminGoogleLinked] = useState<boolean | null>(null);
-  const [adminGoogleEmail, setAdminGoogleEmail] = useState<string | null>(null);
-  const [adminLinkKey, setAdminLinkKey] = useState("");
-  const [linkingAdminGoogle, setLinkingAdminGoogle] = useState(false);
   const [managedUser, setManagedUser] = useState<UserView | null>(null);
-  const initialTab=initialRoute === "/collection" ? "collection" : initialRoute.startsWith("/friends") ? "social" : initialRoute === "/packs" ? "packs" : "menu";
-  const [activeTab, setActiveTab] = useState(initialTab);
-  const [notificationsOpen, setNotificationsOpen] = useState(initialRoute === "/notifications");
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
   const [socialSubpageOpen, setSocialSubpageOpen] = useState(false);
-  const [safetyOpen, setSafetyOpen] = useState(initialRoute === "/settings/safety");
-  const [socialInitialView] = useState<"friends" | "requests" | "trades">(initialRoute === "/friends/requests" ? "requests" : initialRoute === "/friends/trades" ? "trades" : "friends");
+  const [socialInitialView] = useState(initialSocialView);
   const [notificationData, setNotificationData] = useState<NotificationData>({
     notifications: [],
     unreadCount: 0,
   });
-  const profilePreview = useMemo(
-    () => (profileImage ? URL.createObjectURL(profileImage) : ""),
-    [profileImage],
-  );
-  useEffect(
-    () => () => {
-      if (profilePreview) URL.revokeObjectURL(profilePreview);
-    },
-    [profilePreview],
-  );
-
   const load = useCallback(async () => {
     const response = await fetch("/api/dashboard", { cache: "no-store" });
     const result = await response.json();
@@ -1325,7 +1204,7 @@ export default function ArchiveApp({ initialName,initialRoute="/packs" }: { init
       .then(async (response) => {
         if (!response.ok) return;
         const result=await response.json() as { linked:boolean;email:string | null };
-        setGoogleLinked(result.linked);setGoogleEmail(result.email);
+        setGoogleLinked(result.linked);
       })
       .catch(() => undefined);
     return () => controller.abort();
@@ -1337,7 +1216,7 @@ export default function ArchiveApp({ initialName,initialRoute="/packs" }: { init
       .then(async (response) => {
         if (!response.ok) return;
         const result=await response.json() as { linked:boolean;email:string | null };
-        setAdminGoogleLinked(result.linked);setAdminGoogleEmail(result.email);
+        setAdminGoogleLinked(result.linked);
       })
       .catch(() => undefined);
     return () => controller.abort();
@@ -1369,18 +1248,6 @@ export default function ArchiveApp({ initialName,initialRoute="/packs" }: { init
     } finally {
       setCreatingPack(false);
     }
-  }
-
-  async function linkAdminGoogle() {
-    if (!adminLinkKey) return setNotice("運営用アクセスキーを入力してください");
-    setLinkingAdminGoogle(true);
-    try {
-      const response=await fetch("/api/admin/auth/google/link/start",{ method:"POST",headers:{ "content-type":"application/json" },body:JSON.stringify({ accessKey:adminLinkKey }) });
-      const result=await response.json() as { url?:string;error?:string };
-      if (!response.ok || !result.url) return setNotice(result.error ?? "Google連携を開始できませんでした");
-      window.location.assign(result.url);
-    } catch { setNotice("Google連携を開始できませんでした"); }
-    finally { setLinkingAdminGoogle(false); }
   }
 
   function seedInitialPack() {
@@ -1457,88 +1324,6 @@ export default function ArchiveApp({ initialName,initialRoute="/packs" }: { init
       void load();
     } catch { setNotice("アカウントを削除できませんでした"); }
     finally { setPurgingUsers(false); }
-  }
-
-  async function saveProfile() {
-    if (!profileName.trim()) return setNotice("アカウント名を入力してください");
-    setSavingProfile(true);
-    try {
-      const nameResponse = await fetch("/api/profile", {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ displayName: profileName }),
-      });
-      const nameResult = await nameResponse.json();
-      if (!nameResponse.ok)
-        return setNotice(
-          nameResult.error ?? "アカウント名を変更できませんでした",
-        );
-      if (profileImage) {
-        const optimized = await optimizeAvatarImage(profileImage);
-        const form = new FormData();
-        form.set("avatar", optimized);
-        const imageResponse = await fetch("/api/profile", {
-          method: "PUT",
-          body: form,
-        });
-        const imageResult = await imageResponse.json();
-        if (!imageResponse.ok)
-          return setNotice(
-            imageResult.error ?? "プロフィール画像を変更できませんでした",
-          );
-      }
-      setSettingsOpen(false);
-      setNotice("アカウント設定を保存しました");
-      await load();
-      if (initialRoute === "/settings") window.location.assign("/menu");
-    } catch {
-      setNotice("通信に失敗しました。もう一度お試しください");
-    } finally {
-      setSavingProfile(false);
-    }
-  }
-
-  async function removeProfileImage() {
-    setSavingProfile(true);
-    try {
-      const response = await fetch("/api/profile", { method: "DELETE" });
-      const result = await response.json();
-      if (!response.ok)
-        return setNotice(
-          result.error ?? "プロフィール画像を削除できませんでした",
-        );
-      setProfileImage(null);
-      setProfileFileKey((value) => value + 1);
-      setNotice("プロフィール画像を削除しました");
-      await load();
-    } catch {
-      setNotice("通信に失敗しました。もう一度お試しください");
-    } finally {
-      setSavingProfile(false);
-    }
-  }
-
-  async function openNotification(item: NotificationItem) {
-    if (item.readAt === null) {
-      await fetch("/api/notifications", {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "read", id: item.id }),
-      });
-    }
-    if (item.destination === "social") {
-      window.location.assign(item.type === "trade" ? "/friends/trades" : "/friends/requests");
-    } else if (item.destination === "packs") window.location.assign("/packs");
-    void loadNotifications();
-  }
-
-  async function readAllNotifications() {
-    const response = await fetch("/api/notifications", {
-      method: "PATCH",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ action: "read-all" }),
-    });
-    if (response.ok) void loadNotifications();
   }
 
   function openCard(card: SharedCard, cards: SharedCard[]) {
@@ -1663,7 +1448,7 @@ export default function ArchiveApp({ initialName,initialRoute="/packs" }: { init
       : dashboard.collection;
 
   return (
-    <main className={`network-shell ${initialRoute === "/settings" || initialRoute === "/notifications" || initialRoute === "/exchange" ? "route-dialog-subpage " : ""}${socialSubpageOpen || safetyOpen || settingsOpen || notificationsOpen || viewingPack || selectedCard || claim ? "has-native-subpage" : ""}`}>
+    <main className={`network-shell ${socialSubpageOpen || viewingPack || selectedCard || claim ? "has-native-subpage" : ""}`}>
       <Tabs
         value={activeTab}
         onValueChange={(value) => window.location.assign(ROOT_ROUTES[value as keyof typeof ROOT_ROUTES])}
@@ -1921,11 +1706,10 @@ export default function ArchiveApp({ initialName,initialRoute="/packs" }: { init
           />
         </TabsContent>
         <TabsContent value="menu" className="network-page">
-          {safetyOpen ? <SafetySettings onBack={() => initialRoute === "/settings/safety" ? window.location.assign("/settings") : setSafetyOpen(false)} onNotice={setNotice} /> : <section className="menu-page"><h1 className="root-page-title">メニュー</h1>
+          <section className="menu-page"><h1 className="root-page-title">メニュー</h1>
             <p className="menu-section-label">TODAY</p><DailyAndExchange
               onChanged={() => void load()}
               onNotice={setNotice}
-              exchangePage={initialRoute === "/exchange"}
             />
             <p className="menu-section-label">ACCOUNT</p><div className="menu-list">
               <button
@@ -2005,7 +1789,7 @@ export default function ArchiveApp({ initialName,initialRoute="/packs" }: { init
               </section>
             ) : null}
             <p className="menu-section-label">ABOUT</p><a className="menu-policy-link" href="/privacy">プライバシーポリシー <ChevronRight /></a>
-          </section>}
+          </section>
         </TabsContent>
         {isAdmin ? (
           <TabsContent value="admin" className="network-page">
@@ -2381,161 +2165,6 @@ export default function ArchiveApp({ initialName,initialRoute="/packs" }: { init
               {creatingPack ? "作成中…" : "下書きを作成"}
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
-      <Dialog
-        open={settingsOpen}
-        onOpenChange={(open) => {
-          if (!savingProfile) { setSettingsOpen(open);if (!open && initialRoute === "/settings") window.location.assign("/menu"); }
-        }}
-      >
-        <DialogContent className="account-settings-dialog">
-          <DialogHeader>
-            <p className="section-kicker">ACCOUNT SETTINGS</p>
-            <DialogTitle>アカウント設定</DialogTitle>
-            <DialogDescription>
-              参加者に表示される名前とプロフィール画像を変更できます。
-            </DialogDescription>
-          </DialogHeader>
-          <div className="profile-editor">
-            <div className="profile-avatar-preview">
-              {profilePreview || dashboard.session.avatarUrl ? (
-                <img
-                  src={profilePreview || dashboard.session.avatarUrl || ""}
-                  alt="プロフィール画像のプレビュー"
-                />
-              ) : (
-                <span>
-                  {(profileName || dashboard.session.displayName).slice(0, 1)}
-                </span>
-              )}
-            </div>
-            <div className="profile-image-actions">
-              <label htmlFor="profile-image">画像を選択</label>
-              <Input
-                key={profileFileKey}
-                id="profile-image"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                disabled={savingProfile}
-                onChange={(event) =>
-                  setProfileImage(event.target.files?.[0] ?? null)
-                }
-              />
-              {dashboard.session.avatarUrl ? (
-                <button
-                  type="button"
-                  disabled={savingProfile}
-                  onClick={() => void removeProfileImage()}
-                >
-                  現在の画像を削除
-                </button>
-              ) : null}
-            </div>
-            <div className="profile-name-field">
-              <label htmlFor="profile-name">アカウント名</label>
-              <Input
-                id="profile-name"
-                maxLength={24}
-                value={profileName}
-                disabled={savingProfile}
-                onChange={(event) => setProfileName(event.target.value)}
-              />
-              <small>{profileName.trim().length} / 24文字</small>
-            </div>
-            <Button
-              className="profile-save"
-              disabled={savingProfile || !profileName.trim()}
-              onClick={() => void saveProfile()}
-            >
-              {savingProfile ? "保存中…" : "変更を保存"}
-            </Button>
-            {!isAdmin ? (
-              <section className="account-security-settings google-account-settings">
-                <div>
-                  <KeyRound aria-hidden="true" />
-                  <span>
-                    <strong>アカウント保護</strong>
-                    <small>Googleアカウント　{googleLinked ? "連携済み" : "未連携"}</small>
-                  </span>
-                </div>
-                {googleLinked ? (
-                  <p>{googleEmail}<br />Googleアカウントで復元できます</p>
-                ) : (
-                  <a href="/api/auth/google/start?mode=link">Googleアカウントを連携</a>
-                )}
-              </section>
-            ) : (
-              <section className="account-security-settings google-account-settings">
-                <div><KeyRound aria-hidden="true" /><span><strong>管理者2段階認証</strong><small>Googleアカウント　{adminGoogleLinked ? "連携済み" : "未連携"}</small></span></div>
-                {adminGoogleLinked ? <p>{adminGoogleEmail}<br />次回からGoogle確認とアクセスキーが必要です</p> : <div className="admin-google-link-form"><Input type="password" autoComplete="current-password" placeholder="運営用アクセスキーを再入力" value={adminLinkKey} onChange={(event) => setAdminLinkKey(event.target.value)} /><Button disabled={linkingAdminGoogle || !adminLinkKey} onClick={() => void linkAdminGoogle()}>{linkingAdminGoogle ? "連携開始中…" : "Googleアカウントを連携"}</Button></div>}
-              </section>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={notificationsOpen} onOpenChange={(open) => { setNotificationsOpen(open);if (!open && initialRoute === "/notifications") window.location.assign("/menu"); }}>
-        <DialogContent className="notifications-dialog">
-          <DialogHeader>
-            <div className="notifications-heading">
-              <div>
-                <p className="section-kicker">NOTIFICATIONS</p>
-                <DialogTitle>通知</DialogTitle>
-              </div>
-              {notificationData.unreadCount ? (
-                <Button
-                  variant="outline"
-                  onClick={() => void readAllNotifications()}
-                >
-                  すべて既読
-                </Button>
-              ) : null}
-            </div>
-            <DialogDescription>
-              パック、フレンド、トレードなどゲーム内イベントの通知です。
-            </DialogDescription>
-          </DialogHeader>
-          {notificationData.notifications.length ? (
-            <div className="notification-list">
-              {notificationData.notifications.map((item) => (
-                <button
-                  type="button"
-                  key={item.id}
-                  className={`notification-item ${item.readAt === null ? "is-unread" : ""}`}
-                  onClick={() => void openNotification(item)}
-                >
-                  <span className={`notification-icon type-${item.type}`}>
-                    {item.type === "friend"
-                      ? "F"
-                      : item.type === "trade"
-                        ? "T"
-                        : item.type === "pack"
-                          ? "P"
-                          : "A"}
-                  </span>
-                  <div>
-                    <strong>{item.title}</strong>
-                    <p>{item.message}</p>
-                    <small>
-                      {new Date(item.createdAt).toLocaleString("ja-JP", {
-                        month: "numeric",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </small>
-                  </div>
-                  {item.readAt === null ? <i aria-label="未読" /> : null}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="notification-empty">
-              <Bell size={24} aria-hidden="true" />
-              <strong>通知はまだありません</strong>
-              <p>新しいお知らせが届くと、ここに表示されます。</p>
-            </div>
-          )}
         </DialogContent>
       </Dialog>
       <Dialog
