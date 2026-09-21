@@ -6,6 +6,7 @@ const app=await readFile(new URL("../app/archive-app.tsx",import.meta.url),"utf8
 const nav=await readFile(new URL("../app/components/app/bottom-navigation.tsx",import.meta.url),"utf8");
 const provider=await readFile(new URL("../app/components/app/app-data-provider.tsx",import.meta.url),"utf8");
 const playerLayout=await readFile(new URL("../app/(player)/layout.tsx",import.meta.url),"utf8");
+const routePage=await readFile(new URL("../app/archive-route-page.tsx",import.meta.url),"utf8");
 
 test("exposes real root and standalone utility routes",async()=>{
   for(const route of ["packs","collection","friends","friends/requests","friends/trades","menu"]){
@@ -29,6 +30,7 @@ test("exposes real root and standalone utility routes",async()=>{
   assert.match(playerLayout,/initialDashboard=\{dashboard\}/);
   assert.match(playerLayout,/BottomNavigation/);
   assert.match(provider,/refreshDashboard/);
+  assert.match(routePage,/<ArchiveApp key=\{route\}/);
   assert.doesNotMatch(`${app}\n${nav}`,/window\.location\.assign|location\.href/);
   assert.doesNotMatch(app,/アーカイブを読み込んでいます/);
   for(const removed of ["initialRoute","notificationsOpen","settingsOpen","safetyOpen"])assert.doesNotMatch(app,new RegExp(removed));
