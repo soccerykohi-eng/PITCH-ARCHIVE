@@ -3,11 +3,12 @@ import { readFile } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 import test from "node:test";
 
-const [preview,purge,helper,dashboard,ui]=await Promise.all([
+const [preview,purge,helper,dashboard,dashboardData,ui]=await Promise.all([
   readFile(new URL("../app/api/admin/users/purge-preview/route.ts",import.meta.url),"utf8"),
   readFile(new URL("../app/api/admin/users/purge/route.ts",import.meta.url),"utf8"),
   readFile(new URL("../app/admin-user-purge.ts",import.meta.url),"utf8"),
   readFile(new URL("../app/api/dashboard/route.ts",import.meta.url),"utf8"),
+  readFile(new URL("../app/server-dashboard.ts",import.meta.url),"utf8"),
   readFile(new URL("../app/archive-app.tsx",import.meta.url),"utf8"),
 ]);
 
@@ -36,8 +37,9 @@ test("purge handles legacy announcement FK, removes user-scoped audit history, l
 });
 
 test("admin list exposes Google state, cleanup candidates, current-filter selection, preview, and typed confirmation",() => {
-  assert.match(dashboard,/LEFT JOIN google_identities/);
-  assert.match(dashboard,/packOpeningCount/);
+  assert.match(dashboard,/getDashboardData/);
+  assert.match(dashboardData,/LEFT JOIN google_identities/);
+  assert.match(dashboardData,/packOpeningCount/);
   assert.match(ui,/Google 連携済み/);
   assert.match(ui,/Google 未連携/);
   assert.match(ui,/整理候補/);

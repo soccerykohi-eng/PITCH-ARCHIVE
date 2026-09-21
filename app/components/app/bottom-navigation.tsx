@@ -11,10 +11,12 @@ const items = [
   { href: "/friends", label: "フレンド", icon: UsersRound, active: (path: string) => path.startsWith("/friends") },
   { href: "/menu", label: "メニュー", icon: Menu, active: (path: string) => path.startsWith("/menu") },
 ] as const;
+const rootPaths=new Set(items.map((item)=>item.href));
 
 export default function BottomNavigation() {
   const pathname = usePathname();
   const { dashboard, unreadCount } = useAppData();
+  if (!rootPaths.has(pathname as typeof items[number]["href"])) return null;
   return <nav className="network-nav app-bottom-navigation" aria-label="メインナビゲーション">
     {items.map((item) => {
       const Icon = item.icon;

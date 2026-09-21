@@ -1062,7 +1062,7 @@ function AdminPack({
 
 export default function ArchiveApp({ initialTab="packs",initialSocialView="friends" }: { initialTab?:"packs"|"collection"|"social"|"menu";initialSocialView?:"friends"|"requests"|"trades" }) {
   const router = useRouter();
-  const { dashboard, loading, error, unreadCount, refreshDashboard } = useAppData();
+  const { dashboard, unreadCount, refreshDashboard } = useAppData();
   const [cardCatalog, setCardCatalog] = useState<CatalogCard[]>([]);
   const [notice, setNotice] = useState("");
   const [packName, setPackName] = useState("");
@@ -1265,20 +1265,6 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
     setViewingPack(pack);
   }
 
-  if (loading)
-    return (
-      <main className="state-shell">
-        <div className="loading-mark">PA</div>
-        <p>アーカイブを読み込んでいます</p>
-      </main>
-    );
-  if (!dashboard)
-    return (
-      <main className="state-shell">
-        <p>{error || "データを読み込めませんでした。"}</p>
-        <Button onClick={() => location.reload()}>再読み込み</Button>
-      </main>
-    );
   if (dashboard.session.status === "suspended")
     return (
       <main className="state-shell">
