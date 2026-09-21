@@ -1062,7 +1062,8 @@ function AdminPack({
 
 export default function ArchiveApp({ initialTab="packs",initialSocialView="friends" }: { initialTab?:"packs"|"collection"|"social"|"menu";initialSocialView?:"friends"|"requests"|"trades" }) {
   const router = useRouter();
-  const { dashboard, unreadCount, refreshDashboard } = useAppData();
+  const { dashboard, unreadCount, activeRoot,refreshDashboard } = useAppData();
+  const routeTab=activeRoot==="/collection"?"collection":activeRoot==="/friends"?"social":activeRoot==="/menu"?"menu":activeRoot==="/packs"?"packs":initialTab;
   const [cardCatalog, setCardCatalog] = useState<CatalogCard[]>([]);
   const [notice, setNotice] = useState("");
   const [packName, setPackName] = useState("");
@@ -1096,12 +1097,12 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
   const [googleLinked, setGoogleLinked] = useState<boolean | null>(null);
   const [adminGoogleLinked, setAdminGoogleLinked] = useState<boolean | null>(null);
   const [managedUser, setManagedUser] = useState<UserView | null>(null);
-  const [activeTab, setActiveTab] = useState<string>(initialTab);
-  const [activeRouteTab, setActiveRouteTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useState<string>(routeTab);
+  const [activeRouteTab, setActiveRouteTab] = useState(routeTab);
   const [socialSubpageOpen, setSocialSubpageOpen] = useState(false);
-  if (activeRouteTab !== initialTab) {
-    setActiveRouteTab(initialTab);
-    setActiveTab(initialTab);
+  if (activeRouteTab !== routeTab) {
+    setActiveRouteTab(routeTab);
+    setActiveTab(routeTab);
     setSocialSubpageOpen(false);
   }
   const load = useCallback(async () => {
