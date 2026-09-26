@@ -46,13 +46,6 @@ async function cardById(id:string) {
   return row ? { ...row,imageUrl:imageUrl(row) } : null;
 }
 
-async function showcaseFor(email:string) {
-  const rows=await getRawDb().prepare(`SELECT c.id,c.name,c.position,c.country,c.team,c.rarity,c.series,c.image_key AS imageKey
-    FROM card_showcase s JOIN cards c ON c.id=s.card_id JOIN collection col ON col.user_email=s.user_email AND col.card_id=s.card_id
-    WHERE s.user_email=? ORDER BY s.sort_order LIMIT 5`).bind(email).all<CardRow>();
-  return rows.results.map((card) => ({ ...card,imageUrl:imageUrl(card) }));
-}
-
 export async function GET() {
   const { member,response }=await requireApprovedMember();
   if (!member || response) return response;
@@ -81,35 +74,24 @@ export async function GET() {
     return relationship ? [{ ...user,avatarUrl:avatarKey ? `/api/avatar/${encodeURIComponent(avatarKey)}` : null,relationship }] : [];
   });
   const friendPeople=people.filter((person) => person.relationship === "friend");
-  const friends=(await Promise.all(friendPeople.map(async (person) => { const [cards,showcase]=await Promise.all([getCollection(person.email),showcaseFor(person.email)]);return { ...person,cards,showcase }; }))).sort((first,second) => (second.lastActiveAt ?? 0)-(first.lastActiveAt ?? 0));
+  const friends=(await Promise.all(friendPeople.map(async (person) => ({ ...person,cards:await getCollection(person.email) })))).sort((first,second) => (second.lastActiveAt ?? 0)-(first.lastActiveAt ?? 0));
   const trades=await Promise.all(tradesResult.results.map(async (trade) => {
     const incoming=trade.recipientEmail === member.email;
     const otherEmail=incoming ? trade.proposerEmail : trade.recipientEmail;
     const [offeredCard,requestedCard]=await Promise.all([cardById(trade.offeredCardId),cardById(trade.requestedCardId)]);
     return { ...trade,direction:incoming ? "incoming" : "outgoing",otherEmail,otherName:names.get(otherEmail) ?? "参加者",otherAvatarUrl:avatars.get(otherEmail) ?? null,offeredCard,requestedCard };
   }));
-  return Response.json({ ownFriendId,people,friends,trades,ownShowcase:await showcaseFor(member.email) });
+  return Response.json({ ownFriendId,people,friends,trades });
 }
 
 export async function POST(request:Request) {
   const { member,response }=await requireApprovedMember();
   if (!member || response) return response;
-  const body=await request.json().catch(() => null) as { action?:string;friendId?:string;targetEmail?:string;tradeId?:string;offeredCardId?:string;requestedCardId?:string;cardIds?:string[] } | null;
+  const body=await request.json().catch(() => null) as { action?:string;friendId?:string;targetEmail?:string;tradeId?:string;offeredCardId?:string;requestedCardId?:string } | null;
   const action=String(body?.action ?? "");
   let targetEmail=String(body?.targetEmail ?? "").trim().toLowerCase();
   const db=getRawDb();
   const now=Date.now();
-
-  if (action === "showcase.save") {
-    const cardIds=Array.isArray(body?.cardIds) ? body.cardIds.map(String) : [];
-    if (cardIds.length>5 || new Set(cardIds).size!==cardIds.length) return Response.json({ error:"お気に入りは5枚まで選べます" },{ status:400 });
-    if (cardIds.length) {
-      const owned=await db.prepare(`SELECT card_id AS cardId FROM collection WHERE user_email=? AND card_id IN (${cardIds.map(() => "?").join(",")})`).bind(member.email,...cardIds).all<{ cardId:string }>();
-      if (owned.results.length!==cardIds.length) return Response.json({ error:"所持していないカードが含まれています" },{ status:409 });
-    }
-    await db.batch([db.prepare("DELETE FROM card_showcase WHERE user_email=?").bind(member.email),...cardIds.map((cardId,index) => db.prepare("INSERT INTO card_showcase (user_email,card_id,sort_order) VALUES (?,?,?)").bind(member.email,cardId,index))]);
-    return Response.json({ ok:true });
-  }
 
   if (action.startsWith("friend.")) {
     if (action === "friend.request") {
