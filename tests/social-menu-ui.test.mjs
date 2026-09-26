@@ -12,6 +12,15 @@ test("social uses native segment and friend profile subpages",()=>{
   assert.doesNotMatch(social,/className="friend-card"/);
 });
 
+test("friend home uses a game-style segmented roster",()=>{
+  assert.match(social,/フレンド数: \{data\.friends\.length\}/);
+  assert.match(social,/data\.friends\.map/);
+  assert.doesNotMatch(social,/data\.friends\.slice\(0,3\)/);
+  assert.match(styles,/\.social-subnav\{[^}]*border-radius:999px/);
+  assert.match(styles,/\.native-friend-row\{[^}]*min-height:92px/);
+  assert.match(styles,/\.native-friend-row \.person-avatar\{width:62px;height:62px/);
+});
+
 test("trade creation has three user-facing steps",()=>{
   assert.match(social,/STEP \{step\} \/ 3/);assert.match(social,/あなたが渡すカードを選ぶ/);assert.match(social,/受け取りたいカードを選ぶ/);assert.match(social,/トレード確認/);
   assert.match(social,/あなたが渡す/);assert.match(social,/あなたが受け取る/);
