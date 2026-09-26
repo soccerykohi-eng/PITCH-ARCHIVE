@@ -25,9 +25,18 @@ test("initial admin link requires an admin session and access key",async()=>{
   assert.match(route,/admin-link/);
 });
 
-test("player and admin Google identities remain separate",async()=>{
-  const player=await read("app/api/auth/google/callback/route.ts");
+test("shared Google login routes the linked identity to the admin session",async()=>{
+  const shared=await read("app/api/auth/google/callback/route.ts");
   const admin=await read("app/api/admin/auth/google/callback/route.ts");
-  assert.doesNotMatch(player,/admin_google_identities/);
+  assert.match(shared,/admin_google_identities/);
+  assert.match(shared,/createAdminSessionToken/);
+  assert.match(shared,/ADMIN_SESSION_COOKIE/);
+  assert.match(shared,/共通Googleログインから運営ログイン/);
   assert.match(admin,/admin_google_identities/);
+});
+
+test("legacy admin login URL returns to the shared login",async()=>{
+  const page=await read("app/admin-login/page.tsx");
+  assert.match(page,/redirect\("\/"\)/);
+  assert.doesNotMatch(page,/ADMIN_ACCESS_KEY|admin-login-form|Googleで本人確認/);
 });
