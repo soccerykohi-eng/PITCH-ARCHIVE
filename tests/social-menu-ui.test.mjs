@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const social=await readFile(new URL("../app/social-panel.tsx",import.meta.url),"utf8");
+const socialApi=await readFile(new URL("../app/api/social/route.ts",import.meta.url),"utf8");
 const archive=await readFile(new URL("../app/archive-app.tsx",import.meta.url),"utf8");
 const styles=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");
 const safety=await readFile(new URL("../app/components/safety-settings.tsx",import.meta.url),"utf8");
@@ -18,8 +19,8 @@ test("trade creation has three user-facing steps",()=>{
   assert.match(social,/あなたが渡す/);assert.match(social,/あなたが受け取る/);
 });
 
-test("showcase and safety settings use native flows",()=>{
-  assert.match(social,/ShowcaseEditor/);assert.match(social,/ショーケース編集/);assert.match(safety,/プライバシー・安全/);assert.doesNotMatch(archive,/SafetySettings/);
+test("showcase is removed and safety settings use native flows",()=>{
+  assert.doesNotMatch(social,/ShowcaseEditor|ショーケース|showcase\.save|ownShowcase/);assert.doesNotMatch(socialApi,/showcaseFor|showcase\.save|ownShowcase/);assert.match(safety,/プライバシー・安全/);assert.doesNotMatch(archive,/SafetySettings/);
 });
 
 test("mobile subpages hide bottom navigation and respect safe area",()=>{
