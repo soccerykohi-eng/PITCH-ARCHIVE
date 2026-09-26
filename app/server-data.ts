@@ -15,7 +15,7 @@ export function imageUrl(card:{ id:string;imageKey:string }) {
 export async function getPacksForUser(email:string,includeDrafts=false):Promise<PackView[]> {
   const db=getRawDb();
   await syncPackSchedule();
-  const packs=await db.prepare(`SELECT p.id,p.name,p.description,p.status,p.open_limit AS openLimit,p.publish_at AS publishAt,p.end_at AS endAt,p.notification_message AS notificationMessage,
+  const packs=await db.prepare(`SELECT p.id,p.name,p.description,p.status,p.open_limit AS openLimit,p.publish_at AS publishAt,p.end_at AS endAt,
     COALESCE((SELECT po.card_id FROM pack_openings po WHERE po.pack_id=p.id AND po.user_email=? ORDER BY po.opened_at DESC LIMIT 1),(SELECT pc.card_id FROM pack_claims pc WHERE pc.pack_id=p.id AND pc.user_email=?)) AS claimedCardId,
     (SELECT COUNT(*) FROM pack_openings po WHERE po.pack_id=p.id AND po.user_email=?)+CASE WHEN EXISTS(SELECT 1 FROM pack_claims pc WHERE pc.pack_id=p.id AND pc.user_email=?) THEN 1 ELSE 0 END AS openCount
     FROM packs p ${includeDrafts ? "" : "WHERE p.status IN ('published','archived')"} ORDER BY COALESCE(p.publish_at,p.created_at) DESC`).bind(email,email,email,email).all<PackRow>();

@@ -36,11 +36,6 @@ function pair(first:string,second:string) {
   return first < second ? [first,second] as const : [second,first] as const;
 }
 
-function notification(db:D1Database,userEmail:string,type:"friend"|"trade",title:string,message:string,now:number) {
-  return db.prepare("INSERT INTO notifications (id,user_email,type,title,message,destination,created_at) VALUES (?,?,?,?,?,'social',?)")
-    .bind(crypto.randomUUID(),userEmail,type,title,message,now);
-}
-
 async function cardById(id:string) {
   const row=await getRawDb().prepare(`SELECT id,name,position,country,team,rarity,series,image_key AS imageKey FROM cards WHERE id=?`).bind(id).first<CardRow>();
   return row ? { ...row,imageUrl:imageUrl(row) } : null;
@@ -110,19 +105,13 @@ export async function POST(request:Request) {
     if (action === "friend.request") {
       const existing=await db.prepare("SELECT status FROM friendships WHERE user_a_email=? AND user_b_email=?").bind(userA,userB).first();
       if (existing) return Response.json({ error:"すでに申請またはフレンド登録されています" },{ status:409 });
-      await db.batch([
-        db.prepare("INSERT INTO friendships (user_a_email,user_b_email,requested_by,status,created_at,updated_at) VALUES (?,?,?,'pending',?,?)").bind(userA,userB,member.email,now,now),
-        notification(db,targetEmail,"friend",`${member.displayName}さんからフレンド申請`,"フレンド画面で申請を確認できます",now),
-      ]);
+      await db.prepare("INSERT INTO friendships (user_a_email,user_b_email,requested_by,status,created_at,updated_at) VALUES (?,?,?,'pending',?,?)").bind(userA,userB,member.email,now,now).run();
       return Response.json({ ok:true });
     }
     if (action === "friend.accept") {
       const pending=await db.prepare("SELECT requested_by FROM friendships WHERE user_a_email=? AND user_b_email=? AND status='pending'").bind(userA,userB).first<{ requested_by:string }>();
       if (!pending || pending.requested_by !== targetEmail) return Response.json({ error:"承認できる申請がありません" },{ status:409 });
-      await db.batch([
-        db.prepare("UPDATE friendships SET status='accepted',updated_at=? WHERE user_a_email=? AND user_b_email=?").bind(now,userA,userB),
-        notification(db,targetEmail,"friend",`${member.displayName}さんとフレンドになりました`,"カードの確認やトレードができるようになりました",now),
-      ]);
+      await db.prepare("UPDATE friendships SET status='accepted',updated_at=? WHERE user_a_email=? AND user_b_email=?").bind(now,userA,userB).run();
       return Response.json({ ok:true });
     }
     if (action === "friend.decline" || action === "friend.remove") {
@@ -130,7 +119,6 @@ export async function POST(request:Request) {
         db.prepare("DELETE FROM friendships WHERE user_a_email=? AND user_b_email=?").bind(userA,userB),
         db.prepare("UPDATE trades SET status='cancelled',updated_at=? WHERE status='pending' AND ((proposer_email=? AND recipient_email=?) OR (proposer_email=? AND recipient_email=?))").bind(now,member.email,targetEmail,targetEmail,member.email),
       ];
-      if (action === "friend.decline") statements.push(notification(db,targetEmail,"friend",`${member.displayName}さんが申請を辞退しました`,"フレンド申請の結果をお知らせします",now));
       await db.batch(statements);
       return Response.json({ ok:true });
     }
@@ -155,10 +143,7 @@ export async function POST(request:Request) {
     if (alreadyRequested || alreadyOwned) return Response.json({ error:"どちらかがすでに交換後のカードを所持しています" },{ status:409 });
     const duplicate=await db.prepare("SELECT id FROM trades WHERE proposer_email=? AND recipient_email=? AND offered_card_id=? AND requested_card_id=? AND status='pending'").bind(member.email,targetEmail,offeredCardId,requestedCardId).first();
     if (duplicate) return Response.json({ error:"同じ交換を申請済みです" },{ status:409 });
-    await db.batch([
-      db.prepare("INSERT INTO trades (id,proposer_email,recipient_email,offered_card_id,requested_card_id,status,created_at,updated_at) VALUES (?,?,?,?,?,'pending',?,?)").bind(crypto.randomUUID(),member.email,targetEmail,offeredCardId,requestedCardId,now,now),
-      notification(db,targetEmail,"trade",`${member.displayName}さんからトレード申請`,"交換するカードをフレンド画面で確認してください",now),
-    ]);
+    await db.prepare("INSERT INTO trades (id,proposer_email,recipient_email,offered_card_id,requested_card_id,status,created_at,updated_at) VALUES (?,?,?,?,?,'pending',?,?)").bind(crypto.randomUUID(),member.email,targetEmail,offeredCardId,requestedCardId,now,now).run();
     return Response.json({ ok:true });
   }
 
@@ -187,7 +172,6 @@ export async function POST(request:Request) {
       db.prepare("INSERT INTO collection (user_email,card_id,quantity,source_pack_id,acquired_at) VALUES (?,?,1,NULL,?)").bind(trade.proposerEmail,trade.requestedCardId,now),
       db.prepare("INSERT INTO collection (user_email,card_id,quantity,source_pack_id,acquired_at) VALUES (?,?,1,NULL,?)").bind(trade.recipientEmail,trade.offeredCardId,now),
       db.prepare("UPDATE trades SET status='accepted',updated_at=? WHERE id=? AND status='pending'").bind(now,tradeId),
-      notification(db,trade.proposerEmail,"trade",`${member.displayName}さんとのトレードが成立`,"コレクションのカードが交換されました",now),
       auditStatement(db,member.email,"trade.accept","trade",tradeId,`${trade.offeredCardId} ⇄ ${trade.requestedCardId}`),
     ];
     if (depletedCardIds.length) {
@@ -202,11 +186,7 @@ export async function POST(request:Request) {
     const nextStatus=action === "trade.decline" ? "declined" : "cancelled";
     const trade=await db.prepare("SELECT proposer_email AS proposerEmail,recipient_email AS recipientEmail,status FROM trades WHERE id=?").bind(tradeId).first<{ proposerEmail:string;recipientEmail:string;status:string }>();
     if (!trade || trade.status !== "pending" || (action === "trade.decline" ? trade.recipientEmail : trade.proposerEmail) !== member.email) return Response.json({ error:"操作できる交換申請がありません" },{ status:409 });
-    const notifyEmail=action === "trade.decline" ? trade.proposerEmail : trade.recipientEmail;
-    await db.batch([
-      db.prepare(`UPDATE trades SET status=?,updated_at=? WHERE id=? AND ${ownerColumn}=? AND status='pending'`).bind(nextStatus,now,tradeId,member.email),
-      notification(db,notifyEmail,"trade",action === "trade.decline" ? `${member.displayName}さんがトレードを辞退しました` : `${member.displayName}さんがトレード申請を取り消しました`,"フレンド画面でトレード状況を確認できます",now),
-    ]);
+    await db.prepare(`UPDATE trades SET status=?,updated_at=? WHERE id=? AND ${ownerColumn}=? AND status='pending'`).bind(nextStatus,now,tradeId,member.email).run();
     return Response.json({ ok:true });
   }
   return Response.json({ error:"操作を確認してください" },{ status:400 });

@@ -10,7 +10,6 @@ export type PurgePreview = {
   packOpenings:number;
   friendRelations:number;
   trades:number;
-  notifications:number;
   pointsTotal:number;
 };
 export type PurgeTarget = { email:string;role:string;avatarKey:string|null;googleLinked:number };
@@ -37,7 +36,7 @@ export async function getPurgePreview(emails:string[]):Promise<PurgePreview> {
   const marks=placeholders(emails.length);
   const db=getRawDb();
   const bind=(sql:string,repeats=1) => db.prepare(sql.replaceAll("__EMAILS__",marks)).bind(...Array.from({ length:repeats },() => emails).flat());
-  const [users,cards,openings,friends,trades,notifications]=await Promise.all([
+  const [users,cards,openings,friends,trades]=await Promise.all([
     bind(`SELECT COUNT(*) AS userCount,COALESCE(SUM(u.points),0) AS pointsTotal,
       COALESCE(SUM(CASE WHEN gi.user_email IS NULL THEN 0 ELSE 1 END),0) AS googleLinkedCount
       FROM users u LEFT JOIN google_identities gi ON gi.user_email=u.email WHERE u.email IN (__EMAILS__)`).first<{ userCount:number;pointsTotal:number;googleLinkedCount:number }>(),
@@ -47,7 +46,6 @@ export async function getPurgePreview(emails:string[]):Promise<PurgePreview> {
       (SELECT COUNT(*) FROM pack_claims WHERE user_email IN (__EMAILS__)) AS total`,2).first<{ total:number }>(),
     bind("SELECT COUNT(*) AS total FROM friendships WHERE user_a_email IN (__EMAILS__) OR user_b_email IN (__EMAILS__)",2).first<{ total:number }>(),
     bind("SELECT COUNT(*) AS total FROM trades WHERE proposer_email IN (__EMAILS__) OR recipient_email IN (__EMAILS__)",2).first<{ total:number }>(),
-    bind("SELECT COUNT(*) AS total FROM notifications WHERE user_email IN (__EMAILS__)").first<{ total:number }>(),
   ]);
   return {
     userCount:Number(users?.userCount ?? 0),
@@ -56,7 +54,6 @@ export async function getPurgePreview(emails:string[]):Promise<PurgePreview> {
     packOpenings:Number(openings?.total ?? 0),
     friendRelations:Number(friends?.total ?? 0),
     trades:Number(trades?.total ?? 0),
-    notifications:Number(notifications?.total ?? 0),
     pointsTotal:Number(users?.pointsTotal ?? 0),
   };
 }

@@ -15,12 +15,12 @@ const rootPaths=new Set(items.map((item)=>item.href));
 
 export default function BottomNavigation() {
   const pathname = usePathname();
-  const { dashboard, unreadCount,activeRoot,selectRoot } = useAppData();
+  const { dashboard,activeRoot,selectRoot } = useAppData();
   if (!rootPaths.has(pathname as typeof items[number]["href"])) return null;
   return <nav className="network-nav app-bottom-navigation" aria-label="メインナビゲーション">
     {items.map((item) => {
       const Icon = item.icon;
-      const badge = item.href === "/collection" ? dashboard?.collection.length : item.href === "/menu" ? unreadCount : 0;
+      const badge = item.href === "/collection" ? dashboard?.collection.length : 0;
       const active=activeRoot===item.href;
       return <Link key={item.href} href={item.href} prefetch onClick={()=>selectRoot(item.href)} className={active ? "is-active" : ""} aria-current={active ? "page" : undefined}>
         <Icon aria-hidden="true" />
