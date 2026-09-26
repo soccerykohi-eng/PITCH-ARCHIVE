@@ -6,6 +6,7 @@ import { getRawDb } from "@/db";
 type Rarity="CORE"|"RARE"|"ELITE"|"ICON";
 
 const RARITIES:Set<string>=new Set<Rarity>(["CORE","RARE","ELITE","ICON"]);
+const CARD_SCHEMAS=new Set(["pitch-archive-card-v1","pitch-archive-card-v2"]);
 
 function safeCardId(value:unknown) {
   const normalized=String(value ?? "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,100);
@@ -18,7 +19,7 @@ function parseMeta(raw:string) {
   const end=cleaned.lastIndexOf("}");
   if (start < 0 || end < start) throw new Error("JSONが見つかりません");
   const value=JSON.parse(cleaned.slice(start,end+1));
-  if (value.schema && value.schema !== "pitch-archive-card-v1") throw new Error("schemaは pitch-archive-card-v1 にしてください");
+  if (value.schema && !CARD_SCHEMAS.has(String(value.schema))) throw new Error("schemaは pitch-archive-card-v2 にしてください（旧v1も使用できます）");
   if (!String(value.name ?? "").trim()) throw new Error("JSONに選手名 name がありません");
   const position=String(value.position ?? "").trim().toUpperCase().slice(0,40);
   const country=String(value.country ?? "").trim().slice(0,60);
