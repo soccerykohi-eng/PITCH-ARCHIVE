@@ -60,7 +60,7 @@ export default function SettingsPageClient() {
       <div className="profile-name-field"><label htmlFor="profile-name">名前</label><Input id="profile-name" maxLength={24} value={name} disabled={busy} onChange={(event) => setName(event.target.value)} /><small>{name.trim().length} / 24文字</small></div>
       <Button className="profile-save" disabled={busy || !name.trim()} onClick={() => void save()}>{busy ? "保存中…" : "変更を保存"}</Button>
     </div></section>
-    <section className="route-settings-section"><h2>アカウント</h2><div className="account-security-settings"><div><KeyRound /><span><strong>Googleアカウント</strong><small>{linked ? "連携済み" : "未連携"}</small></span></div>{linked ? <p>{email}</p> : member.role === "player" ? <a href="/api/auth/google/start?mode=link">Googleアカウントを連携</a> : <p>運営アカウントの連携は管理画面から行えます。</p>}</div><Link className="settings-row-link" href="/settings/safety">プライバシー・安全 <span>›</span></Link><button className="settings-logout" type="button" disabled={busy} onClick={() => void logout()}>ログアウト</button></section>
+    <section className="route-settings-section"><h2>アカウント</h2><div className="account-security-settings"><div><KeyRound /><span><strong>Googleアカウント</strong><small>{linked ? "連携済み" : "未連携"}</small></span></div>{linked ? <p>{email}</p> : member.role === "player" ? <a href="/api/auth/google/start?mode=link">Googleアカウントを連携</a> : <p>運営アカウントの連携は管理画面から行えます。</p>}</div><button className="settings-logout" type="button" disabled={busy} onClick={() => void logout()}>ログアウト</button></section>
     {notice ? <p className="route-notice" role="status">{notice}</p> : null}
   </main>;
 }

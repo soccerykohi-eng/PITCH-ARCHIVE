@@ -1603,11 +1603,6 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
                 </span>
                 <ChevronRight />
               </button>
-              <button type="button" onClick={() => router.push("/settings/safety")}>
-                <ShieldCheck />
-                <span><strong>プライバシー・安全</strong><small>ブロック中のユーザーとフレンドID</small></span>
-                <ChevronRight />
-              </button>
               {isAdmin ? (
                 <button
                   type="button"
