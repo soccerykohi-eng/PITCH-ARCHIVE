@@ -29,6 +29,10 @@ test("links and restores players by Google sub without changing player data", ()
   assert.match(adminSession,/createAdminSessionToken/);
 });
 
+test("uses the shared Google entry point for the linked admin identity", () => {
+  assert.match(callback,/admin_google_identities/);assert.match(callback,/createAdminSessionToken/);assert.match(callback,/ADMIN_SESSION_COOKIE/);
+});
+
 test("removes SimpleWebAuthn runtime dependencies and does not store OAuth tokens", () => {
   const dependencies=JSON.parse(pkg).dependencies;
   assert.equal(dependencies["@simplewebauthn/server"],undefined);assert.equal(dependencies["@simplewebauthn/browser"],undefined);
