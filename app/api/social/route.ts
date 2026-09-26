@@ -100,8 +100,6 @@ export async function POST(request:Request) {
     const target=await db.prepare("SELECT email FROM users WHERE email=? AND status='approved'").bind(targetEmail).first();
     if (!target) return Response.json({ error:"参加者が見つかりません" },{ status:404 });
     const [userA,userB]=pair(member.email,targetEmail);
-    const blocked=await db.prepare("SELECT 1 FROM blocks WHERE (blocker_email=? AND blocked_email=?) OR (blocker_email=? AND blocked_email=?)").bind(member.email,targetEmail,targetEmail,member.email).first();
-    if (blocked) return Response.json({ error:"この参加者とはフレンド操作ができません" },{ status:403 });
     if (action === "friend.request") {
       const existing=await db.prepare("SELECT status FROM friendships WHERE user_a_email=? AND user_b_email=?").bind(userA,userB).first();
       if (existing) return Response.json({ error:"すでに申請またはフレンド登録されています" },{ status:409 });
@@ -129,8 +127,6 @@ export async function POST(request:Request) {
     const requestedCardId=String(body?.requestedCardId ?? "");
     if (!targetEmail || !offeredCardId || !requestedCardId || offeredCardId === requestedCardId) return Response.json({ error:"交換するカードを確認してください" },{ status:400 });
     const [userA,userB]=pair(member.email,targetEmail);
-    const blocked=await db.prepare("SELECT 1 FROM blocks WHERE (blocker_email=? AND blocked_email=?) OR (blocker_email=? AND blocked_email=?)").bind(member.email,targetEmail,targetEmail,member.email).first();
-    if (blocked) return Response.json({ error:"この参加者とはトレードできません" },{ status:403 });
     const friendship=await db.prepare("SELECT status FROM friendships WHERE user_a_email=? AND user_b_email=? AND status='accepted'").bind(userA,userB).first();
     if (!friendship) return Response.json({ error:"フレンドとのみ交換できます" },{ status:403 });
     const [offeredOwned,requestedOwned,alreadyRequested,alreadyOwned]=await Promise.all([
