@@ -798,7 +798,7 @@ function AdminPack({
                     rows={7}
                     value={json}
                     onChange={(event) => setJson(event.target.value)}
-                    placeholder={'{"schema":"pitch-archive-card-v1", ...}'}
+                    placeholder={'{"schema":"pitch-archive-card-v2", ...}'}
                   />
                   {json.trim() ? (
                     <div

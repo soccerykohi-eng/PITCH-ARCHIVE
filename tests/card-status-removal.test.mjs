@@ -39,3 +39,14 @@ test("accepts rarity directly and keeps legacy DB columns internal", async () =>
   assert.match(upload, /'LEGACY','—'/);
   assert.match(upload, /rarity=excluded\.rarity,series=excluded\.series/);
 });
+
+test("uses card schema v2 while accepting legacy v1 input", async () => {
+  const [upload, app] = await Promise.all([
+    readFile(new URL("app/api/admin/packs/[id]/cards/route.ts", root), "utf8"),
+    readFile(new URL("app/archive-app.tsx", root), "utf8"),
+  ]);
+  assert.match(upload, /pitch-archive-card-v1/);
+  assert.match(upload, /pitch-archive-card-v2/);
+  assert.match(upload, /CARD_SCHEMAS\.has/);
+  assert.match(app, /"schema":"pitch-archive-card-v2"/);
+});
