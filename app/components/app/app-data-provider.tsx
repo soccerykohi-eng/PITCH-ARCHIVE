@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { Dashboard } from "../../dashboard-types";
 
@@ -19,11 +19,9 @@ type AppData = {
   initializing: boolean;
   refreshing: boolean;
   error: string;
-  unreadCount: number;
   activeRoot: RootPath|null;
   selectRoot: (path:RootPath) => void;
   refreshDashboard: () => Promise<Dashboard | null>;
-  refreshNotifications: () => Promise<void>;
 };
 
 const AppDataContext = createContext<AppData | null>(null);
@@ -33,7 +31,6 @@ export function AppDataProvider({ children,initialDashboard }: { children: React
   const [dashboard, setDashboard] = useState(initialDashboard);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
-  const [unreadCount, setUnreadCount] = useState(0);
   const [optimisticRoot,setOptimisticRoot]=useState<RootPath|null>(null);
   const currentRoot=rootPath(pathname);
   if(optimisticRoot===currentRoot)setOptimisticRoot(null);
@@ -59,21 +56,7 @@ export function AppDataProvider({ children,initialDashboard }: { children: React
     }
   }, []);
 
-  const refreshNotifications = useCallback(async () => {
-    const response = await fetch("/api/notifications", { cache: "no-store" });
-    if (!response.ok) return;
-    const result = (await response.json()) as { unreadCount?: number };
-    setUnreadCount(result.unreadCount ?? 0);
-  }, []);
-
-  useEffect(() => {
-    if (dashboard?.session.status !== "approved") return;
-    const initialTimer = window.setTimeout(() => void refreshNotifications(), 0);
-    const timer = window.setInterval(() => void refreshNotifications(), 30000);
-    return () => { window.clearTimeout(initialTimer);window.clearInterval(timer); };
-  }, [dashboard?.session.status, refreshNotifications]);
-
-  const value = useMemo(() => ({ dashboard, initializing:false, refreshing, error, unreadCount, activeRoot, selectRoot:setOptimisticRoot, refreshDashboard, refreshNotifications }), [dashboard, refreshing, error, unreadCount, activeRoot, refreshDashboard, refreshNotifications]);
+  const value = useMemo(() => ({ dashboard, initializing:false, refreshing, error, activeRoot, selectRoot:setOptimisticRoot, refreshDashboard }), [dashboard, refreshing, error, activeRoot, refreshDashboard]);
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }
 

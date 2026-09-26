@@ -22,7 +22,6 @@ export type PackView = {
   openLimit:number;
   publishAt:number | null;
   endAt:number | null;
-  notificationMessage:string;
   cards:SharedCard[];
 };
 

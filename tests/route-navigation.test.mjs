@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 const app=await readFile(new URL("../app/archive-app.tsx",import.meta.url),"utf8");
@@ -13,16 +13,18 @@ test("exposes real root and standalone utility routes",async()=>{
     const page=await readFile(new URL(`../app/(player)/${route}/page.tsx`,import.meta.url),"utf8");
     assert.match(page,/ArchiveRoutePage/);
   }
-  for(const route of ["notifications","exchange","settings","settings/safety"]){
+  for(const route of ["exchange","settings","settings/safety"]){
     const page=await readFile(new URL(`../app/(player)/${route}/page.tsx`,import.meta.url),"utf8");
     assert.doesNotMatch(page,/ArchiveRoutePage|ArchiveApp|DialogContent|Portal/);
     assert.match(page,/PageClient/);
   }
-  for(const view of ["notifications-page-client","exchange-page-client","settings-page-client","safety-page-client"]){
+  for(const view of ["exchange-page-client","settings-page-client","safety-page-client"]){
     const source=await readFile(new URL(`../app/components/${view}.tsx`,import.meta.url),"utf8");
     assert.doesNotMatch(source,/Dialog|DialogContent|Portal|position:\s*fixed/);
     assert.match(source,/className="route-page"/);
   }
+  await assert.rejects(access(new URL("../app/(player)/notifications/page.tsx",import.meta.url)));
+  await assert.rejects(access(new URL("../app/components/notifications-page-client.tsx",import.meta.url)));
   for(const path of ["/packs","/collection","/friends","/menu"]){
     assert.match(nav,new RegExp(path.replaceAll("/","\\/")));
   }

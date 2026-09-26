@@ -24,7 +24,6 @@ export async function PATCH(request:Request) {
   if (status === "approved") {
     await db.batch([
       db.prepare("UPDATE users SET status = ? WHERE email = ? AND role = 'player'").bind(status,email),
-      db.prepare("INSERT INTO notifications (id,user_email,type,title,message,destination,created_at) VALUES (?,?,'account',?,?, 'packs',?)").bind(crypto.randomUUID(),email,"参加が承認されました","PITCH ARCHIVEを利用できるようになりました",Date.now()),
       auditStatement(db,member.email,"user.status","user",email,status),
     ]);
   } else await db.batch([db.prepare("UPDATE users SET status = ? WHERE email = ? AND role = 'player'").bind(status,email),auditStatement(db,member.email,"user.status","user",email,status)]);

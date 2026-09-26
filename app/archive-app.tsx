@@ -37,7 +37,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Bell,
   ChevronLeft,
   ChevronRight,
   LibraryBig,
@@ -66,7 +65,6 @@ type PurgePreview = {
   packOpenings:number;
   friendRelations:number;
   trades:number;
-  notifications:number;
   pointsTotal:number;
 };
 export type RootRoute="/packs" | "/collection" | "/friends" | "/friends/requests" | "/friends/trades" | "/menu";
@@ -403,9 +401,6 @@ function AdminPack({
   const [openLimitInput, setOpenLimitInput] = useState(
     String(pack.openLimit || 1),
   );
-  const [notificationMessage, setNotificationMessage] = useState(
-    pack.notificationMessage || pack.name,
-  );
   const [catalogSearch, setCatalogSearch] = useState("");
   const imagePreview = useMemo(
     () => (image ? URL.createObjectURL(image) : ""),
@@ -558,7 +553,6 @@ function AdminPack({
             ? Date.now() + 7 * 24 * 60 * 60 * 1000
             : new Date(endAtInput).getTime(),
         openLimit: Number(openLimitInput),
-        notificationMessage,
       }),
     });
     const result = await response.json();
@@ -939,16 +933,6 @@ function AdminPack({
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <label htmlFor={`pack-notice-${pack.id}`}>公開通知</label>
-              <Input
-                id={`pack-notice-${pack.id}`}
-                maxLength={120}
-                value={notificationMessage}
-                onChange={(event) => setNotificationMessage(event.target.value)}
-                placeholder={pack.name}
-              />
-            </div>
             <Button
               onClick={() => void changeReleaseStatus("scheduled")}
               disabled={!publishAtInput || !endAtInput}
@@ -1062,7 +1046,7 @@ function AdminPack({
 
 export default function ArchiveApp({ initialTab="packs",initialSocialView="friends" }: { initialTab?:"packs"|"collection"|"social"|"menu";initialSocialView?:"friends"|"requests"|"trades" }) {
   const router = useRouter();
-  const { dashboard, unreadCount, activeRoot,refreshDashboard } = useAppData();
+  const { dashboard, activeRoot,refreshDashboard } = useAppData();
   const routeTab=activeRoot==="/collection"?"collection":activeRoot==="/friends"?"social":activeRoot==="/menu"?"menu":activeRoot==="/packs"?"packs":initialTab;
   const [cardCatalog, setCardCatalog] = useState<CatalogCard[]>([]);
   const [notice, setNotice] = useState("");
@@ -1611,22 +1595,6 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
               onNotice={setNotice}
             />
             <p className="menu-section-label">ACCOUNT</p><div className="menu-list">
-              <button
-                type="button"
-                onClick={() => {
-                  router.push("/notifications");
-                }}
-              >
-                <Bell />
-                <span>
-                  <strong>通知</strong>
-                  <small>ゲーム内イベントのお知らせ</small>
-                </span>
-                {unreadCount ? (
-                  <b>{unreadCount}</b>
-                ) : null}
-                <ChevronRight />
-              </button>
               <button type="button" onClick={() => router.push("/settings")}>
                 <Settings />
                 <span>
@@ -2017,7 +1985,6 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
             <span>パック開封履歴<strong>{purgePreview.packOpenings}</strong></span>
             <span>フレンド関係<strong>{purgePreview.friendRelations}</strong></span>
             <span>トレード<strong>{purgePreview.trades}</strong></span>
-            <span>通知<strong>{purgePreview.notifications}</strong></span>
             <span>所持コイン<strong>{purgePreview.pointsTotal}</strong></span>
           </div> : null}
           {purgePreview ? <div className="purge-confirmation"><label htmlFor="purge-confirmation">確認のため <strong>{`DELETE ${purgePreview.userCount} ACCOUNTS`}</strong> と入力</label><Input id="purge-confirmation" value={purgeConfirmation} onChange={(event) => setPurgeConfirmation(event.target.value)} autoComplete="off" /></div> : null}
