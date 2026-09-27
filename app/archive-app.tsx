@@ -7,7 +7,6 @@ import {
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -285,7 +284,7 @@ function PackCardCatalog({
   );
 }
 
-function DailyAndExchange({ onChanged,onNotice }: {
+function DailyBonus({ onChanged,onNotice }: {
   onChanged: () => void;
   onNotice: (message: string) => void;
 }) {
@@ -325,7 +324,7 @@ function DailyAndExchange({ onChanged,onNotice }: {
     onChanged();
   }
   return (
-    <section className="daily-exchange">
+    <section className="daily-bonus-panel">
       <div className="login-bonus-card">
         <header>
           <div>
@@ -349,14 +348,6 @@ function DailyAndExchange({ onChanged,onNotice }: {
           <small>7日目 {daily?.nextStreakReward ?? 100} COINS</small>
         </div>
       </div>
-      <Link className="exchange-entry" href="/exchange" prefetch>
-        <span>
-          <strong>カード交換所</strong>
-          <small>毎日更新される6枚から好きなカードを獲得</small>
-        </span>
-        <b>{daily?.points ?? 0} COINS</b>
-        <ChevronRight />
-      </Link>
     </section>
   );
 }
@@ -1564,7 +1555,7 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
         </TabsContent>
         <TabsContent value="menu" className="network-page">
           <section className="menu-page"><h1 className="root-page-title">メニュー</h1>
-            <p className="menu-section-label">TODAY</p><DailyAndExchange
+            <p className="menu-section-label">TODAY</p><DailyBonus
               onChanged={() => void load()}
               onNotice={setNotice}
             />

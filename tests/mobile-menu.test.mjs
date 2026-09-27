@@ -9,10 +9,10 @@ const [app,css]=await Promise.all([
 
 test("keeps primary mobile menu actions before the profile card",() => {
   const today=app.indexOf('<p className="menu-section-label">TODAY</p>');
-  const exchange=app.indexOf("<DailyAndExchange",today);
-  const settings=app.indexOf('<strong>アカウント設定</strong>',exchange);
+  const bonus=app.indexOf("<DailyBonus",today);
+  const settings=app.indexOf('<strong>アカウント設定</strong>',bonus);
   const profile=app.indexOf('<div className="menu-profile">',settings);
-  assert.ok(today>=0 && exchange>today && settings>exchange && profile>settings);
-  assert.doesNotMatch(app,/\/notifications|<Bell|unreadCount/);
+  assert.ok(today>=0 && bonus>today && settings>bonus && profile>settings);
+  assert.doesNotMatch(app,/\/notifications|<Bell|unreadCount|\/exchange|カード交換所/);
   assert.match(css,/\.menu-page>\.root-page-title\{margin-bottom:4px\}/);
 });
