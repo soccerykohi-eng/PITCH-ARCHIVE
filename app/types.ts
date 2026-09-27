@@ -19,7 +19,6 @@ export type PackView = {
   status:"draft" | "scheduled" | "published" | "archived";
   claimedCardId:string | null;
   openCount:number;
-  openLimit:number;
   publishAt:number | null;
   endAt:number | null;
   cards:SharedCard[];

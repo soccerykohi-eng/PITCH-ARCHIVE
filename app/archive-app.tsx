@@ -198,15 +198,10 @@ function PublicPack({
   onViewCards: () => void;
 }) {
   const previewCards = pack.cards.slice(0, 1);
-  const completed = pack.openCount >= pack.openLimit;
-  const remaining = Math.max(0, pack.openLimit - pack.openCount);
-  const openingStatus = completed
-    ? "開封済み"
-    : pack.openLimit === 1
-      ? "あと1回開封できます"
-      : `残り ${remaining} / ${pack.openLimit}回`;
+  const firstOpen = pack.openCount === 0;
+  const openingStatus = firstOpen ? "初回無料" : "1回 100 COINS";
   return (
-    <section className={`featured-pack ${completed ? "is-opened" : ""}`}>
+    <section className="featured-pack">
       <span className="sr-only">CURRENT PACK</span>
       <div className="pack-showcase" aria-hidden="true">
         <div className="pack-orbit" />
@@ -236,9 +231,9 @@ function PublicPack({
         </div>
       </div>
       <div className="featured-pack-actions">
-        <Button disabled={completed || !pack.cards.length} onClick={onOpen}>
+        <Button disabled={!pack.cards.length} onClick={onOpen}>
           <Sparkles size={16} />
-          {completed ? "開封済み" : "パックを開ける"}
+          {firstOpen ? "無料でパックを開ける" : "100コインでパックを開ける"}
         </Button>
         <button type="button" onClick={onViewCards}>
           収録カードを見る
@@ -398,9 +393,6 @@ function AdminPack({
   const [endAtInput, setEndAtInput] = useState(
     localDateTimeValue(Date.now() + 8 * 24 * 60 * 60 * 1000),
   );
-  const [openLimitInput, setOpenLimitInput] = useState(
-    String(pack.openLimit || 1),
-  );
   const [catalogSearch, setCatalogSearch] = useState("");
   const imagePreview = useMemo(
     () => (image ? URL.createObjectURL(image) : ""),
@@ -552,7 +544,6 @@ function AdminPack({
           next === "published"
             ? Date.now() + 7 * 24 * 60 * 60 * 1000
             : new Date(endAtInput).getTime(),
-        openLimit: Number(openLimitInput),
       }),
     });
     const result = await response.json();
@@ -917,21 +908,6 @@ function AdminPack({
                 value={endAtInput}
                 onChange={(event) => setEndAtInput(event.target.value)}
               />
-            </div>
-            <div>
-              <label htmlFor={`open-limit-${pack.id}`}>
-                1人あたりの無料開封回数
-              </label>
-              <Select value={openLimitInput} onValueChange={setOpenLimitInput}>
-                <SelectTrigger id={`open-limit-${pack.id}`}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">1回</SelectItem>
-                  <SelectItem value="2">2回</SelectItem>
-                  <SelectItem value="3">3回</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             <Button
               onClick={() => void changeReleaseStatus("scheduled")}
@@ -1382,9 +1358,7 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
                 </div>
                 <span>
                   {packView === "active"
-                    ? publishedPacks.filter(
-                        (pack) => pack.openCount < pack.openLimit,
-                      ).length
+                    ? publishedPacks.length
                     : archivedPacks.length}
                   <small>{packView === "active" ? "READY" : "PACKS"}</small>
                 </span>
