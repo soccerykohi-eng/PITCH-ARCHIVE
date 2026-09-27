@@ -1056,6 +1056,9 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
     setActiveTab(routeTab);
     setSocialSubpageOpen(false);
   }
+  useEffect(() => {
+    router.prefetch("/settings");
+  }, [router]);
   const load = useCallback(async () => {
     const result = await refreshDashboard();
     if (result?.session.role === "admin") {
