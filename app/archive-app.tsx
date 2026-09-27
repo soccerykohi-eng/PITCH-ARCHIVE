@@ -38,6 +38,7 @@ import {
 import {
   ChevronLeft,
   ChevronRight,
+  Coins,
   LibraryBig,
   KeyRound,
   PackageOpen,
@@ -1350,11 +1351,10 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
                   </p>
                   <h1>{packView === "active" ? "パック" : "過去パック"}</h1>
                 </div>
-                <span>
-                  {packView === "active"
-                    ? publishedPacks.length
-                    : archivedPacks.length}
-                  <small>{packView === "active" ? "READY" : "PACKS"}</small>
+                <span className="pack-balance" aria-label={`所持コイン ${dashboard.session.points}`}>
+                  <Coins aria-hidden="true" />
+                  <strong>{dashboard.session.points.toLocaleString("ja-JP")}</strong>
+                  <small>COINS</small>
                 </span>
               </section>
               <Tabs

@@ -12,6 +12,9 @@ test("presents packs with focused Japanese opening states", () => {
   assert.match(app, /firstOpen \? "無料でパックを開ける" : "100コインでパックを開ける"/);
   assert.match(app, /収録カードを見る/);
   assert.match(app, /<h1>\{packView === "active" \? "パック" : "過去パック"\}<\/h1>/);
+  assert.match(app, /className="pack-balance"/);
+  assert.match(app, /dashboard\.session\.points\.toLocaleString\("ja-JP"\)/);
+  assert.match(css, /packs-heading>\.pack-balance/);
 });
 
 test("fits the active mobile pack screen to the usable viewport", () => {
