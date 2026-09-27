@@ -37,6 +37,8 @@ test("exposes real root and standalone utility routes",async()=>{
   assert.match(playerLayout,/BottomNavigation/);
   assert.match(provider,/refreshDashboard/);
   assert.match(provider,/optimisticRoot/);
+  assert.match(provider,/optimisticRoot\?\.from===pathname/);
+  assert.doesNotMatch(provider,/if\s*\(optimisticRoot===currentRoot\)/);
   assert.match(nav,/onClick=\{\(\)=>selectRoot\(item\.href\)\}/);
   assert.doesNotMatch(routePage,/<ArchiveApp key=\{route\}/);
   assert.match(app,/activeRouteTab !== routeTab/);

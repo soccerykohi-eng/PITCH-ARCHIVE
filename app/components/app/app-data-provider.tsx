@@ -31,10 +31,10 @@ export function AppDataProvider({ children,initialDashboard }: { children: React
   const [dashboard, setDashboard] = useState(initialDashboard);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
-  const [optimisticRoot,setOptimisticRoot]=useState<RootPath|null>(null);
+  const [optimisticRoot,setOptimisticRoot]=useState<{ from:string;to:RootPath }|null>(null);
   const currentRoot=rootPath(pathname);
-  if(optimisticRoot===currentRoot)setOptimisticRoot(null);
-  const activeRoot=optimisticRoot??currentRoot;
+  const activeRoot=optimisticRoot?.from===pathname ? optimisticRoot.to : currentRoot;
+  const selectRoot=useCallback((path:RootPath) => setOptimisticRoot({ from:pathname,to:path }),[pathname]);
 
   const refreshDashboard = useCallback(async () => {
     setRefreshing(true);
@@ -56,7 +56,7 @@ export function AppDataProvider({ children,initialDashboard }: { children: React
     }
   }, []);
 
-  const value = useMemo(() => ({ dashboard, initializing:false, refreshing, error, activeRoot, selectRoot:setOptimisticRoot, refreshDashboard }), [dashboard, refreshing, error, activeRoot, refreshDashboard]);
+  const value = useMemo(() => ({ dashboard, initializing:false, refreshing, error, activeRoot, selectRoot, refreshDashboard }), [dashboard, refreshing, error, activeRoot, selectRoot, refreshDashboard]);
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }
 
