@@ -656,6 +656,69 @@ body { background:radial-gradient(circle at 50% -20%,#253018 0,transparent 38%),
 
 /* Phase 4R-3: packs */
 .pack-section-title{max-width:860px;margin:4px auto 12px;font-size:20px;font-weight:700}.featured-pack{border:0;background:transparent;box-shadow:none}.pack-showcase{background:transparent}.pack-orbit{opacity:.28}.featured-pack-copy{text-align:center}.featured-pack-copy h2{font-size:clamp(26px,7vw,34px)}.featured-pack-status{justify-content:center;border:0;background:transparent;text-align:center}.featured-pack-status span{font-size:15px}.featured-pack-actions>button:last-child{border:0;background:transparent}.past-packs{padding:0;border:0;background:transparent}.past-pack-list>button{border:0;border-bottom:1px solid var(--pa-border);border-radius:0;background:transparent}.pack-catalog-header>div{flex:1;min-width:0;justify-content:flex-start;text-align:left}.pack-catalog-header h1{text-align:left}.pack-catalog-header span{color:var(--pa-text-2)}
+
+/* Fit the active pack experience into the usable phone viewport. */
+@media (max-width:767px) {
+  .network-shell:has(.network-page:not(.is-past-pack-view) .packs-heading) {
+    height:100dvh;min-height:100svh;overflow:hidden;
+    padding-bottom:calc(84px + env(safe-area-inset-bottom));
+  }
+  .network-shell:has(.network-page:not(.is-past-pack-view) .packs-heading) .network-tabs {
+    height:100%;min-height:0;
+  }
+  .network-page:has(.packs-heading):not(.is-past-pack-view) {
+    height:100%;min-height:0;display:flex;overflow:hidden;flex-direction:column;padding-top:clamp(6px,1.4dvh,12px);
+  }
+  .network-page:not(.is-past-pack-view) .packs-heading {
+    min-height:0;flex:0 0 auto;margin-bottom:clamp(5px,1.2dvh,10px);
+  }
+  .network-page:not(.is-past-pack-view) .packs-heading h1 {
+    font-size:clamp(23px,3.7dvh,28px);
+  }
+  .network-page:not(.is-past-pack-view) .pack-view-tabs {
+    min-height:0;display:flex;flex:1;flex-direction:column;
+  }
+  .network-page:not(.is-past-pack-view) .pack-view-switch {
+    min-height:0;flex:0 0 auto;height:clamp(42px,6.2dvh,48px);margin-bottom:clamp(5px,1.2dvh,10px);
+  }
+  .network-page:not(.is-past-pack-view) .pack-view-switch button {
+    min-height:0;height:100%;
+  }
+  .network-page:not(.is-past-pack-view) .pack-view-content[data-state="active"] {
+    min-height:0;display:flex;flex:1;flex-direction:column;
+  }
+  .network-page:not(.is-past-pack-view) .pack-section-title { display:none; }
+  .network-page:not(.is-past-pack-view) .featured-pack-rail {
+    min-height:0;display:grid;flex:1;align-items:stretch;padding-top:0;padding-bottom:clamp(4px,1dvh,8px);
+  }
+  .network-page:not(.is-past-pack-view) .featured-pack {
+    height:100%;min-height:0;max-height:100%;gap:clamp(4px,.9dvh,8px);padding:clamp(9px,1.5dvh,14px) 13px;
+  }
+  .network-page:not(.is-past-pack-view) .pack-showcase {
+    min-height:110px;height:auto;max-height:none;flex:1 1 auto;
+  }
+  .network-page:not(.is-past-pack-view) .pack-showcase img {
+    width:min(39vw,clamp(118px,22dvh,176px));max-height:100%;
+  }
+  .network-page:not(.is-past-pack-view) .pack-orbit {
+    width:clamp(150px,27dvh,220px);height:clamp(150px,27dvh,220px);
+  }
+  .network-page:not(.is-past-pack-view) .featured-pack-copy h2 {
+    font-size:clamp(22px,3.8dvh,30px);line-height:1;
+  }
+  .network-page:not(.is-past-pack-view) .featured-pack-status {
+    min-height:clamp(32px,5dvh,42px);padding:5px 10px;
+  }
+  .network-page:not(.is-past-pack-view) .featured-pack-status span { font-size:clamp(11px,1.8dvh,14px); }
+  .network-page:not(.is-past-pack-view) .featured-pack-actions {
+    grid-template-columns:1.25fr 1fr;gap:6px;
+  }
+  .network-page:not(.is-past-pack-view) .featured-pack-actions>button,
+  .network-page:not(.is-past-pack-view) .featured-pack-actions>button:last-child {
+    min-height:clamp(40px,5.8dvh,46px);font-size:clamp(9px,1.5dvh,11px);
+  }
+  .network-page:not(.is-past-pack-view) .rail-hint { display:none; }
+}
 @media(max-width:767px){.featured-pack{padding:6px 0 18px}.pack-showcase{height:min(42svh,340px)}.pack-showcase img{width:min(56vw,220px)}.featured-pack-status{min-height:auto;padding:2px}.featured-pack-actions{margin-top:4px}.featured-pack-actions>button:first-child{min-height:52px;font-size:15px}.featured-pack-actions>button:last-child{font-size:14px}.pack-catalog-header{top:0}.pack-catalog-header>div{align-items:flex-start!important;justify-content:flex-start!important;text-align:left!important}.past-pack-list strong{font-size:15px}.past-pack-list small{font-size:12px}}
 
 /* Phase 4R-4: collection */
