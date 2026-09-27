@@ -656,6 +656,10 @@ body { background:radial-gradient(circle at 50% -20%,#253018 0,transparent 38%),
 
 /* Phase 4R-3: packs */
 .pack-section-title{max-width:860px;margin:4px auto 12px;font-size:20px;font-weight:700}.featured-pack{border:0;background:transparent;box-shadow:none}.pack-showcase{background:transparent}.pack-orbit{opacity:.28}.featured-pack-copy{text-align:center}.featured-pack-copy h2{font-size:clamp(26px,7vw,34px)}.featured-pack-status{justify-content:center;border:0;background:transparent;text-align:center}.featured-pack-status span{font-size:15px}.featured-pack-actions>button:last-child{border:0;background:transparent}.past-packs{padding:0;border:0;background:transparent}.past-pack-list>button{border:0;border-bottom:1px solid var(--pa-border);border-radius:0;background:transparent}.pack-catalog-header>div{flex:1;min-width:0;justify-content:flex-start;text-align:left}.pack-catalog-header h1{text-align:left}.pack-catalog-header span{color:var(--pa-text-2)}
+.packs-heading>.pack-balance { display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:0 12px;border:1px solid color-mix(in srgb,var(--pa-accent) 24%,transparent);border-radius:999px;background:color-mix(in srgb,var(--pa-accent) 7%,var(--pa-surface-1));color:var(--pa-accent);font-size:inherit;white-space:nowrap; }
+.packs-heading>.pack-balance svg { width:18px;height:18px;stroke-width:2; }
+.packs-heading>.pack-balance strong { font-size:16px;font-variant-numeric:tabular-nums;letter-spacing:-.02em; }
+.packs-heading>.pack-balance small { color:var(--pa-text-2);font-size:8px;line-height:1;letter-spacing:.08em;writing-mode:horizontal-tb; }
 
 /* Fit the active pack experience into the usable phone viewport. */
 @media (max-width:767px) {
@@ -672,6 +676,12 @@ body { background:radial-gradient(circle at 50% -20%,#253018 0,transparent 38%),
   .network-page:not(.is-past-pack-view) .packs-heading {
     min-height:0;flex:0 0 auto;margin-bottom:clamp(5px,1.2dvh,10px);
   }
+  .packs-heading>.pack-balance {
+    min-height:34px;padding-inline:10px;gap:6px;
+  }
+  .packs-heading>.pack-balance svg { width:16px;height:16px; }
+  .packs-heading>.pack-balance strong { font-size:14px; }
+  .packs-heading>.pack-balance small { font-size:7px; }
   .network-page:not(.is-past-pack-view) .packs-heading h1 {
     font-size:clamp(23px,3.7dvh,28px);
   }
