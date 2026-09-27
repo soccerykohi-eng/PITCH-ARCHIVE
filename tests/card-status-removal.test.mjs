@@ -9,7 +9,6 @@ test("removes legacy card status fields from UI, types, and API output", async (
     "app/types.ts",
     "app/server-data.ts",
     "app/api/admin/cards/route.ts",
-    "app/api/exchange/route.ts",
     "app/api/social/route.ts",
   ].map((path) => readFile(new URL(path, root), "utf8")));
   const [types, ...apiSources] = files;
