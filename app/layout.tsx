@@ -30,5 +30,10 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }:Readonly<{ children:React.ReactNode }>) {
-  return <html lang="ja"><body>{children}</body></html>;
+  return <html lang="ja"><body>
+    {children}
+    <div className="portrait-orientation-guard" role="status" aria-live="polite">
+      <div><span aria-hidden="true">↻</span><strong>端末を縦向きにしてください</strong><p>PITCH ARCHIVEは縦画面でプレイできます。</p></div>
+    </div>
+  </body></html>;
 }
