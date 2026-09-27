@@ -14,6 +14,15 @@ test("presents packs with focused Japanese opening states", () => {
   assert.match(app, /<h1>\{packView === "active" \? "パック" : "過去パック"\}<\/h1>/);
 });
 
+test("fits the active mobile pack screen to the usable viewport", () => {
+  assert.match(css, /network-shell:has\(\.network-page:not\(\.is-past-pack-view\) \.packs-heading\)/);
+  assert.match(css, /height:100dvh;min-height:100svh;overflow:hidden/);
+  assert.match(css, /padding-bottom:calc\(84px \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(css, /pack-view-content\[data-state="active"\][\s\S]*?flex:1/);
+  assert.match(css, /pack-showcase[\s\S]*?flex:1 1 auto/);
+  assert.match(css, /featured-pack-actions[\s\S]*?grid-template-columns:1\.25fr 1fr/);
+});
+
 test("makes the first draw free and charges 100 coins for repeat draws", async () => {
   const claim = await readFile(new URL("../app/api/packs/[id]/claim/route.ts", import.meta.url), "utf8");
   assert.match(claim, /const REOPEN_COST=100/);
