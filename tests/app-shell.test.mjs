@@ -56,7 +56,11 @@ test("keeps the four player routes, persistent shell, PWA setup, and current adm
   assert.doesNotMatch(app, /参加者・パック・お知らせを管理/);
   assert.match(app, /参加者・パック・操作ログを管理/);
   assert.equal(manifest.display, "standalone");
+  assert.equal(manifest.orientation, "portrait-primary");
   assert.equal(manifest.icons.length, 2);
   assert.match(layout, /userScalable: false/);
   assert.match(layout, /appleWebApp:/);
+  assert.match(layout, /portrait-orientation-guard/);
+  assert.match(css, /@media \(orientation:landscape\) and \(hover:none\) and \(pointer:coarse\)/);
+  assert.match(css, /端末を縦向きにしてください|portrait-orientation-guard/);
 });
