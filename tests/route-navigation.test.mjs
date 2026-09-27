@@ -42,6 +42,7 @@ test("exposes real root and standalone utility routes",async()=>{
   assert.match(nav,/onClick=\{\(\)=>selectRoot\(item\.href\)\}/);
   assert.doesNotMatch(routePage,/<ArchiveApp key=\{route\}/);
   assert.match(app,/activeRouteTab !== routeTab/);
+  assert.match(app,/router\.prefetch\("\/settings"\)/);
   assert.doesNotMatch(`${app}\n${nav}`,/window\.location\.assign|location\.href/);
   assert.doesNotMatch(app,/アーカイブを読み込んでいます/);
   for(const removed of ["initialRoute","notificationsOpen","settingsOpen","safetyOpen"])assert.doesNotMatch(app,new RegExp(removed));
