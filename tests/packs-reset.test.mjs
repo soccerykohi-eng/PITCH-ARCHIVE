@@ -11,8 +11,8 @@ test("keeps packs focused on the current release",()=>{
   assert.doesNotMatch(app,/PITCH ARCHIVE RELEASE/);
 });
 
-test("uses one card image as pack artwork without changing claim behavior",()=>{
-  assert.match(app,/pack\.cards\.slice\(0, 1\)/);assert.match(app,/setClaim\(pack\)/);assert.match(app,/PackOpeningExperience/);
+test("uses an included-card carousel without changing claim behavior",()=>{
+  assert.match(app,/pack-card-carousel/);assert.match(app,/setCardIndex/);assert.match(app,/setClaim\(pack\)/);assert.match(app,/PackOpeningExperience/);
 });
 
 test("keeps the catalog as a native pack subpage",()=>{

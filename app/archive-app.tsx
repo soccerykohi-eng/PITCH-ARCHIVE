@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
@@ -197,23 +198,55 @@ function PublicPack({
   onOpen: () => void;
   onViewCards: () => void;
 }) {
-  const previewCards = pack.cards.slice(0, 1);
+  const [cardIndex, setCardIndex] = useState(0);
+  const swipeStart = useRef<number | null>(null);
+  const cardCount = pack.cards.length;
+  const changeCard = (offset: number) => {
+    if (cardCount < 2) return;
+    setCardIndex((index) => (index + offset + cardCount) % cardCount);
+  };
+  const carouselCards = cardCount < 2
+    ? pack.cards.map((card) => ({ card, position:"center" as const }))
+    : [
+        { card:pack.cards[(cardIndex - 1 + cardCount) % cardCount],position:"left" as const },
+        { card:pack.cards[cardIndex % cardCount],position:"center" as const },
+        { card:pack.cards[(cardIndex + 1) % cardCount],position:"right" as const },
+      ];
   const firstOpen = pack.openCount === 0;
   const openingStatus = firstOpen ? "初回無料" : "1回 100 COINS";
   return (
     <section className="featured-pack">
       <span className="sr-only">CURRENT PACK</span>
-      <div className="pack-showcase" aria-hidden="true">
+      <div
+        className="pack-showcase pack-card-carousel"
+        role="group"
+        aria-label={`${pack.name}の収録カード`}
+        onPointerDown={(event) => {
+          event.stopPropagation();
+          swipeStart.current=event.clientX;
+          event.currentTarget.setPointerCapture(event.pointerId);
+        }}
+        onPointerUp={(event) => {
+          event.stopPropagation();
+          const start=swipeStart.current;
+          swipeStart.current=null;
+          if (start === null) return;
+          const distance=event.clientX-start;
+          if (Math.abs(distance) >= 32) changeCard(distance < 0 ? 1 : -1);
+        }}
+        onPointerCancel={() => { swipeStart.current=null; }}
+      >
         <div className="pack-orbit" />
-        {previewCards.length ? (
-          previewCards.map((card, index) => (
+        {carouselCards.length ? (
+          carouselCards.map(({ card,position }) => (
             <img
-              key={card.id}
+              key={`${position}-${card.id}`}
+              className={`pack-carousel-card is-${position}`}
               src={card.imageUrl}
-              alt=""
+              alt={position === "center" ? card.name : ""}
+              aria-hidden={position !== "center"}
               loading="lazy"
               decoding="async"
-              style={{ "--card-index": index } as React.CSSProperties}
             />
           ))
         ) : (
@@ -221,6 +254,11 @@ function PublicPack({
             <PackageOpen size={42} />
           </div>
         )}
+        {cardCount > 1 ? <>
+          <button type="button" className="pack-carousel-control is-previous" aria-label="前の収録カード" onClick={(event) => { event.stopPropagation();changeCard(-1); }}><ChevronLeft /></button>
+          <button type="button" className="pack-carousel-control is-next" aria-label="次の収録カード" onClick={(event) => { event.stopPropagation();changeCard(1); }}><ChevronRight /></button>
+          <span className="pack-carousel-count" aria-live="polite">{cardIndex + 1} / {cardCount}</span>
+        </> : null}
       </div>
       <div className="featured-pack-copy">
         <h2>{pack.name}</h2>

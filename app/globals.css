@@ -660,6 +660,20 @@ body { background:radial-gradient(circle at 50% -20%,#253018 0,transparent 38%),
 .packs-heading>.pack-balance svg { width:18px;height:18px;stroke-width:2; }
 .packs-heading>.pack-balance strong { font-size:16px;font-variant-numeric:tabular-nums;letter-spacing:-.02em; }
 .packs-heading>.pack-balance small { color:var(--pa-text-2);font-size:8px;line-height:1;letter-spacing:.08em;writing-mode:horizontal-tb; }
+.pack-card-carousel { touch-action:pan-y;user-select:none;cursor:grab; }
+.pack-card-carousel:active { cursor:grabbing; }
+.pack-showcase .pack-carousel-card { transition:transform .28s var(--pa-ease),filter .28s var(--pa-ease),opacity .28s var(--pa-ease);pointer-events:none; }
+.pack-showcase .pack-carousel-card.is-center { z-index:4;transform:translateY(-4px) scale(1.08);filter:none;opacity:1; }
+.pack-showcase .pack-carousel-card.is-left { z-index:2;transform:translateX(-42%) scale(.72) rotateY(22deg);filter:brightness(.5) saturate(.75);opacity:.75; }
+.pack-showcase .pack-carousel-card.is-right { z-index:2;transform:translateX(42%) scale(.72) rotateY(-22deg);filter:brightness(.5) saturate(.75);opacity:.75; }
+.featured-pack:hover .pack-showcase .pack-carousel-card.is-center { transform:translateY(-8px) scale(1.1); }
+.featured-pack:hover .pack-showcase .pack-carousel-card.is-left { transform:translateX(-44%) scale(.72) rotateY(22deg); }
+.featured-pack:hover .pack-showcase .pack-carousel-card.is-right { transform:translateX(44%) scale(.72) rotateY(-22deg); }
+.pack-carousel-control { position:absolute;z-index:8;top:50%;width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--pa-border);border-radius:50%;background:rgba(12,14,12,.78);color:var(--pa-text-1);transform:translateY(-50%);backdrop-filter:blur(12px); }
+.pack-carousel-control.is-previous { left:4px; }
+.pack-carousel-control.is-next { right:4px; }
+.pack-carousel-control svg { width:17px;height:17px; }
+.pack-carousel-count { position:absolute;z-index:8;bottom:3px;left:50%;padding:4px 8px;border-radius:999px;background:rgba(12,14,12,.78);color:var(--pa-text-2);font-size:9px;font-weight:800;line-height:1;transform:translateX(-50%);backdrop-filter:blur(12px); }
 
 /* Fit the active pack experience into the usable phone viewport. */
 @media (max-width:767px) {
@@ -710,6 +724,10 @@ body { background:radial-gradient(circle at 50% -20%,#253018 0,transparent 38%),
   .network-page:not(.is-past-pack-view) .pack-showcase img {
     width:min(39vw,clamp(118px,22dvh,176px));max-height:100%;
   }
+  .network-page:not(.is-past-pack-view) .pack-showcase .pack-carousel-card.is-center {
+    width:min(52vw,clamp(150px,27dvh,220px));
+  }
+  .pack-carousel-control { width:34px;height:34px; }
   .network-page:not(.is-past-pack-view) .pack-orbit {
     width:clamp(150px,27dvh,220px);height:clamp(150px,27dvh,220px);
   }
