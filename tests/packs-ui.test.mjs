@@ -26,6 +26,17 @@ test("fits the active mobile pack screen to the usable viewport", () => {
   assert.match(css, /featured-pack-actions[\s\S]*?grid-template-columns:1\.25fr 1fr/);
 });
 
+test("cycles enlarged included cards inside each pack showcase", () => {
+  assert.doesNotMatch(app, /pack\.cards\.slice\(0, 1\)/);
+  assert.match(app, /className="pack-showcase pack-card-carousel"/);
+  assert.match(app, /setCardIndex\(\(index\) => \(index \+ offset \+ cardCount\) % cardCount\)/);
+  assert.match(app, /Math\.abs\(distance\) >= 32/);
+  assert.match(app, /前の収録カード/);
+  assert.match(app, /次の収録カード/);
+  assert.match(css, /pack-carousel-card\.is-center[\s\S]*?scale\(1\.08\)/);
+  assert.match(css, /touch-action:pan-y/);
+});
+
 test("makes the first draw free and charges 100 coins for repeat draws", async () => {
   const claim = await readFile(new URL("../app/api/packs/[id]/claim/route.ts", import.meta.url), "utf8");
   assert.match(claim, /const REOPEN_COST=100/);
