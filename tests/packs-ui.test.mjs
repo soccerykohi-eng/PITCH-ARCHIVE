@@ -8,11 +8,23 @@ const opening = await readFile(new URL("../app/components/pack-opening-experienc
 
 test("presents packs with focused Japanese opening states", () => {
   assert.match(app, /CURRENT PACK/);
-  assert.match(app, /あと1回開封できます/);
-  assert.match(app, /`残り \$\{remaining\} \/ \$\{pack\.openLimit\}回`/);
-  assert.match(app, /\? "開封済み" : "パックを開ける"/);
+  assert.match(app, /firstOpen \? "初回無料" : "1回 100 COINS"/);
+  assert.match(app, /firstOpen \? "無料でパックを開ける" : "100コインでパックを開ける"/);
   assert.match(app, /収録カードを見る/);
   assert.match(app, /<h1>\{packView === "active" \? "パック" : "過去パック"\}<\/h1>/);
+});
+
+test("makes the first draw free and charges 100 coins for repeat draws", async () => {
+  const claim = await readFile(new URL("../app/api/packs/[id]/claim/route.ts", import.meta.url), "utf8");
+  assert.match(claim, /const REOPEN_COST=100/);
+  assert.match(claim, /const paid=\(count\?\.total \?\? 0\)>0/);
+  assert.match(claim, /UPDATE users SET points=points-\?/);
+  assert.match(claim, /points>=\?/);
+  assert.match(claim, /INSERT INTO pack_claims/);
+  assert.match(claim, /INSERT INTO pack_openings/);
+  assert.match(claim, /quantity=collection\.quantity\+1/);
+  assert.doesNotMatch(claim, /開封上限/);
+  assert.match(opening, /pack\.openCount === 0 \? "無料で開封" : "100コインで開封"/);
 });
 
 test("keeps pack claiming behavior in one native full-screen state machine", () => {

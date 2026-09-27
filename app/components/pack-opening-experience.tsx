@@ -97,12 +97,12 @@ export default function PackOpeningExperience({ pack,onClaimed,onClose,onViewCol
             <div className="native-pack" style={{ transform:phase === "ready" ? `translateX(${swipeDistance}px) scale(${1+swipeDistance/1800})` : undefined }}>
               <div className="native-pack-top"><span>PA</span><small>FOOTBALL CARD</small></div>
               {pack.cards[0] ? <img src={pack.cards[0].imageUrl} alt="" /> : null}
-              <div className="native-pack-bottom"><strong>{pack.name}</strong><small>1 RANDOM CARD</small></div>
+              <div className="native-pack-bottom"><strong>{pack.name}</strong><small>{pack.openCount === 0 ? "FIRST PACK FREE" : "100 COINS · 1 RANDOM CARD"}</small></div>
               <i aria-hidden="true" />
             </div>
           </div>
           <div className="native-swipe-guide" aria-hidden="true"><span>SWIPE TO OPEN</span><i><b style={{ width:`${Math.min(100,swipeDistance/THRESHOLD*100)}%` }} /></i><em>→</em></div>
-          {phase === "opening" ? <p className="pack-opening-wait">OPENING...</p> : <button type="button" className="pack-opening-accessible-action" onClick={() => void openPack()}>右へスワイプして開封</button>}
+          {phase === "opening" ? <p className="pack-opening-wait">OPENING...</p> : <button type="button" className="pack-opening-accessible-action" onClick={() => void openPack()}>{pack.openCount === 0 ? "無料で開封" : "100コインで開封"}</button>}
         </> : null}
         {resultCard ? <div className="pack-opening-result">
           <div className="native-revealed-card"><img src={resultCard.imageUrl} alt={`${resultCard.name}のカード`} /></div>

@@ -6,7 +6,8 @@ const app=await readFile(new URL("../app/archive-app.tsx",import.meta.url),"utf8
 const styles=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");
 
 test("keeps packs focused on the current release",()=>{
-  assert.match(app,/現在のパック/);assert.match(app,/残り \$\{remaining\} \/ \$\{pack\.openLimit\}回/);assert.match(app,/パックを開ける/);assert.match(app,/収録カードを見る/);
+  assert.match(app,/現在のパック/);assert.match(app,/初回無料/);assert.match(app,/100コインでパックを開ける/);assert.match(app,/収録カードを見る/);
+  assert.doesNotMatch(app,/pack\.openLimit|openLimitInput|無料開封回数/);
   assert.doesNotMatch(app,/PITCH ARCHIVE RELEASE/);
 });
 
