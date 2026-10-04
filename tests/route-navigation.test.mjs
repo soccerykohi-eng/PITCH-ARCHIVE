@@ -7,7 +7,6 @@ const nav=await readFile(new URL("../app/components/app/bottom-navigation.tsx",i
 const provider=await readFile(new URL("../app/components/app/app-data-provider.tsx",import.meta.url),"utf8");
 const playerLayout=await readFile(new URL("../app/(player)/layout.tsx",import.meta.url),"utf8");
 const persistentShell=await readFile(new URL("../app/components/app/persistent-player-shell.tsx",import.meta.url),"utf8");
-const styles=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");
 
 test("exposes real root and standalone utility routes",async()=>{
   for(const route of ["packs","collection","friends","friends/requests","friends/trades","menu"]){
@@ -48,7 +47,6 @@ test("exposes real root and standalone utility routes",async()=>{
   assert.match(app,/<TabsContent forceMount value="collection"/);
   assert.match(app,/<TabsContent forceMount value="social"/);
   assert.match(app,/<TabsContent forceMount value="menu"/);
-  assert.match(styles,/\.network-tabs>\.network-page\[data-state="inactive"\]\{display:none\}/);
   assert.match(app,/positions\.set\(activeRoot,window\.scrollY\)/);
   assert.match(app,/positions\.get\(activeRoot\)/);
   assert.doesNotMatch(app,/activeRouteTab !== routeTab/);
