@@ -1,2 +1,1 @@
-import ArchiveRoutePage from "../../archive-route-page";
-export default function MenuPage(){ return <ArchiveRoutePage route="/menu" />; }
+export default function MenuPage(){ return null; }

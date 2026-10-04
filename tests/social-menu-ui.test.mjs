@@ -36,5 +36,6 @@ test("mobile subpages hide bottom navigation and respect safe area",()=>{
 });
 
 test("friend and trade tabs remain directly routable",()=>{
-  assert.match(archive,/initialView=\{initialSocialView\}/);
+  assert.match(archive,/key=\{socialRouteView\}/);
+  assert.match(archive,/initialView=\{socialRouteView\}/);
 });

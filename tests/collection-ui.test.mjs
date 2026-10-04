@@ -9,7 +9,7 @@ const [app,viewer,css]=await Promise.all([
 ]);
 
 test("uses one collection tab without collection rewards",() => {
-  assert.equal((app.match(/<TabsContent value="collection"/g) ?? []).length,1);
+  assert.equal((app.match(/<TabsContent forceMount value="collection"/g) ?? []).length,1);
   assert.doesNotMatch(app,/CollectionMilestones/);
   assert.doesNotMatch(app,/\/api\/collection-milestones/);
 });
