@@ -6,13 +6,12 @@ const app=await readFile(new URL("../app/archive-app.tsx",import.meta.url),"utf8
 const nav=await readFile(new URL("../app/components/app/bottom-navigation.tsx",import.meta.url),"utf8");
 const provider=await readFile(new URL("../app/components/app/app-data-provider.tsx",import.meta.url),"utf8");
 const playerLayout=await readFile(new URL("../app/(player)/layout.tsx",import.meta.url),"utf8");
-const persistentShell=await readFile(new URL("../app/components/app/persistent-player-shell.tsx",import.meta.url),"utf8");
+const routePage=await readFile(new URL("../app/archive-route-page.tsx",import.meta.url),"utf8");
 
 test("exposes real root and standalone utility routes",async()=>{
   for(const route of ["packs","collection","friends","friends/requests","friends/trades","menu"]){
     const page=await readFile(new URL(`../app/(player)/${route}/page.tsx`,import.meta.url),"utf8");
-    assert.match(page,/return null/);
-    assert.doesNotMatch(page,/ArchiveRoutePage|ArchiveApp/);
+    assert.match(page,/ArchiveRoutePage/);
   }
   for(const route of ["settings"]){
     const page=await readFile(new URL(`../app/(player)/${route}/page.tsx`,import.meta.url),"utf8");
@@ -35,21 +34,14 @@ test("exposes real root and standalone utility routes",async()=>{
   }
   assert.match(playerLayout,/AppDataProvider/);
   assert.match(playerLayout,/initialDashboard=\{dashboard\}/);
-  assert.match(playerLayout,/PersistentPlayerShell/);
-  assert.match(persistentShell,/<BottomNavigation \/>/);
-  assert.match(persistentShell,/<ArchiveApp \/>/);
-  assert.match(persistentShell,/playerRoots\.has\(pathname\)/);
+  assert.match(playerLayout,/BottomNavigation/);
   assert.match(provider,/refreshDashboard/);
   assert.match(provider,/optimisticRoot/);
   assert.match(provider,/optimisticRoot\?\.from===pathname/);
   assert.doesNotMatch(provider,/if\s*\(optimisticRoot===currentRoot\)/);
   assert.match(nav,/onClick=\{\(\)=>selectRoot\(item\.href\)\}/);
-  assert.match(app,/<TabsContent forceMount value="collection"/);
-  assert.match(app,/<TabsContent forceMount value="social"/);
-  assert.match(app,/<TabsContent forceMount value="menu"/);
-  assert.match(app,/positions\.set\(activeRoot,window\.scrollY\)/);
-  assert.match(app,/positions\.get\(activeRoot\)/);
-  assert.doesNotMatch(app,/activeRouteTab !== routeTab/);
+  assert.doesNotMatch(routePage,/<ArchiveApp key=\{route\}/);
+  assert.match(app,/activeRouteTab !== routeTab/);
   assert.match(app,/router\.prefetch\("\/settings"\)/);
   assert.doesNotMatch(`${app}\n${nav}`,/window\.location\.assign|location\.href/);
   assert.doesNotMatch(app,/アーカイブを読み込んでいます/);
