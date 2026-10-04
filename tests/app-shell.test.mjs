@@ -6,6 +6,7 @@ const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8
 const app = await readFile(new URL("../app/archive-app.tsx", import.meta.url), "utf8");
 const nav = await readFile(new URL("../app/components/app/bottom-navigation.tsx", import.meta.url), "utf8");
 const playerLayout = await readFile(new URL("../app/(player)/layout.tsx", import.meta.url), "utf8");
+const persistentShell = await readFile(new URL("../app/components/app/persistent-player-shell.tsx", import.meta.url), "utf8");
 const layout = await readFile(new URL("../app/layout.tsx", import.meta.url), "utf8");
 const manifest = JSON.parse(
   await readFile(new URL("../public/site.webmanifest", import.meta.url), "utf8"),
@@ -53,6 +54,8 @@ test("keeps the four player routes, persistent shell, PWA setup, and current adm
     assert.match(nav, new RegExp(`href: "${route}"`));
   }
   assert.match(playerLayout, /AppDataProvider/);
+  assert.match(playerLayout, /PersistentPlayerShell/);
+  assert.match(persistentShell, /<ArchiveApp \/>/);
   assert.doesNotMatch(app, /参加者・パック・お知らせを管理/);
   assert.match(app, /参加者・パック・操作ログを管理/);
   assert.equal(manifest.display, "standalone");

@@ -5,6 +5,7 @@ import test from "node:test";
 const app=await readFile(new URL("../app/archive-app.tsx",import.meta.url),"utf8");
 const nav=await readFile(new URL("../app/components/app/bottom-navigation.tsx",import.meta.url),"utf8");
 const playerLayout=await readFile(new URL("../app/(player)/layout.tsx",import.meta.url),"utf8");
+const persistentShell=await readFile(new URL("../app/components/app/persistent-player-shell.tsx",import.meta.url),"utf8");
 const styles=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");
 
 test("removes the shared brand header from the root app shell",()=>{
@@ -16,7 +17,8 @@ test("removes the shared brand header from the root app shell",()=>{
 test("keeps exactly four player root navigation destinations",()=>{
   assert.equal((nav.match(/href: "/g)??[]).length,4);
   for(const route of ["/packs","/collection","/friends","/menu"])assert.match(nav,new RegExp(`href: "${route}"`));
-  assert.match(playerLayout,/<BottomNavigation \/>/);
+  assert.match(playerLayout,/PersistentPlayerShell/);
+  assert.match(persistentShell,/<BottomNavigation \/>/);
 });
 
 test("keeps detail states separate from the persistent route navigation",()=>{
