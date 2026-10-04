@@ -643,6 +643,7 @@ body { background:radial-gradient(circle at 50% -20%,#253018 0,transparent 38%),
 
 /* Phase 4R-A: persistent player shell and route-aware navigation */
 .player-app-shell{min-height:100dvh;background:var(--pa-bg)}
+.network-tabs>.network-page[data-state="inactive"]{display:none}
 .app-bottom-navigation a{position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:15px;color:var(--pa-text-3);font-weight:800;letter-spacing:.02em;text-decoration:none;transition:color var(--pa-motion-normal) var(--pa-ease),background var(--pa-motion-normal) var(--pa-ease),transform var(--pa-motion-fast) var(--pa-ease)}
 .app-bottom-navigation a:active{transform:scale(.97)}
 .app-bottom-navigation a:focus-visible{outline:2px solid var(--pa-accent);outline-offset:2px}
