@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,7 +55,7 @@ import AdminOperations from "./admin-operations";
 import AdminCardLibrary, { type CatalogCard } from "./admin-card-library";
 import PackOpeningExperience from "./components/pack-opening-experience";
 import CollectionCardViewer from "./components/collection-card-viewer";
-import { useAppData, type RootPath } from "./components/app/app-data-provider";
+import { useAppData } from "./components/app/app-data-provider";
 import type { DashboardUser } from "./dashboard-types";
 
 type UserView = DashboardUser;
@@ -1050,12 +1050,10 @@ function AdminPack({
   );
 }
 
-export default function ArchiveApp() {
+export default function ArchiveApp({ initialTab="packs",initialSocialView="friends" }: { initialTab?:"packs"|"collection"|"social"|"menu";initialSocialView?:"friends"|"requests"|"trades" }) {
   const router = useRouter();
-  const pathname = usePathname();
-  const { dashboard, activeRoot,selectRoot,refreshDashboard } = useAppData();
-  const routeTab=activeRoot==="/collection"?"collection":activeRoot==="/friends"?"social":activeRoot==="/menu"?"menu":"packs";
-  const socialRouteView=pathname==="/friends/requests"?"requests":pathname==="/friends/trades"?"trades":"friends";
+  const { dashboard, activeRoot,refreshDashboard } = useAppData();
+  const routeTab=activeRoot==="/collection"?"collection":activeRoot==="/friends"?"social":activeRoot==="/menu"?"menu":activeRoot==="/packs"?"packs":initialTab;
   const [cardCatalog, setCardCatalog] = useState<CatalogCard[]>([]);
   const [notice, setNotice] = useState("");
   const [packName, setPackName] = useState("");
@@ -1089,21 +1087,14 @@ export default function ArchiveApp() {
   const [googleLinked, setGoogleLinked] = useState<boolean | null>(null);
   const [adminGoogleLinked, setAdminGoogleLinked] = useState<boolean | null>(null);
   const [managedUser, setManagedUser] = useState<UserView | null>(null);
-  const [adminRoot, setAdminRoot] = useState<RootPath | null>(null);
+  const [activeTab, setActiveTab] = useState<string>(routeTab);
+  const [activeRouteTab, setActiveRouteTab] = useState(routeTab);
   const [socialSubpageOpen, setSocialSubpageOpen] = useState(false);
-  const rootScrollPositions = useRef(new Map<RootPath, number>());
-  const activeTab=adminRoot===activeRoot?"admin":routeTab;
-  useEffect(() => {
-    if (!activeRoot) return;
-    const positions=rootScrollPositions.current;
-    const frame=window.requestAnimationFrame(() => {
-      window.scrollTo({ top:positions.get(activeRoot) ?? 0,behavior:"auto" });
-    });
-    return () => {
-      window.cancelAnimationFrame(frame);
-      positions.set(activeRoot,window.scrollY);
-    };
-  }, [activeRoot]);
+  if (activeRouteTab !== routeTab) {
+    setActiveRouteTab(routeTab);
+    setActiveTab(routeTab);
+    setSocialSubpageOpen(false);
+  }
   useEffect(() => {
     router.prefetch("/settings");
   }, [router]);
@@ -1372,13 +1363,12 @@ export default function ArchiveApp() {
       : dashboard.collection;
 
   return (
-    <main className={`network-shell ${(routeTab==="social" && socialSubpageOpen) || (routeTab==="packs" && viewingPack) || (routeTab==="collection" && selectedCard) || claim ? "has-native-subpage" : ""}`}>
+    <main className={`network-shell ${socialSubpageOpen || viewingPack || selectedCard || claim ? "has-native-subpage" : ""}`}>
       <Tabs
         value={activeTab}
         className="network-tabs"
       >
         <TabsContent
-          forceMount
           value="packs"
           className={`network-page ${packView === "past" && !viewingPack ? "is-past-pack-view" : ""}`}
         >
@@ -1500,7 +1490,7 @@ export default function ArchiveApp() {
             </>
           )}
         </TabsContent>
-        <TabsContent forceMount value="collection" className="network-page">
+        <TabsContent value="collection" className="network-page">
           <section className="collection-dashboard">
             <div>
               <p className="section-kicker">MY ARCHIVE</p>
@@ -1588,23 +1578,23 @@ export default function ArchiveApp() {
               <LibraryBig size={32} />
               <strong>最初のカードを集めよう</strong>
               <p>公開パックを開けると、獲得したカードがここに並びます。</p>
-              <Button onClick={() => { selectRoot("/packs");router.push("/packs"); }}>
+              <Button onClick={() => router.push("/packs")}>
                 パックを見る
               </Button>
             </div>
           )}
         </TabsContent>
-        <TabsContent forceMount value="social" className="network-page">
+        <TabsContent value="social" className="network-page">
           <SocialPanel
-            key={socialRouteView}
+            key={initialSocialView}
             ownCards={dashboard.collection}
             onNotice={setNotice}
             onCollectionChanged={() => void load()}
             onSubpageChange={setSocialSubpageOpen}
-            initialView={socialRouteView}
+            initialView={initialSocialView}
           />
         </TabsContent>
-        <TabsContent forceMount value="menu" className="network-page">
+        <TabsContent value="menu" className="network-page">
           <section className="menu-page"><h1 className="root-page-title">メニュー</h1>
             <p className="menu-section-label">TODAY</p><DailyBonus
               onChanged={() => void load()}
@@ -1623,7 +1613,7 @@ export default function ArchiveApp() {
                 <button
                   type="button"
                   className="admin-menu-link"
-                  onClick={() => setAdminRoot(activeRoot)}
+                  onClick={() => setActiveTab("admin")}
                 >
                   <ShieldCheck />
                   <span>
@@ -1981,7 +1971,7 @@ export default function ArchiveApp() {
           {notice}
         </button>
       ) : null}
-      {claim ? <PackOpeningExperience pack={claim} onClose={() => setClaim(null)} onClaimed={(card) => { setNotice(card ? `${card.name}を獲得しました` : "カードを獲得しました");void load(); }} onViewCollection={() => { setClaim(null);selectRoot("/collection");router.push("/collection"); }} /> : null}
+      {claim ? <PackOpeningExperience pack={claim} onClose={() => setClaim(null)} onClaimed={(card) => { setNotice(card ? `${card.name}を獲得しました` : "カードを獲得しました");void load(); }} onViewCollection={() => { setClaim(null);router.push("/collection"); }} /> : null}
       <AlertDialog open={Boolean(purgePreview)} onOpenChange={(open) => { if (!open && !purgingUsers) { setPurgePreview(null);setPurgeConfirmation(""); } }}>
         <AlertDialogContent className="user-purge-dialog">
           <AlertDialogHeader>
