@@ -16,5 +16,5 @@ test("uses an included-card carousel without changing claim behavior",()=>{
 });
 
 test("keeps the catalog as a native pack subpage",()=>{
-  assert.match(app,/className="pack-catalog-page"/);assert.match(app,/>\s*パック\s*<\/button>/);assert.match(styles,/pack-catalog-header>div\{flex:1;min-width:0;justify-content:flex-start;text-align:left/);
+  assert.match(app,/className="pack-catalog-page"/);assert.match(app,/pack-catalog-back[^\n]*<NativeBackButton onClick=\{onBack\}/);assert.match(styles,/pack-catalog-header>div\{flex:1;min-width:0;justify-content:flex-start;text-align:left/);
 });
