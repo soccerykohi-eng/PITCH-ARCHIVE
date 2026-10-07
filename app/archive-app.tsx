@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import NativeBackButton from "./components/native-back-button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -295,10 +296,6 @@ function PackCardCatalog({
   return (
     <section className="pack-catalog-page">
       <header className="pack-catalog-header">
-        <button type="button" onClick={onBack}>
-          <ChevronLeft aria-hidden="true" />
-          パック
-        </button>
         <div>
           <h1>{pack.name}</h1>
           <span>{pack.cards.length} CARDS</span>
@@ -320,6 +317,7 @@ function PackCardCatalog({
           </div>
         ))}
       </div>
+      <div className="native-back-footer pack-catalog-back"><NativeBackButton onClick={onBack}/></div>
     </section>
   );
 }

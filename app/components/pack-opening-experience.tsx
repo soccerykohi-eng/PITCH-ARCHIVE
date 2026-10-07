@@ -3,6 +3,7 @@
 import { useEffect,useRef,useState,type PointerEvent as ReactPointerEvent } from "react";
 import { createPortal } from "react-dom";
 import type { PackView,SharedCard } from "../types";
+import NativeBackButton from "./native-back-button";
 
 type PackOpeningPhase="ready" | "opening" | "reveal" | "result" | "error" | "closing";
 type Props={
@@ -89,7 +90,6 @@ export default function PackOpeningExperience({ pack,onClaimed,onClose,onViewCol
   const overlay=(
     <div className={`pack-opening-overlay phase-${phase} rarity-${resultCard?.rarity.toLowerCase() ?? "core"}`} role="dialog" aria-modal="true" aria-label={`${pack.name}のパック開封`}>
       <div className="pack-opening-scene">
-        {phase === "ready" ? <button type="button" className="pack-opening-close" onClick={close} aria-label="開封画面を閉じる">×</button> : null}
         <header className="pack-opening-header"><span>PITCH ARCHIVE</span><strong>{phase === "result" ? "NEW CARD" : "PACK OPENING"}</strong></header>
         {phase === "error" ? <div className="pack-opening-error"><strong>パックを開封できませんでした</strong><p>{error}</p><button type="button" onClick={close}>戻る</button></div> : null}
         {phase !== "error" && !resultCard ? <>
@@ -102,7 +102,7 @@ export default function PackOpeningExperience({ pack,onClaimed,onClose,onViewCol
             </div>
           </div>
           <div className="native-swipe-guide" aria-hidden="true"><span>SWIPE TO OPEN</span><i><b style={{ width:`${Math.min(100,swipeDistance/THRESHOLD*100)}%` }} /></i><em>→</em></div>
-          {phase === "opening" ? <p className="pack-opening-wait">OPENING...</p> : <button type="button" className="pack-opening-accessible-action" onClick={() => void openPack()}>{pack.openCount === 0 ? "無料で開封" : "100コインで開封"}</button>}
+          {phase === "opening" ? <p className="pack-opening-wait">OPENING...</p> : <div className="pack-opening-controls"><NativeBackButton onClick={close}/><button type="button" className="pack-opening-accessible-action" onClick={() => void openPack()}>{pack.openCount === 0 ? "無料で開封" : "100コインで開封"}</button></div>}
         </> : null}
         {resultCard ? <div className="pack-opening-result">
           <div className="native-revealed-card"><img src={resultCard.imageUrl} alt={`${resultCard.name}のカード`} /></div>
