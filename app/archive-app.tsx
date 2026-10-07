@@ -40,6 +40,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Coins,
+  FileText,
   LibraryBig,
   KeyRound,
   PackageOpen,
@@ -1596,11 +1597,26 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
         </TabsContent>
         <TabsContent value="menu" className="network-page">
           <section className="menu-page"><h1 className="root-page-title">メニュー</h1>
-            <p className="menu-section-label">TODAY</p><DailyBonus
+            <button type="button" className="menu-profile" onClick={() => router.push("/settings")}>
+              {dashboard.session.avatarUrl ? (
+                <img src={dashboard.session.avatarUrl} alt="" />
+              ) : (
+                <span>{dashboard.session.displayName.slice(0, 1)}</span>
+              )}
+              <div>
+                <small>
+                  {isAdmin ? "ADMINISTRATOR" : "PITCH ARCHIVE MEMBER"}
+                </small>
+                <h2>{dashboard.session.displayName}</h2>
+                <p>{totalCardCount} cards · {dashboard.session.points} coins</p>
+              </div>
+              <ChevronRight aria-hidden="true" />
+            </button>
+            <p className="menu-section-label">今日</p><DailyBonus
               onChanged={() => void load()}
               onNotice={setNotice}
             />
-            <p className="menu-section-label">ACCOUNT</p><div className="menu-list">
+            <p className="menu-section-label">アカウント</p><div className="menu-list">
               <button type="button" onClick={() => router.push("/settings")}>
                 <Settings />
                 <span>
@@ -1609,7 +1625,35 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
                 </span>
                 <ChevronRight />
               </button>
-              {isAdmin ? (
+              {!isAdmin && googleLinked === false ? (
+                <a href="/api/auth/google/start?mode=link">
+                  <KeyRound aria-hidden="true" />
+                  <span><strong>Googleアカウントを連携</strong><small>データを保護して別の端末でも復元</small></span>
+                  <ChevronRight aria-hidden="true" />
+                </a>
+              ) : !isAdmin && googleLinked === true ? (
+                <button type="button" onClick={() => router.push("/settings")}>
+                  <KeyRound aria-hidden="true" />
+                  <span><strong>Googleアカウント</strong><small>アカウントは保護されています</small></span>
+                  <b className="menu-status">連携済み</b>
+                </button>
+              ) : null}
+              {isAdmin && adminGoogleLinked === false ? (
+                <button type="button" onClick={() => router.push("/settings")}>
+                  <KeyRound aria-hidden="true" />
+                  <span><strong>管理者Googleアカウント</strong><small>連携設定を完了してください</small></span>
+                  <ChevronRight aria-hidden="true" />
+                </button>
+              ) : isAdmin && adminGoogleLinked === true ? (
+                <button type="button" onClick={() => router.push("/settings")}>
+                  <KeyRound aria-hidden="true" />
+                  <span><strong>管理者Googleアカウント</strong><small>本人確認を設定済み</small></span>
+                  <b className="menu-status">連携済み</b>
+                </button>
+              ) : null}
+            </div>
+            {isAdmin ? <>
+              <p className="menu-section-label">運営</p><div className="menu-list">
                 <button
                   type="button"
                   className="admin-menu-link"
@@ -1623,40 +1667,9 @@ export default function ArchiveApp({ initialTab="packs",initialSocialView="frien
                   {pendingUsers.length ? <b>{pendingUsers.length}</b> : null}
                   <ChevronRight />
                 </button>
-              ) : null}
-            </div>
-            <div className="menu-profile">
-              {dashboard.session.avatarUrl ? (
-                <img src={dashboard.session.avatarUrl} alt="" />
-              ) : (
-                <span>{dashboard.session.displayName.slice(0, 1)}</span>
-              )}
-              <div>
-                <small>
-                  {isAdmin ? "ADMINISTRATOR" : "PITCH ARCHIVE MEMBER"}
-                </small>
-                <h2>{dashboard.session.displayName}</h2>
-                <p>{totalCardCount} cards · {dashboard.session.points} coins</p>
               </div>
-            </div>
-            {!isAdmin && googleLinked === false ? (
-              <section className="account-protection-card">
-                <KeyRound aria-hidden="true" />
-                <div>
-                  <strong>このアカウントを保護</strong>
-                  <p>Googleアカウントを連携すると、ブラウザのデータを消してもこのアカウントに戻れます。</p>
-                </div>
-                <a href="/api/auth/google/start?mode=link">Googleアカウントを連携</a>
-              </section>
-            ) : null}
-            {isAdmin && adminGoogleLinked === false ? (
-              <section className="account-protection-card">
-                <KeyRound aria-hidden="true" />
-                <div><strong>管理者Googleアカウントを連携してください</strong><p>次回以降の運営ログインは、Google本人確認とアクセスキーの2段階になります。</p></div>
-                <button type="button" onClick={() => router.push("/settings")}>連携設定を開く</button>
-              </section>
-            ) : null}
-            <p className="menu-section-label">ABOUT</p><a className="menu-policy-link" href="/privacy">プライバシーポリシー <ChevronRight /></a>
+            </> : null}
+            <p className="menu-section-label">その他</p><div className="menu-list"><a href="/privacy"><FileText aria-hidden="true" /><span><strong>プライバシーポリシー</strong></span><ChevronRight aria-hidden="true" /></a></div>
           </section>
         </TabsContent>
         {isAdmin ? (
