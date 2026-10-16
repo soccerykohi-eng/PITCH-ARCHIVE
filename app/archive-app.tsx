@@ -73,7 +73,6 @@ type PurgePreview = {
 export type RootRoute="/packs" | "/collection" | "/friends" | "/friends/requests" | "/friends/trades" | "/menu";
 
 const CARD_IMAGE_MAX_SIDE = 1200;
-const UPLOAD_TARGET_BYTES = 250 * 1024;
 const UPLOAD_CHUNK_BYTES = 160 * 1024;
 const MAX_PUBLISHED_PACKS = 3;
 const USERS_PER_PAGE = 6;
@@ -106,34 +105,21 @@ async function optimizeCardImage(file: File) {
     1,
     CARD_IMAGE_MAX_SIDE / Math.max(bitmap.width, bitmap.height),
   );
-  let width = Math.max(1, Math.round(bitmap.width * initialScale));
-  let height = Math.max(1, Math.round(bitmap.height * initialScale));
+  const width = Math.max(1, Math.round(bitmap.width * initialScale));
+  const height = Math.max(1, Math.round(bitmap.height * initialScale));
   let output: Blob | null = null;
   try {
-    while (true) {
-      canvas.width = width;
-      canvas.height = height;
-      const context = canvas.getContext("2d", { alpha: false });
-      if (!context) throw new Error("画像を処理できませんでした");
-      context.imageSmoothingEnabled = true;
-      context.imageSmoothingQuality = "high";
-      context.fillStyle = "#090a09";
-      context.fillRect(0, 0, width, height);
-      context.drawImage(bitmap, 0, 0, width, height);
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d", { alpha: false });
+    if (!context) throw new Error("画像を処理できませんでした");
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+    context.fillStyle = "#090a09";
+    context.fillRect(0, 0, width, height);
+    context.drawImage(bitmap, 0, 0, width, height);
 
-      for (const quality of [0.82, 0.76, 0.7, 0.64, 0.58]) {
-        output = await canvasBlob(canvas, "image/webp", quality);
-        if (output.size <= UPLOAD_TARGET_BYTES) break;
-      }
-      if (!output) throw new Error("画像を圧縮できませんでした");
-      if (
-        output.size <= UPLOAD_TARGET_BYTES ||
-        Math.max(width, height) <= 480
-      )
-        break;
-      width = Math.max(1, Math.round(width * 0.85));
-      height = Math.max(1, Math.round(height * 0.85));
-    }
+    output = await canvasBlob(canvas, "image/webp", 0.85);
   } finally {
     bitmap.close();
   }
